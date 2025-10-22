@@ -329,6 +329,68 @@ function DashboardView({ timelineEvents, tasks, liveUpdates, progressPercentage,
         </div>
       </div>
 
+      {/* REACT POWER: Stunning Property Card */}
+      <div className="property-card">
+        <div className="property-header">
+          <div className="property-avatar">
+            <div className="house-icon">🏠</div>
+            <div className="property-status">Active</div>
+          </div>
+          <div className="property-main-info">
+            <div className="property-price">£{property.purchasePrice.toLocaleString()}</div>
+            <div className="property-address">{property.address}</div>
+            <div className="property-details">
+              <span className="property-type">3 Bed • 2 Bath</span>
+              <span className="property-size">1,200 sq ft</span>
+            </div>
+          </div>
+        </div>
+        
+        <div className="property-timeline">
+          <div className="timeline-item">
+            <div className="timeline-icon completed">✅</div>
+            <div className="timeline-content">
+              <div className="timeline-title">Offer Accepted</div>
+              <div className="timeline-date">8 Oct 2025</div>
+            </div>
+          </div>
+          <div className="timeline-item">
+            <div className="timeline-icon active">⏳</div>
+            <div className="timeline-content">
+              <div className="timeline-title">With Solicitors</div>
+              <div className="timeline-date">In Progress</div>
+            </div>
+          </div>
+          <div className="timeline-item">
+            <div className="timeline-icon pending">○</div>
+            <div className="timeline-content">
+              <div className="timeline-title">Completion</div>
+              <div className="timeline-date">{new Date(property.expectedCompletion).toLocaleDateString()}</div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="property-stats">
+          <div className="stat-item">
+            <div className="stat-label">Days Remaining</div>
+            <div className="stat-value">{Math.ceil((new Date(property.expectedCompletion) - new Date()) / (1000 * 60 * 60 * 24))}</div>
+          </div>
+          <div className="stat-item">
+            <div className="stat-label">Market Value</div>
+            <div className="stat-value">£{Math.floor(property.purchasePrice * 0.95).toLocaleString()}</div>
+          </div>
+          <div className="stat-item">
+            <div className="stat-label">Price/sq ft</div>
+            <div className="stat-value">£{Math.floor(property.purchasePrice / 1200)}</div>
+          </div>
+        </div>
+        
+        <div className="property-actions">
+          <button className="action-btn primary">View Details</button>
+          <button className="action-btn secondary">Share Update</button>
+        </div>
+      </div>
+
       <div className="grid-2">
         <div className="card">
           <h3>Recent Activity</h3>
