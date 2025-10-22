@@ -39,6 +39,54 @@ const useLocalStorage = (key, defaultValue) => {
   return [value, setStoredValue];
 };
 
+// Data export/import functions
+const exportData = () => {
+  const data = {
+    timelineEvents: JSON.parse(localStorage.getItem('hc.timelineEvents') || '[]'),
+    parties: JSON.parse(localStorage.getItem('hc.parties') || '[]'),
+    tasks: JSON.parse(localStorage.getItem('hc.tasks') || '[]'),
+    messages: JSON.parse(localStorage.getItem('hc.messages') || '[]'),
+    property: JSON.parse(localStorage.getItem('hc.property') || '{}')
+  };
+  
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'homeclear-data.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
+
+const importData = () => {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  input.onchange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (data.timelineEvents) localStorage.setItem('hc.timelineEvents', JSON.stringify(data.timelineEvents));
+          if (data.parties) localStorage.setItem('hc.parties', JSON.stringify(data.parties));
+          if (data.tasks) localStorage.setItem('hc.tasks', JSON.stringify(data.tasks));
+          if (data.messages) localStorage.setItem('hc.messages', JSON.stringify(data.messages));
+          if (data.property) localStorage.setItem('hc.property', JSON.stringify(data.property));
+          window.location.reload();
+        } catch (error) {
+          alert('Invalid JSON file');
+        }
+      };
+      reader.readAsText(file);
+    }
+  };
+  input.click();
+};
+
 // Main App Component
 function App() {
   const [currentView, setCurrentView] = useState('dashboard');
@@ -771,53 +819,5 @@ function TradespeopleView() { return <div className="view"><h1>Find Tradespeople
 function ChecklistView() { return <div className="view"><h1>Move-In Checklist</h1></div>; }
 
 // Export/Import functions
-const exportData = () => {
-  const data = {
-    timelineEvents: JSON.parse(localStorage.getItem('hc.timelineEvents') || '[]'),
-    parties: JSON.parse(localStorage.getItem('hc.parties') || '[]'),
-    tasks: JSON.parse(localStorage.getItem('hc.tasks') || '[]'),
-    messages: JSON.parse(localStorage.getItem('hc.messages') || '[]'),
-    property: JSON.parse(localStorage.getItem('hc.property') || '{}'),
-    exportedAt: new Date().toISOString()
-  };
-  
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `homeclear-data-${new Date().toISOString().slice(0, 10)}.json`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-};
-
-const importData = () => {
-  const input = document.createElement('input');
-  input.type = 'file';
-  input.accept = '.json';
-  input.onchange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const data = JSON.parse(e.target.result);
-          if (data.timelineEvents) localStorage.setItem('hc.timelineEvents', JSON.stringify(data.timelineEvents));
-          if (data.parties) localStorage.setItem('hc.parties', JSON.stringify(data.parties));
-          if (data.tasks) localStorage.setItem('hc.tasks', JSON.stringify(data.tasks));
-          if (data.messages) localStorage.setItem('hc.messages', JSON.stringify(data.messages));
-          if (data.property) localStorage.setItem('hc.property', JSON.stringify(data.property));
-          alert('Data imported successfully!');
-          window.location.reload();
-        } catch (error) {
-          alert('Error reading file. Please select a valid JSON file.');
-        }
-      };
-      reader.readAsText(file);
-    }
-  };
-  input.click();
-};
 
 export default App;
