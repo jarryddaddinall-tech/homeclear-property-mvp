@@ -87,7 +87,7 @@ const importData = () => {
   input.click();
 };
 
-// Main App Component
+// Main App Component - Fixed for Vercel deployment
 function App() {
   const [currentView, setCurrentView] = useState('dashboard');
   const [timelineEvents, setTimelineEvents] = useLocalStorage('hc.timelineEvents', []);
