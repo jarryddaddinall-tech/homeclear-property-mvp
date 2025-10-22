@@ -260,16 +260,17 @@ function App() {
 
         {/* Main Content */}
         <main className="main-content">
-          {currentView === 'dashboard' && (
-            <DashboardView 
-              timelineEvents={timelineEvents}
-              tasks={tasks}
-              liveUpdates={liveUpdates}
-              progressPercentage={progressPercentage}
-              upcomingTasks={upcomingTasks}
-              overdueTasks={overdueTasks}
-            />
-          )}
+        {currentView === 'dashboard' && (
+          <DashboardView 
+            timelineEvents={timelineEvents}
+            tasks={tasks}
+            liveUpdates={liveUpdates}
+            progressPercentage={progressPercentage}
+            upcomingTasks={upcomingTasks}
+            overdueTasks={overdueTasks}
+            property={property}
+          />
+        )}
           {currentView === 'timeline' && <TimelineView />}
           {currentView === 'team' && <TeamView />}
           {currentView === 'fees' && <FeesView />}
@@ -292,7 +293,7 @@ function App() {
 }
 
 // Dashboard View Component - REACT POWER: Dynamic and reactive
-function DashboardView({ timelineEvents, tasks, liveUpdates, progressPercentage, upcomingTasks, overdueTasks }) {
+function DashboardView({ timelineEvents, tasks, liveUpdates, progressPercentage, upcomingTasks, overdueTasks, property }) {
   const [showLiveUpdates, setShowLiveUpdates] = useState(false);
 
   return (
