@@ -2,15 +2,15 @@
 
 /* ===== DESIGN SYSTEM ===== */
 :root {
-  /* Colors - Modern, accessible palette */
-  --color-primary: #8b5cf6;
-  --color-primary-light: #a78bfa;
-  --color-primary-dark: #7c3aed;
-  --color-secondary: #06b6d4;
+  /* Colors - Professional business palette */
+  --color-primary: #1e40af;
+  --color-primary-light: #3b82f6;
+  --color-primary-dark: #1e3a8a;
+  --color-secondary: #059669;
   --color-success: #10b981;
   --color-warning: #f59e0b;
-  --color-error: #ef4444;
-  --color-info: #3b82f6;
+  --color-error: #dc2626;
+  --color-info: #0ea5e9;
   
   /* Neutrals - Sophisticated grays */
   --color-gray-50: #f8fafc;
@@ -305,12 +305,13 @@ body {
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   text-decoration: none;
   color: var(--color-gray-600);
   font-weight: 500;
   transition: var(--transition-fast);
   position: relative;
+  min-height: 44px;
 }
 
 .nav-item:hover {
@@ -671,8 +672,8 @@ body {
   top: 0;
   left: 0;
   right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, var(--color-primary), var(--color-primary-light), var(--color-secondary));
+  height: 3px;
+  background: var(--color-primary);
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
 }
 
@@ -696,8 +697,8 @@ body {
 .house-icon {
   width: 80px;
   height: 80px;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
-  border-radius: var(--radius-xl);
+  background: var(--color-primary);
+  border-radius: var(--radius-lg);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -741,13 +742,9 @@ body {
 .property-price {
   font-size: var(--font-size-3xl);
   font-weight: 700;
-  color: var(--color-gray-900);
+  color: var(--color-primary);
   margin-bottom: var(--space-2);
   letter-spacing: -0.025em;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
 .property-address {
@@ -822,8 +819,8 @@ body {
 }
 
 .timeline-icon.pending {
-  background: var(--color-gray-300);
-  color: var(--color-gray-600);
+  background: var(--color-gray-200);
+  color: var(--color-gray-500);
 }
 
 .timeline-content {
@@ -888,8 +885,8 @@ body {
 }
 
 .action-btn {
-  padding: var(--space-3) var(--space-6);
-  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-sm);
   font-size: var(--font-size-sm);
   font-weight: 600;
   border: none;
@@ -897,6 +894,9 @@ body {
   transition: var(--transition-fast);
   position: relative;
   overflow: hidden;
+  min-height: 40px;
+  min-width: 120px;
+  justify-content: center;
 }
 
 .action-btn.primary {
@@ -929,16 +929,18 @@ body {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-sm);
   font-size: var(--font-size-sm);
-  font-weight: 500;
+  font-weight: 600;
   text-decoration: none;
   border: none;
   cursor: pointer;
   transition: var(--transition-fast);
   position: relative;
   overflow: hidden;
+  min-height: 40px;
+  justify-content: center;
 }
 
 .btn::before {
@@ -1032,7 +1034,7 @@ body {
 
 .trello-column.active {
   border-color: var(--color-primary);
-  background: #faf5ff;
+  background: #eff6ff;
   box-shadow: var(--shadow-lg);
 }
 
@@ -1107,7 +1109,7 @@ body {
 
 .trello-card.pending {
   border-left-color: var(--color-primary);
-  background: #faf5ff;
+  background: #eff6ff;
 }
 
 .card-header {
