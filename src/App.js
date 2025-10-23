@@ -692,6 +692,37 @@ function App() {
     setSidebarCollapsed(!sidebarCollapsed);
   };
 
+  // Close profile dropdown when clicking outside or pressing Escape
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showProfileDropdown && !event.target.closest('.user-profile-dropdown')) {
+        setShowProfileDropdown(false);
+      }
+    };
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        if (showProfileDropdown) {
+          setShowProfileDropdown(false);
+        }
+        if (selectedDetail) {
+          setSelectedDetail(null);
+        }
+      }
+    };
+
+    if (showProfileDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [showProfileDropdown, selectedDetail]);
+
   const mainNavigation = [
     { id: 'dashboard', label: 'Dashboard', icon: Home, type: 'main' },
     { 
@@ -734,11 +765,6 @@ function App() {
     }
   ];
 
-  const secondNavigation = [
-    { id: 'documents', label: 'Documents', icon: FileText },
-    { id: 'timeline', label: 'Timeline', icon: Clock },
-    { id: 'reports', label: 'Reports', icon: DollarSign }
-  ];
 
   return (
     <div className="app">
@@ -753,6 +779,16 @@ function App() {
             <div 
               className="user-profile" 
               onClick={() => setShowProfileDropdown(!showProfileDropdown)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setShowProfileDropdown(!showProfileDropdown);
+                }
+              }}
+              tabIndex={0}
+              role="button"
+              aria-expanded={showProfileDropdown}
+              aria-haspopup="true"
             >
               <div className="user-avatar">
                 <div className="avatar-circle">
@@ -786,6 +822,15 @@ function App() {
                     setCurrentProfile('buyer');
                     setShowProfileDropdown(false);
                   }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setCurrentProfile('buyer');
+                      setShowProfileDropdown(false);
+                    }
+                  }}
+                  tabIndex={0}
+                  role="button"
                 >
                   <div className="profile-avatar">B</div>
                   <div className="profile-info">
@@ -799,6 +844,15 @@ function App() {
                     setCurrentProfile('estate-agent');
                     setShowProfileDropdown(false);
                   }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setCurrentProfile('estate-agent');
+                      setShowProfileDropdown(false);
+                    }
+                  }}
+                  tabIndex={0}
+                  role="button"
                 >
                   <div className="profile-avatar">E</div>
                   <div className="profile-info">
@@ -812,6 +866,15 @@ function App() {
                     setCurrentProfile('project-manager');
                     setShowProfileDropdown(false);
                   }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setCurrentProfile('project-manager');
+                      setShowProfileDropdown(false);
+                    }
+                  }}
+                  tabIndex={0}
+                  role="button"
                 >
                   <div className="profile-avatar">P</div>
                   <div className="profile-info">
@@ -825,6 +888,15 @@ function App() {
                     setCurrentProfile('sourcer');
                     setShowProfileDropdown(false);
                   }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setCurrentProfile('sourcer');
+                      setShowProfileDropdown(false);
+                    }
+                  }}
+                  tabIndex={0}
+                  role="button"
                 >
                   <div className="profile-avatar">S</div>
                   <div className="profile-info">
@@ -879,39 +951,26 @@ function App() {
                       ▶
                     </span>
                   )}
-                </div>
-                
+          </div>
+          
                 {item.type === 'section' && expandedSections[item.id] && item.children && (
                   <div className="nav-subsection">
                     {item.children.map(child => (
-                      <div 
+            <div 
                         key={child.id}
                         className={`nav-subitem ${currentView === child.id ? 'active' : ''}`}
                         onClick={() => setCurrentView(child.id)}
-                      >
+            >
                         <child.icon size={16} />
                         <span>{child.label}</span>
-                      </div>
+            </div>
                     ))}
-                  </div>
+          </div>
                 )}
               </div>
             ))}
           </div>
           
-          <div className="nav-section">
-            <div className="nav-section-title">Second Menu</div>
-            {secondNavigation.map(item => (
-            <div 
-                key={item.id}
-                className={`nav-item ${currentView === item.id ? 'active' : ''}`}
-                onClick={() => setCurrentView(item.id)}
-            >
-                <item.icon size={20} />
-                <span>{item.label}</span>
-            </div>
-            ))}
-          </div>
         </nav>
 
         {/* Main Content */}
@@ -964,11 +1023,6 @@ function App() {
             />
           )}
           
-          {/* Legacy Views */}
-          {currentView === 'timeline' && <TimelineView />}
-          {currentView === 'documents' && <DocumentsView />}
-          {currentView === 'reports' && <ReportsView />}
-        )}
         </main>
       </div>
 
@@ -1106,19 +1160,19 @@ function DashboardOverview({ people, properties, projects, setCurrentView }) {
       <div className="quick-actions">
         <h3>Quick Actions</h3>
         <div className="action-grid">
-          <button className="action-card" onClick={() => setCurrentView('people-all')}>
+          <button className="action-card" onClick={() => setCurrentView('add-person')}>
             <div className="action-icon">
               <Users size={16} />
             </div>
             <div className="action-title">Add Person</div>
           </button>
-          <button className="action-card" onClick={() => setCurrentView('properties-all')}>
+          <button className="action-card" onClick={() => setCurrentView('add-property')}>
             <div className="action-icon">
               <Building size={16} />
             </div>
             <div className="action-title">Add Property</div>
           </button>
-          <button className="action-card" onClick={() => setCurrentView('projects-active')}>
+          <button className="action-card" onClick={() => setCurrentView('add-project')}>
             <div className="action-icon">
               <Clock size={16} />
             </div>
@@ -1681,6 +1735,16 @@ function PeopleSection({ currentView, people, setPeople, properties, projects, s
 
   return (
     <div className="view">
+      <div className="page-header">
+        <h1 className="page-title">{sectionTitle}</h1>
+        <p className="page-subtitle">Manage your contacts and relationships</p>
+        <div className="header-actions">
+          <button className="btn btn-primary" onClick={() => setCurrentView('add-person')}>
+            + Add Contact
+          </button>
+        </div>
+      </div>
+      
       {currentView === 'add-person' ? (
         <AddPersonView people={people} setPeople={setPeople} />
       ) : (
@@ -2124,6 +2188,15 @@ function PeopleListView({ people, setPeople, setSelectedDetail }) {
         </div>
       ) : (
         <div className="crm-table">
+          {filteredPeople.length === 0 ? (
+            <div className="empty-state">
+              <div className="empty-icon">
+                <Users size={32} />
+              </div>
+              <h3>No contacts found</h3>
+              <p>Start by adding your first contact using the "Add Contact" button.</p>
+            </div>
+          ) : (
             <table>
               <thead>
                 <tr>
@@ -2159,13 +2232,30 @@ function PeopleListView({ people, setPeople, setSelectedDetail }) {
                     </td>
                     <td className="actions-cell">
                       <div className="contact-actions">
-                        <button className="action-btn-capsule" title="Call">
+                        <button className="action-btn-capsule" title="Call" onClick={(e) => {
+                          e.stopPropagation();
+                          if (person.phone) {
+                            window.open(`tel:${person.phone}`);
+                          } else {
+                            alert('No phone number available');
+                          }
+                        }}>
                           <Phone size={16} />
                         </button>
-                        <button className="action-btn-capsule" title="Email">
+                        <button className="action-btn-capsule" title="Email" onClick={(e) => {
+                          e.stopPropagation();
+                          if (person.email) {
+                            window.open(`mailto:${person.email}`);
+                          } else {
+                            alert('No email address available');
+                          }
+                        }}>
                           <Mail size={16} />
                         </button>
-                        <button className="action-btn-capsule" title="Edit">
+                        <button className="action-btn-capsule" title="Edit" onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedDetail({ type: 'person', data: person });
+                        }}>
                           <Edit size={16} />
                         </button>
                         <button className="action-btn-capsule danger" title="Delete" onClick={(e) => {
@@ -2180,6 +2270,7 @@ function PeopleListView({ people, setPeople, setSelectedDetail }) {
                 ))}
               </tbody>
             </table>
+          )}
         </div>
       )}
     </div>
@@ -2571,10 +2662,16 @@ function PropertiesListView({ properties, setProperties, people, setSelectedDeta
                   <td>{property.beds} bed, {property.baths} bath</td>
                   <td>
                     <div className="table-actions">
-                      <button className="table-btn">
+                      <button className="table-btn" onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedDetail({ type: 'property', data: property });
+                      }}>
                         <Eye size={14} />
                       </button>
-                      <button className="table-btn">
+                      <button className="table-btn" onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedDetail({ type: 'property', data: property });
+                      }}>
                         <Edit size={14} />
                       </button>
                       <button className="table-btn danger" onClick={(e) => {
@@ -2881,10 +2978,16 @@ function ProjectsListView({ projects, setProjects, people, properties, setSelect
                   <td>{project.startDate}</td>
                   <td>
                     <div className="table-actions">
-                      <button className="table-btn">
+                      <button className="table-btn" onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedDetail({ type: 'project', data: project });
+                      }}>
                         <Eye size={14} />
                       </button>
-                      <button className="table-btn">
+                      <button className="table-btn" onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedDetail({ type: 'project', data: project });
+                      }}>
                         <Edit size={14} />
                       </button>
                       <button className="table-btn danger" onClick={(e) => {

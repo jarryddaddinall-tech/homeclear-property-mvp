@@ -48,6 +48,12 @@
   /* Shadows - Layered depth system */
   --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  
+  /* Avatar Sizes - Consistent sizing system */
+  --avatar-xs: 20px;
+  --avatar-sm: 32px;
+  --avatar-md: 40px;
+  --avatar-lg: 48px;
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
@@ -1207,8 +1213,8 @@ body {
 }
 
 .assignee-avatar {
-  width: 20px;
-  height: 20px;
+  width: var(--avatar-xs);
+  height: var(--avatar-xs);
   border-radius: 50%;
   background: var(--color-gray-200);
   display: flex;
@@ -2077,8 +2083,8 @@ body {
 }
 
 .avatar-circle {
-  width: 40px;
-  height: 40px;
+  width: var(--avatar-md);
+  height: var(--avatar-md);
   border-radius: 50%;
   background: #1A2035;
   color: white;
@@ -2556,8 +2562,8 @@ body {
 }
 
 .contact-avatar {
-  width: 40px;
-  height: 40px;
+  width: var(--avatar-md);
+  height: var(--avatar-md);
   border-radius: 50%;
   background: #6366f1;
   color: white;
@@ -3579,8 +3585,8 @@ body {
 }
 
 .contact-avatar-large {
-  width: 48px;
-  height: 48px;
+  width: var(--avatar-lg);
+  height: var(--avatar-lg);
   border-radius: 50%;
   background: #6366f1;
   color: white;
@@ -3772,8 +3778,8 @@ body {
 }
 
 .avatar-circle {
-  width: 40px;
-  height: 40px;
+  width: var(--avatar-md);
+  height: var(--avatar-md);
   border-radius: 50%;
   background: linear-gradient(135deg, #6366f1, #8b5cf6);
   color: white;
@@ -3892,8 +3898,8 @@ body {
 }
 
 .profile-avatar {
-  width: 32px;
-  height: 32px;
+  width: var(--avatar-sm);
+  height: var(--avatar-sm);
   border-radius: 50%;
   background: linear-gradient(135deg, #6366f1, #8b5cf6);
   color: white;
@@ -3977,8 +3983,8 @@ body {
 }
 
 .related-person-avatar {
-  width: 36px;
-  height: 36px;
+  width: var(--avatar-md);
+  height: var(--avatar-md);
   border-radius: 50%;
   background: linear-gradient(135deg, #6366f1, #8b5cf6);
   color: white;
