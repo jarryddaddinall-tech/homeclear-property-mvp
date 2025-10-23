@@ -108,16 +108,29 @@ function DetailView({ selectedDetail, setSelectedDetail, people, properties, pro
 
   const { type, data } = selectedDetail;
   const [newNote, setNewNote] = useState('');
-  const [notes, setNotes] = useState(Array.isArray(data.notes) ? data.notes : []);
+  const [notes, setNotes] = useState([]);
   
   // Ensure notes is always an array and update when data changes
   useEffect(() => {
-    if (Array.isArray(data.notes)) {
-      setNotes(data.notes);
+    if (data && data.notes) {
+      if (Array.isArray(data.notes)) {
+        setNotes(data.notes);
+      } else if (typeof data.notes === 'string' && data.notes.trim()) {
+        // If notes is a string, convert it to an array with a single note
+        setNotes([{
+          id: Date.now(),
+          text: data.notes,
+          author: 'System',
+          timestamp: new Date().toISOString(),
+          type: 'note'
+        }]);
+      } else {
+        setNotes([]);
+      }
     } else {
       setNotes([]);
     }
-  }, [data.notes]);
+  }, [data]);
   
   const addNote = () => {
     if (!newNote.trim()) return;
@@ -357,17 +370,23 @@ function DetailView({ selectedDetail, setSelectedDetail, people, properties, pro
           </div>
           
           <div className="notes-list">
-            {Array.isArray(notes) && notes.map(note => (
-              <div key={note.id} className="note-item">
-                <div className="note-content">{note.text}</div>
-                <div className="note-meta">
-                  <span className="note-author">{note.author}</span>
-                  <span className="note-time">
-                    {new Date(note.timestamp).toLocaleString()}
-                  </span>
-                </div>
-              </div>
-            ))}
+            {Array.isArray(notes) && notes.length > 0 && notes.map(note => {
+              // Ensure each note is a valid object with required properties
+              if (note && typeof note === 'object' && note.id && note.text) {
+                return (
+                  <div key={note.id} className="note-item">
+                    <div className="note-content">{note.text}</div>
+                    <div className="note-meta">
+                      <span className="note-author">{note.author || 'Unknown'}</span>
+                      <span className="note-time">
+                        {note.timestamp ? new Date(note.timestamp).toLocaleString() : 'Unknown time'}
+                      </span>
+                    </div>
+                  </div>
+                );
+              }
+              return null;
+            })}
             {(!Array.isArray(notes) || notes.length === 0) && (
               <div className="no-notes">No notes yet. Add the first one above!</div>
             )}
