@@ -437,7 +437,7 @@ function DashboardOverview({ people, properties, projects }) {
       <div className="dashboard-stats">
         <div className="stat-card">
           <div className="stat-header">
-            <div className="stat-icon">👥</div>
+            <div className="stat-icon people">👥</div>
             <div className="stat-title">Total People</div>
           </div>
           <div className="stat-number">{totalPeople}</div>
@@ -456,7 +456,7 @@ function DashboardOverview({ people, properties, projects }) {
         
         <div className="stat-card">
           <div className="stat-header">
-            <div className="stat-icon">🏠</div>
+            <div className="stat-icon properties">🏠</div>
             <div className="stat-title">Total Properties</div>
           </div>
           <div className="stat-number">{totalProperties}</div>
@@ -475,7 +475,7 @@ function DashboardOverview({ people, properties, projects }) {
         
         <div className="stat-card">
           <div className="stat-header">
-            <div className="stat-icon">⚡</div>
+            <div className="stat-icon projects">⚡</div>
             <div className="stat-title">Active Projects</div>
           </div>
           <div className="stat-number">{activeProjects}</div>
