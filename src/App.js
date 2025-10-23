@@ -2180,7 +2180,6 @@ function PeopleListView({ people, setPeople, setSelectedDetail }) {
                 ))}
               </tbody>
             </table>
-          </div>
         </div>
       )}
     </div>
