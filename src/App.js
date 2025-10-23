@@ -711,21 +711,17 @@ function App() {
         <div className="logo">
           <Home size={20} />
           <span>HomeClear</span>
-        </div>
-        <div className="user-info">
-          {/* REACT POWER: Real-time status indicators */}
-          <div className="status-indicators">
-            <div className={`status-indicator ${isOnline ? 'online' : 'offline'}`}>
-              <div className="status-dot"></div>
-              <span>{isOnline ? 'Online' : 'Offline'}</span>
             </div>
-            <div className="live-time">
-              {currentTime.toLocaleTimeString()}
+        <div className="user-profile">
+          <div className="user-avatar">
+            <div className="avatar-circle">
+              ST
             </div>
           </div>
-          
-          
+          <div className="user-details">
           <div className="user-name">Sarah Thompson</div>
+            <div className="user-role">Property Manager</div>
+          </div>
         </div>
       </header>
 
@@ -2107,75 +2103,121 @@ function PeopleListView({ people, setPeople, setSelectedDetail }) {
           )}
         </div>
       ) : (
-        <div className="crm-table">
-          <table>
-            <thead>
-              <tr>
-                <th>Contact</th>
-                <th>Company</th>
-                <th>Stage</th>
-                <th>Priority</th>
-                <th>Budget</th>
-                <th>Last Contact</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredPeople.map(person => (
-                <tr key={person.id} onClick={() => setSelectedDetail({ type: 'person', data: person })} style={{ cursor: 'pointer' }}>
-                  <td>
-                    <div className="table-contact">
-                      <div className="contact-avatar">
-                        {person.name.charAt(0).toUpperCase()}
-                      </div>
-                      <div>
-                        <div className="contact-name">{person.name}</div>
-                        <div className="contact-email">{person.email}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td>{person.company || '-'}</td>
-                  <td>
-                    <select 
-                      value={person.stage} 
-                      onChange={(e) => updatePersonStage(person.id, e.target.value)}
-                      className="table-select"
-                    >
-                      <option value="Lead">Lead</option>
-                      <option value="Qualified">Qualified</option>
-                      <option value="Proposal">Proposal</option>
-                      <option value="Negotiation">Negotiation</option>
-                      <option value="Closed Won">Closed Won</option>
-                      <option value="Closed Lost">Closed Lost</option>
-                    </select>
-                  </td>
-                  <td>
-                    <span className={`priority-badge priority-${person.priority}`}>
-                      {person.priority}
-                    </span>
-                  </td>
-                  <td>{person.budget ? `£${parseInt(person.budget).toLocaleString()}` : '-'}</td>
-                  <td>{person.lastContact || '-'}</td>
-                  <td>
-                    <div className="table-actions">
-                      <button className="table-btn">
-                        <Phone size={14} />
-                      </button>
-                      <button className="table-btn">
-                        <Mail size={14} />
-                      </button>
-                      <button className="table-btn">
-                        <Edit size={14} />
-                      </button>
-                      <button className="table-btn danger" onClick={() => deletePerson(person.id)}>
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  </td>
+        <div className="crm-table-container">
+          <div className="table-header">
+            <div className="table-title">
+              <h2>Contacts</h2>
+              <span className="contact-count">{filteredPeople.length} contacts</span>
+            </div>
+            <div className="table-actions-header">
+              <button className="btn-secondary">
+                <Download size={16} />
+                Export
+              </button>
+              <button className="btn-primary">
+                <Plus size={16} />
+                Add Contact
+              </button>
+            </div>
+          </div>
+          
+          <div className="crm-table">
+            <table>
+              <thead>
+                <tr>
+                  <th className="contact-column">Contact</th>
+                  <th className="company-column">Company</th>
+                  <th className="stage-column">Stage</th>
+                  <th className="priority-column">Priority</th>
+                  <th className="budget-column">Budget</th>
+                  <th className="last-contact-column">Last Contact</th>
+                  <th className="actions-column">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filteredPeople.map(person => (
+                  <tr key={person.id} className="contact-row" onClick={() => setSelectedDetail({ type: 'person', data: person })}>
+                    <td className="contact-cell">
+                      <div className="contact-info">
+                        <div className="contact-avatar-large">
+                          {person.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div className="contact-details">
+                          <div className="contact-name-large">{person.name}</div>
+                          <div className="contact-email-large">{person.email}</div>
+                          {person.phone && (
+                            <div className="contact-phone">{person.phone}</div>
+                          )}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="company-cell">
+                      <div className="company-info">
+                        <div className="company-name">{person.company || 'No company'}</div>
+                        {person.role && (
+                          <div className="company-role">{person.role}</div>
+                        )}
+                      </div>
+                    </td>
+                    <td className="stage-cell">
+                      <select 
+                        value={person.stage} 
+                        onChange={(e) => updatePersonStage(person.id, e.target.value)}
+                        className="stage-select-capsule"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <option value="Lead">Lead</option>
+                        <option value="Qualified">Qualified</option>
+                        <option value="Proposal">Proposal</option>
+                        <option value="Negotiation">Negotiation</option>
+                        <option value="Closed Won">Closed Won</option>
+                        <option value="Closed Lost">Closed Lost</option>
+                      </select>
+                    </td>
+                    <td className="priority-cell">
+                      <span className={`priority-indicator priority-${person.priority.toLowerCase()}`}>
+                        {person.priority}
+                      </span>
+                    </td>
+                    <td className="budget-cell">
+                      {person.budget ? (
+                        <div className="budget-amount">£{parseInt(person.budget).toLocaleString()}</div>
+                      ) : (
+                        <span className="no-budget">No budget</span>
+                      )}
+                    </td>
+                    <td className="last-contact-cell">
+                      <div className="last-contact-info">
+                        <div className="last-contact-date">{person.lastContact || 'Never'}</div>
+                        {person.source && (
+                          <div className="contact-source">via {person.source}</div>
+                        )}
+                      </div>
+                    </td>
+                    <td className="actions-cell">
+                      <div className="contact-actions">
+                        <button className="action-btn-capsule" title="Call">
+                          <Phone size={16} />
+                        </button>
+                        <button className="action-btn-capsule" title="Email">
+                          <Mail size={16} />
+                        </button>
+                        <button className="action-btn-capsule" title="Edit">
+                          <Edit size={16} />
+                        </button>
+                        <button className="action-btn-capsule danger" title="Delete" onClick={(e) => {
+                          e.stopPropagation();
+                          deletePerson(person.id);
+                        }}>
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>

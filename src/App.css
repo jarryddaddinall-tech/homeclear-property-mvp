@@ -3441,3 +3441,364 @@ body {
     box-shadow: 0 0 0 8px rgba(99, 102, 241, 0);
   }
 }
+
+/* Capsule-style CRM Table Container */
+.crm-table-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin: 24px 0;
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 32px;
+  border-bottom: 1px solid #f3f4f6;
+  background: #fafafa;
+}
+
+.table-title h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.contact-count {
+  font-size: 14px;
+  color: #6b7280;
+  margin-left: 8px;
+}
+
+.table-actions-header {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-secondary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.btn-primary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #6366f1;
+  border: 1px solid #6366f1;
+  border-radius: 6px;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary:hover {
+  background: #4f46e5;
+  border-color: #4f46e5;
+}
+
+/* Enhanced Table Styling */
+.crm-table-container .crm-table {
+  margin: 0;
+}
+
+.crm-table-container table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.crm-table-container thead th {
+  background: #f8fafc;
+  padding: 16px 24px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 13px;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.contact-column { width: 25%; }
+.company-column { width: 18%; }
+.stage-column { width: 15%; }
+.priority-column { width: 12%; }
+.budget-column { width: 12%; }
+.last-contact-column { width: 12%; }
+.actions-column { width: 6%; }
+
+/* Contact Row Styling */
+.contact-row {
+  border-bottom: 1px solid #f3f4f6;
+  transition: background-color 0.2s;
+  cursor: pointer;
+}
+
+.contact-row:hover {
+  background: #f8fafc;
+}
+
+.contact-row:last-child {
+  border-bottom: none;
+}
+
+.contact-row td {
+  padding: 20px 24px;
+  vertical-align: top;
+}
+
+/* Contact Info Styling */
+.contact-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.contact-avatar-large {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #6366f1;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.contact-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.contact-name-large {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+
+.contact-email-large {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 2px;
+  line-height: 1.3;
+}
+
+.contact-phone {
+  font-size: 13px;
+  color: #9ca3af;
+  line-height: 1.3;
+}
+
+/* Company Info */
+.company-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.company-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  line-height: 1.4;
+}
+
+.company-role {
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.3;
+}
+
+/* Stage Select */
+.stage-select-capsule {
+  padding: 6px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: white;
+  font-size: 13px;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 120px;
+}
+
+.stage-select-capsule:hover {
+  border-color: #9ca3af;
+}
+
+.stage-select-capsule:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* Priority Indicator */
+.priority-indicator {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.priority-indicator.priority-high {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.priority-indicator.priority-medium {
+  background: #fffbeb;
+  color: #d97706;
+}
+
+.priority-indicator.priority-low {
+  background: #f0fdf4;
+  color: #16a34a;
+}
+
+/* Budget Styling */
+.budget-amount {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.no-budget {
+  font-size: 13px;
+  color: #9ca3af;
+  font-style: italic;
+}
+
+/* Last Contact Info */
+.last-contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.last-contact-date {
+  font-size: 14px;
+  color: #374151;
+  line-height: 1.3;
+}
+
+.contact-source {
+  font-size: 12px;
+  color: #6b7280;
+  line-height: 1.3;
+}
+
+/* Contact Actions */
+.contact-actions {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.action-btn-capsule {
+  width: 32px;
+  height: 32px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: white;
+  color: #6b7280;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.action-btn-capsule:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+  color: #374151;
+}
+
+.action-btn-capsule.danger:hover {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #dc2626;
+}
+
+/* Modern User Profile in Header */
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+  cursor: pointer;
+}
+
+.user-profile:hover {
+  background: #f8fafc;
+}
+
+.user-avatar {
+  position: relative;
+}
+
+.avatar-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+  line-height: 1.2;
+}
+
+.user-role {
+  font-size: 12px;
+  color: #6b7280;
+  line-height: 1.2;
+}
