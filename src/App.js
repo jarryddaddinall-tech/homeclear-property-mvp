@@ -725,19 +725,6 @@ function App() {
           </div>
           
           
-          <div className="data-menu">
-            <Menu size={20} />
-            <div className="data-menu-dropdown">
-              <button onClick={() => exportData()}>
-                <Download size={16} />
-                Export Data
-              </button>
-              <button onClick={() => importData()}>
-                <Upload size={16} />
-                Import Data
-              </button>
-            </div>
-          </div>
           <div className="user-name">Sarah Thompson</div>
         </div>
       </header>
@@ -763,7 +750,15 @@ function App() {
                   className={`nav-item ${currentView === item.id ? 'active' : ''} ${item.type === 'section' ? 'nav-section-header' : ''}`}
                   onClick={() => {
                     if (item.type === 'section') {
-                      toggleSection(item.id);
+                      if (item.id === 'people') {
+                        setCurrentView('people-all');
+                      } else if (item.id === 'properties') {
+                        setCurrentView('properties-all');
+                      } else if (item.id === 'projects') {
+                        setCurrentView('projects-active');
+                      } else {
+                        toggleSection(item.id);
+                      }
                     } else {
                       setCurrentView(item.id);
                     }
