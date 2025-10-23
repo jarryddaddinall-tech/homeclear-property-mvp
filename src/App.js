@@ -44,6 +44,7 @@ const exportData = () => {
   const data = {
     timelineEvents: JSON.parse(localStorage.getItem('hc.timelineEvents') || '[]'),
     parties: JSON.parse(localStorage.getItem('hc.parties') || '[]'),
+    people: JSON.parse(localStorage.getItem('hc.people') || '[]'),
     tasks: JSON.parse(localStorage.getItem('hc.tasks') || '[]'),
     messages: JSON.parse(localStorage.getItem('hc.messages') || '[]'),
     property: JSON.parse(localStorage.getItem('hc.property') || '{}')
@@ -73,6 +74,7 @@ const importData = () => {
           const data = JSON.parse(e.target.result);
           if (data.timelineEvents) localStorage.setItem('hc.timelineEvents', JSON.stringify(data.timelineEvents));
           if (data.parties) localStorage.setItem('hc.parties', JSON.stringify(data.parties));
+          if (data.people) localStorage.setItem('hc.people', JSON.stringify(data.people));
           if (data.tasks) localStorage.setItem('hc.tasks', JSON.stringify(data.tasks));
           if (data.messages) localStorage.setItem('hc.messages', JSON.stringify(data.messages));
           if (data.property) localStorage.setItem('hc.property', JSON.stringify(data.property));
@@ -95,6 +97,7 @@ function App() {
     { id: 1, role: 'Solicitor', name: 'Emma Wilson', company: 'Wilson & Partners', email: 'emma@wilsonpartners.co.uk', phone: '0161 123 4567', lastContactedISO: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), notes: 'Specializes in residential conveyancing' },
     { id: 2, role: 'Estate Agent', name: 'James Parker', company: 'Parker & Co Estate Agents', email: 'james@parkerco.co.uk', phone: '0161 234 5678', lastContactedISO: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), notes: 'Very responsive, good local knowledge' }
   ]);
+  const [people, setPeople] = useLocalStorage('hc.people', []);
   const [tasks, setTasks] = useLocalStorage('hc.tasks', [
     { id: 1, title: 'Review contract terms', dueISO: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(), done: false, relatedEventId: null, createdAt: new Date().toISOString() },
     { id: 2, title: 'Submit mortgage documents', dueISO: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(), done: false, relatedEventId: null, createdAt: new Date().toISOString() },
@@ -182,6 +185,8 @@ function App() {
     { id: 'dashboard', label: 'Dashboard', icon: Home },
     { id: 'timeline', label: 'Live Timeline', icon: Clock },
     { id: 'team', label: 'Your Team', icon: Users },
+    { id: 'add-person', label: 'Add Person', icon: Users },
+    { id: 'people-list', label: 'People List', icon: Users },
     { id: 'fees', label: 'Fees & Costs', icon: DollarSign },
     { id: 'messages', label: 'Messages', icon: MessageSquare },
     { id: 'documents', label: 'Documents', icon: FileText },
@@ -273,6 +278,8 @@ function App() {
         )}
           {currentView === 'timeline' && <TimelineView />}
           {currentView === 'team' && <TeamView />}
+          {currentView === 'add-person' && <AddPersonView people={people} setPeople={setPeople} />}
+          {currentView === 'people-list' && <PeopleListView people={people} setPeople={setPeople} />}
           {currentView === 'fees' && <FeesView />}
           {currentView === 'messages' && <MessagesView />}
           {currentView === 'documents' && <DocumentsView />}
@@ -807,6 +814,325 @@ function PropertySearchView() {
             Market analysis will appear after property search
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+// Add Person View Component
+function AddPersonView({ people, setPeople }) {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    role: 'Buyer',
+    propertyType: 'House to Rent Out',
+    budget: '',
+    location: '',
+    notes: '',
+    status: 'Active'
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const newPerson = {
+      id: Date.now(),
+      ...formData,
+      createdAt: new Date().toISOString(),
+      lastContactedISO: new Date().toISOString()
+    };
+    setPeople([...people, newPerson]);
+    setFormData({
+      name: '',
+      email: '',
+      phone: '',
+      role: 'Buyer',
+      propertyType: 'House to Rent Out',
+      budget: '',
+      location: '',
+      notes: '',
+      status: 'Active'
+    });
+    alert('Person added successfully!');
+  };
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  return (
+    <div className="view">
+      <div className="page-header">
+        <h1 className="page-title">Add New Person</h1>
+        <p className="page-subtitle">Add someone who is buying a house to rent out</p>
+      </div>
+
+      <div className="card">
+        <form onSubmit={handleSubmit} className="person-form">
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="name">Full Name *</label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                required
+                placeholder="Enter full name"
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="email">Email *</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                placeholder="Enter email address"
+              />
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="phone">Phone Number</label>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder="Enter phone number"
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="role">Role</label>
+              <select
+                id="role"
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+              >
+                <option value="Buyer">Buyer</option>
+                <option value="Investor">Investor</option>
+                <option value="Landlord">Landlord</option>
+                <option value="Property Developer">Property Developer</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="propertyType">Property Type</label>
+              <select
+                id="propertyType"
+                name="propertyType"
+                value={formData.propertyType}
+                onChange={handleChange}
+              >
+                <option value="House to Rent Out">House to Rent Out</option>
+                <option value="Apartment to Rent Out">Apartment to Rent Out</option>
+                <option value="Commercial Property">Commercial Property</option>
+                <option value="Mixed Use Property">Mixed Use Property</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label htmlFor="budget">Budget (£)</label>
+              <input
+                type="number"
+                id="budget"
+                name="budget"
+                value={formData.budget}
+                onChange={handleChange}
+                placeholder="Enter budget amount"
+              />
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="location">Preferred Location</label>
+              <input
+                type="text"
+                id="location"
+                name="location"
+                value={formData.location}
+                onChange={handleChange}
+                placeholder="Enter preferred location"
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="status">Status</label>
+              <select
+                id="status"
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+              >
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+                <option value="Prospect">Prospect</option>
+                <option value="Lead">Lead</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="notes">Notes</label>
+            <textarea
+              id="notes"
+              name="notes"
+              value={formData.notes}
+              onChange={handleChange}
+              rows="4"
+              placeholder="Add any additional notes about this person..."
+            />
+          </div>
+
+          <div className="form-actions">
+            <button type="submit" className="btn btn-primary">
+              Add Person
+            </button>
+            <button type="button" className="btn btn-secondary">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// People List View Component
+function PeopleListView({ people, setPeople }) {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterStatus, setFilterStatus] = useState('All');
+
+  const filteredPeople = people.filter(person => {
+    const matchesSearch = person.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         person.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         person.location.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = filterStatus === 'All' || person.status === filterStatus;
+    return matchesSearch && matchesStatus;
+  });
+
+  const deletePerson = (id) => {
+    if (window.confirm('Are you sure you want to delete this person?')) {
+      setPeople(people.filter(person => person.id !== id));
+    }
+  };
+
+  return (
+    <div className="view">
+      <div className="page-header">
+        <h1 className="page-title">People List</h1>
+        <p className="page-subtitle">Manage all people in your database</p>
+      </div>
+
+      <div className="card">
+        <div className="search-filters">
+          <div className="search-group">
+            <input
+              type="text"
+              placeholder="Search by name, email, or location..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="search-input"
+            />
+          </div>
+          <div className="filter-group">
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="filter-select"
+            >
+              <option value="All">All Status</option>
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+              <option value="Prospect">Prospect</option>
+              <option value="Lead">Lead</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div className="people-grid">
+        {filteredPeople.length === 0 ? (
+          <div className="empty-state">
+            <div className="empty-icon">👥</div>
+            <h3>No people found</h3>
+            <p>Start by adding your first person using the "Add Person" page.</p>
+          </div>
+        ) : (
+          filteredPeople.map(person => (
+            <div key={person.id} className="person-card">
+              <div className="person-header">
+                <div className="person-avatar">
+                  <div className="avatar-circle">
+                    {person.name.charAt(0).toUpperCase()}
+                  </div>
+                </div>
+                <div className="person-info">
+                  <div className="person-name">{person.name}</div>
+                  <div className="person-role">{person.role}</div>
+                  <div className="person-status">{person.status}</div>
+                </div>
+              </div>
+              
+              <div className="person-details">
+                <div className="detail-item">
+                  <span className="detail-label">Email:</span>
+                  <span className="detail-value">{person.email}</span>
+                </div>
+                {person.phone && (
+                  <div className="detail-item">
+                    <span className="detail-label">Phone:</span>
+                    <span className="detail-value">{person.phone}</span>
+                  </div>
+                )}
+                <div className="detail-item">
+                  <span className="detail-label">Property Type:</span>
+                  <span className="detail-value">{person.propertyType}</span>
+                </div>
+                {person.budget && (
+                  <div className="detail-item">
+                    <span className="detail-label">Budget:</span>
+                    <span className="detail-value">£{parseInt(person.budget).toLocaleString()}</span>
+                  </div>
+                )}
+                {person.location && (
+                  <div className="detail-item">
+                    <span className="detail-label">Location:</span>
+                    <span className="detail-value">{person.location}</span>
+                  </div>
+                )}
+                {person.notes && (
+                  <div className="detail-item">
+                    <span className="detail-label">Notes:</span>
+                    <span className="detail-value">{person.notes}</span>
+                  </div>
+                )}
+              </div>
+              
+              <div className="person-actions">
+                <button className="btn-small">📞 Contact</button>
+                <button className="btn-small">✏️ Edit</button>
+                <button 
+                  className="btn-small btn-danger" 
+                  onClick={() => deletePerson(person.id)}
+                >
+                  🗑️ Delete
+                </button>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
