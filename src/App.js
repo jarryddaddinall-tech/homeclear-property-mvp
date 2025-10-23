@@ -476,7 +476,9 @@ function DashboardOverview({ people, properties, projects }) {
             ))}
           </div>
           <div className="stat-chart">
-            <div className="mini-chart">📊</div>
+            <div className="mini-chart">
+              <BarChart3 size={16} />
+            </div>
           </div>
         </div>
         
@@ -497,7 +499,9 @@ function DashboardOverview({ people, properties, projects }) {
             ))}
           </div>
           <div className="stat-chart">
-            <div className="mini-chart">📈</div>
+            <div className="mini-chart">
+              <BarChart3 size={16} />
+            </div>
           </div>
         </div>
         
@@ -518,7 +522,9 @@ function DashboardOverview({ people, properties, projects }) {
             ))}
           </div>
           <div className="stat-chart">
-            <div className="mini-chart">📊</div>
+            <div className="mini-chart">
+              <BarChart3 size={16} />
+            </div>
           </div>
         </div>
       </div>
@@ -564,7 +570,7 @@ function DashboardView({ timelineEvents, tasks, liveUpdates, progressPercentage,
       
       {/* REACT POWER: Dynamic alerts based on state */}
       <div className={`alert ${overdueTasks.length > 0 ? 'alert-error' : 'alert-info'}`}>
-        🏠 <strong>Your purchase:</strong> 45 Oak Avenue, Manchester
+        <Building size={16} /> <strong>Your purchase:</strong> 45 Oak Avenue, Manchester
         {overdueTasks.length > 0 ? (
           <span> · ⚠️ {overdueTasks.length} overdue task{overdueTasks.length > 1 ? 's' : ''}</span>
         ) : (
@@ -641,7 +647,9 @@ function DashboardView({ timelineEvents, tasks, liveUpdates, progressPercentage,
       <div className="property-card">
         <div className="property-header">
           <div className="property-avatar">
-            <div className="house-icon">🏠</div>
+            <div className="house-icon">
+              <Building size={20} />
+            </div>
             <div className="property-status">Active</div>
           </div>
           <div className="property-main-info">
@@ -985,15 +993,17 @@ function TeamView() {
               <div className="person-role">Solicitor</div>
               <div className="person-company">Wilson & Partners</div>
               <div className="person-contact">
-                📧 emma@wilsonpartners.co.uk<br/>
-                📞 0161 123 4567<br/>
+                <Mail size={14} /> emma@wilsonpartners.co.uk<br/>
+                <Phone size={14} /> 0161 123 4567<br/>
                 Last contacted: <span>2 days ago</span>
               </div>
             </div>
             <div className="person-status">Active</div>
           </div>
           <div className="person-actions">
-            <button className="btn-small">📞 Log Call</button>
+            <button className="btn-small">
+              <Phone size={14} /> Log Call
+            </button>
             <button className="btn-small">💬 Log Message</button>
             <button className="btn-small">✏️ Edit</button>
           </div>
@@ -1006,15 +1016,17 @@ function TeamView() {
               <div className="person-role">Estate Agent</div>
               <div className="person-company">Parker & Co Estate Agents</div>
               <div className="person-contact">
-                📧 james@parkerco.co.uk<br/>
-                📞 0161 234 5678<br/>
+                <Mail size={14} /> james@parkerco.co.uk<br/>
+                <Phone size={14} /> 0161 234 5678<br/>
                 Last contacted: <span>1 day ago</span>
               </div>
             </div>
             <div className="person-status">Active</div>
           </div>
           <div className="person-actions">
-            <button className="btn-small">📞 Log Call</button>
+            <button className="btn-small">
+              <Phone size={14} /> Log Call
+            </button>
             <button className="btn-small">💬 Log Message</button>
             <button className="btn-small">✏️ Edit</button>
           </div>
@@ -1034,7 +1046,7 @@ function PropertySearchView() {
       </div>
       
       <div className="card">
-        <h3>📍 Search Properties</h3>
+        <h3><MapPin size={16} /> Search Properties</h3>
         <div className="search-form">
           <input 
             type="text" 
@@ -1060,7 +1072,7 @@ function PropertySearchView() {
       </div>
       
       <div className="card">
-        <h3>📊 Market Analysis</h3>
+        <h3><BarChart3 size={16} /> Market Analysis</h3>
         <div className="market-analysis">
           <div className="market-placeholder">
             Market analysis will appear after property search
@@ -1458,7 +1470,7 @@ function PeopleListView({ people, setPeople }) {
               className={`toggle-btn ${viewMode === 'table' ? 'active' : ''}`}
               onClick={() => setViewMode('table')}
             >
-              📊 Table
+              <BarChart3 size={16} /> Table
             </button>
           </div>
         </div>
@@ -1530,7 +1542,9 @@ function PeopleListView({ people, setPeople }) {
         <div className="people-grid">
           {filteredPeople.length === 0 ? (
             <div className="empty-state">
-              <div className="empty-icon">👥</div>
+              <div className="empty-icon">
+                <Users size={32} />
+              </div>
               <h3>No contacts found</h3>
               <p>Start by adding your first contact using the "Add Person" page.</p>
             </div>
@@ -1607,12 +1621,20 @@ function PeopleListView({ people, setPeople }) {
                 </div>
                 
                 <div className="crm-actions">
-                  <button className="action-btn primary">📞 Call</button>
-                  <button className="action-btn secondary">📧 Email</button>
-                  <button className="action-btn secondary">💬 Message</button>
-                  <button className="action-btn secondary">📅 Schedule</button>
+                  <button className="action-btn primary">
+                    <Phone size={14} /> Call
+                  </button>
+                  <button className="action-btn secondary">
+                    <Mail size={14} /> Email
+                  </button>
+                  <button className="action-btn secondary">
+                    <MessageSquare size={14} /> Message
+                  </button>
+                  <button className="action-btn secondary">
+                    <Calendar size={14} /> Schedule
+                  </button>
                   <button className="action-btn danger" onClick={() => deletePerson(person.id)}>
-                    🗑️
+                    <Trash2 size={14} />
                   </button>
                 </div>
               </div>
@@ -1671,10 +1693,18 @@ function PeopleListView({ people, setPeople }) {
                   <td>{person.lastContact || '-'}</td>
                   <td>
                     <div className="table-actions">
-                      <button className="table-btn">📞</button>
-                      <button className="table-btn">📧</button>
-                      <button className="table-btn">✏️</button>
-                      <button className="table-btn danger" onClick={() => deletePerson(person.id)}>🗑️</button>
+                      <button className="table-btn">
+                        <Phone size={14} />
+                      </button>
+                      <button className="table-btn">
+                        <Mail size={14} />
+                      </button>
+                      <button className="table-btn">
+                        <Edit size={14} />
+                      </button>
+                      <button className="table-btn danger" onClick={() => deletePerson(person.id)}>
+                        <Trash2 size={14} />
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -1980,7 +2010,9 @@ function PropertiesListView({ properties, setProperties, people }) {
       <div className="people-grid">
         {filteredProperties.length === 0 ? (
           <div className="empty-state">
-            <div className="empty-icon">🏠</div>
+            <div className="empty-icon">
+              <Building size={32} />
+            </div>
             <h3>No properties found</h3>
             <p>Start by adding your first property.</p>
           </div>
@@ -2344,7 +2376,9 @@ function ProjectsListView({ projects, setProjects, people, properties }) {
               
               <div className="contact-info">
                 <div className="contact-item">
-                  <span className="contact-icon">🏠</span>
+                  <span className="contact-icon">
+                    <Building size={12} />
+                  </span>
                   <span className="contact-value">
                     {project.property ? 
                       properties.find(p => p.id === project.property)?.address || 'Unknown Property' :
