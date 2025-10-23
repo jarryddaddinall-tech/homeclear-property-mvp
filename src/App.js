@@ -24,7 +24,8 @@ import {
   Eye,
   Edit,
   Trash2,
-  Filter
+  Filter,
+  BarChart3
 } from 'lucide-react';
 import './App.css';
 
