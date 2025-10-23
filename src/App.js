@@ -1603,7 +1603,7 @@ function PeopleListView({ people, setPeople }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStage, setFilterStage] = useState('All');
   const [filterPriority, setFilterPriority] = useState('All');
-  const [viewMode, setViewMode] = useState('cards'); // cards or table
+  const [viewMode, setViewMode] = useState('table'); // cards or table
 
   const filteredPeople = people.filter(person => {
     const matchesSearch = person.name.toLowerCase().includes(searchTerm.toLowerCase()) ||

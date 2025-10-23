@@ -2491,10 +2491,10 @@ body {
 /* CRM Table */
 .crm-table {
   background: white;
-  border-radius: var(--radius-lg);
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--color-gray-200);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  border: 1px solid #f3f4f6;
 }
 
 .crm-table table {
@@ -2503,53 +2503,56 @@ body {
 }
 
 .crm-table th {
-  background: var(--color-gray-50);
-  padding: var(--space-4);
+  background: #f9fafb;
+  padding: 16px 20px;
   text-align: left;
   font-weight: 600;
-  color: var(--color-gray-700);
-  border-bottom: 1px solid var(--color-gray-200);
-  font-size: var(--font-size-sm);
+  color: #374151;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 14px;
+  letter-spacing: -0.025em;
 }
 
 .crm-table td {
-  padding: var(--space-4);
-  border-bottom: 1px solid var(--color-gray-100);
-  font-size: var(--font-size-sm);
+  padding: 16px 20px;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 14px;
+  color: #6b7280;
 }
 
 .crm-table tr:hover {
-  background: var(--color-gray-50);
+  background: #f9fafb;
 }
 
 .table-contact {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: 12px;
 }
 
 .contact-avatar {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  background: var(--color-primary);
+  background: #6366f1;
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 600;
-  font-size: var(--font-size-sm);
+  font-size: 14px;
 }
 
 .contact-name {
   font-weight: 600;
-  color: var(--color-gray-900);
-  margin-bottom: var(--space-1);
+  color: #111827;
+  margin-bottom: 2px;
+  font-size: 14px;
 }
 
 .contact-email {
-  font-size: var(--font-size-xs);
-  color: var(--color-gray-600);
+  font-size: 12px;
+  color: #6b7280;
 }
 
 .table-select {
@@ -2566,27 +2569,33 @@ body {
 }
 
 .table-btn {
-  padding: var(--space-2);
-  border: 1px solid var(--color-gray-300);
-  border-radius: var(--radius-sm);
+  padding: 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
   background: white;
-  color: var(--color-gray-700);
+  color: #6b7280;
   cursor: pointer;
-  transition: var(--transition-base);
-  font-size: var(--font-size-xs);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .table-btn:hover {
-  background: var(--color-gray-50);
+  background: #f9fafb;
+  border-color: #d1d5db;
+  color: #374151;
 }
 
 .table-btn.danger {
-  color: var(--color-error);
-  border-color: var(--color-error);
+  color: #dc2626;
+  border-color: #fecaca;
 }
 
 .table-btn.danger:hover {
-  background: rgba(220, 38, 38, 0.1);
+  background: #fef2f2;
+  border-color: #fca5a5;
 }
 
 /* Mobile Responsive for CRM */
