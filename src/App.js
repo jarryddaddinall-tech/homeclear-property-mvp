@@ -402,6 +402,7 @@ function App() {
   const [currentView, setCurrentView] = useState('dashboard');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [selectedDetail, setSelectedDetail] = useState(null);
+  const [currentProfile, setCurrentProfile] = useState('buyer');
   const [timelineEvents, setTimelineEvents] = useLocalStorage('hc.timelineEvents', []);
   const [parties, setParties] = useLocalStorage('hc.parties', [
     { id: 1, role: 'Solicitor', name: 'Emma Wilson', company: 'Wilson & Partners', email: 'emma@wilsonpartners.co.uk', phone: '0161 123 4567', lastContactedISO: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), notes: 'Specializes in residential conveyancing' },
@@ -745,15 +746,40 @@ function App() {
           <Home size={20} />
           <span>HomeClear</span>
             </div>
-        <div className="user-profile">
-          <div className="user-avatar">
-            <div className="avatar-circle">
-              ST
-            </div>
+        <div className="header-right">
+          <div className="profile-switcher">
+            <select 
+              value={currentProfile} 
+              onChange={(e) => setCurrentProfile(e.target.value)}
+              className="profile-select"
+            >
+              <option value="buyer">Buyer</option>
+              <option value="estate-agent">Estate Agent</option>
+              <option value="project-manager">Project Manager</option>
+              <option value="sourcer">Sourcer</option>
+            </select>
           </div>
-          <div className="user-details">
-          <div className="user-name">Sarah Thompson</div>
-            <div className="user-role">Property Manager</div>
+          
+          <div className="user-profile">
+            <div className="user-avatar">
+              <div className="avatar-circle">
+                {currentProfile === 'buyer' ? 'B' : 
+                 currentProfile === 'estate-agent' ? 'E' :
+                 currentProfile === 'project-manager' ? 'P' : 'S'}
+          </div>
+            </div>
+            <div className="user-details">
+              <div className="user-name">
+                {currentProfile === 'buyer' ? 'Sarah Thompson' : 
+                 currentProfile === 'estate-agent' ? 'James Parker' :
+                 currentProfile === 'project-manager' ? 'Vanessa Chen' : 'Alex Rodriguez'}
+          </div>
+              <div className="user-role">
+                {currentProfile === 'buyer' ? 'Property Buyer' : 
+                 currentProfile === 'estate-agent' ? 'Estate Agent' :
+                 currentProfile === 'project-manager' ? 'Project Manager' : 'Property Sourcer'}
+              </div>
+            </div>
           </div>
         </div>
       </header>
@@ -1939,25 +1965,6 @@ function PeopleListView({ people, setPeople, setSelectedDetail }) {
 
   return (
     <div className="view">
-      {/* Simplified CRM Stats */}
-      <div className="crm-stats-simplified">
-        <div className="stat-card-small">
-          <div className="stat-number-small">{people.length}</div>
-          <div className="stat-label-small">Total Contacts</div>
-        </div>
-        <div className="stat-card-small">
-          <div className="stat-number-small">{people.filter(p => p.stage === 'Lead').length}</div>
-          <div className="stat-label-small">Leads</div>
-        </div>
-        <div className="stat-card-small">
-          <div className="stat-number-small">{people.filter(p => p.stage === 'Qualified').length}</div>
-          <div className="stat-label-small">Qualified</div>
-        </div>
-        <div className="stat-card-small">
-          <div className="stat-number-small">{people.filter(p => p.stage === 'Closed Won').length}</div>
-          <div className="stat-label-small">Closed Won</div>
-        </div>
-      </div>
 
       {viewMode === 'cards' ? (
         <div className="people-grid">
