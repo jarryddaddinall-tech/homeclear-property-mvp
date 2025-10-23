@@ -110,6 +110,15 @@ function DetailView({ selectedDetail, setSelectedDetail, people, properties, pro
   const [newNote, setNewNote] = useState('');
   const [notes, setNotes] = useState(Array.isArray(data.notes) ? data.notes : []);
   
+  // Ensure notes is always an array and update when data changes
+  useEffect(() => {
+    if (Array.isArray(data.notes)) {
+      setNotes(data.notes);
+    } else {
+      setNotes([]);
+    }
+  }, [data.notes]);
+  
   const addNote = () => {
     if (!newNote.trim()) return;
     
@@ -343,7 +352,7 @@ function DetailView({ selectedDetail, setSelectedDetail, people, properties, pro
           </div>
           
           <div className="notes-list">
-            {notes.map(note => (
+            {Array.isArray(notes) && notes.map(note => (
               <div key={note.id} className="note-item">
                 <div className="note-content">{note.text}</div>
                 <div className="note-meta">
@@ -354,7 +363,7 @@ function DetailView({ selectedDetail, setSelectedDetail, people, properties, pro
                 </div>
               </div>
             ))}
-            {notes.length === 0 && (
+            {(!Array.isArray(notes) || notes.length === 0) && (
               <div className="no-notes">No notes yet. Add the first one above!</div>
             )}
           </div>
