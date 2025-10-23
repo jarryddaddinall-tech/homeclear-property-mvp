@@ -3541,13 +3541,9 @@ body {
   border-bottom: 1px solid #e5e7eb;
 }
 
-.contact-column { width: 25%; }
-.company-column { width: 18%; }
-.stage-column { width: 15%; }
-.priority-column { width: 12%; }
-.budget-column { width: 12%; }
-.last-contact-column { width: 12%; }
-.actions-column { width: 6%; }
+.contact-column { width: 60%; }
+.company-column { width: 30%; }
+.actions-column { width: 10%; }
 
 /* Contact Row Styling */
 .contact-row {
@@ -3801,4 +3797,35 @@ body {
   font-size: 12px;
   color: #6b7280;
   line-height: 1.2;
+}
+
+/* Simplified CRM Stats */
+.crm-stats-simplified {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card-small {
+  background: white;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.stat-number-small {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 4px;
+}
+
+.stat-label-small {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }

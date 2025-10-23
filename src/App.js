@@ -1569,16 +1569,6 @@ function PeopleSection({ currentView, people, setPeople, properties, projects, s
 
   return (
     <div className="view">
-      <div className="page-header">
-        <h1 className="page-title">{sectionTitle}</h1>
-        <p className="page-subtitle">Manage your contacts and relationships</p>
-        <div className="header-actions">
-          <button className="btn btn-primary" onClick={() => setCurrentView('add-person')}>
-            + Add Person
-          </button>
-        </div>
-      </div>
-      
       {currentView === 'add-person' ? (
         <AddPersonView people={people} setPeople={setPeople} />
       ) : (
@@ -1916,86 +1906,23 @@ function PeopleListView({ people, setPeople, setSelectedDetail }) {
 
   return (
     <div className="view">
-      <div className="page-header">
-        <h1 className="page-title">CRM Dashboard</h1>
-        <p className="page-subtitle">Manage your contacts and sales pipeline</p>
-        <div className="header-actions">
-          <div className="view-toggle">
-            <button 
-              className={`toggle-btn ${viewMode === 'cards' ? 'active' : ''}`}
-              onClick={() => setViewMode('cards')}
-            >
-              📋 Cards
-            </button>
-            <button 
-              className={`toggle-btn ${viewMode === 'table' ? 'active' : ''}`}
-              onClick={() => setViewMode('table')}
-            >
-              <BarChart3 size={16} /> Table
-            </button>
-          </div>
+      {/* Simplified CRM Stats */}
+      <div className="crm-stats-simplified">
+        <div className="stat-card-small">
+          <div className="stat-number-small">{people.length}</div>
+          <div className="stat-label-small">Total Contacts</div>
         </div>
-      </div>
-
-      {/* CRM Stats */}
-      <div className="crm-stats">
-        <div className="stat-card">
-          <div className="stat-number">{people.length}</div>
-          <div className="stat-label">Total Contacts</div>
+        <div className="stat-card-small">
+          <div className="stat-number-small">{people.filter(p => p.stage === 'Lead').length}</div>
+          <div className="stat-label-small">Leads</div>
         </div>
-        <div className="stat-card">
-          <div className="stat-number">{people.filter(p => p.stage === 'Lead').length}</div>
-          <div className="stat-label">Leads</div>
+        <div className="stat-card-small">
+          <div className="stat-number-small">{people.filter(p => p.stage === 'Qualified').length}</div>
+          <div className="stat-label-small">Qualified</div>
         </div>
-        <div className="stat-card">
-          <div className="stat-number">{people.filter(p => p.stage === 'Qualified').length}</div>
-          <div className="stat-label">Qualified</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-number">{people.filter(p => p.stage === 'Closed Won').length}</div>
-          <div className="stat-label">Closed Won</div>
-        </div>
-      </div>
-
-      <div className="card">
-        <div className="search-filters">
-          <div className="search-group">
-            <input
-              type="text"
-              placeholder="Search by name, email, company, or location..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input"
-            />
-          </div>
-          <div className="filter-group">
-            <select
-              value={filterStage}
-              onChange={(e) => setFilterStage(e.target.value)}
-              className="filter-select"
-            >
-              <option value="All">All Stages</option>
-              <option value="Lead">Lead</option>
-              <option value="Qualified">Qualified</option>
-              <option value="Proposal">Proposal</option>
-              <option value="Negotiation">Negotiation</option>
-              <option value="Closed Won">Closed Won</option>
-              <option value="Closed Lost">Closed Lost</option>
-            </select>
-          </div>
-          <div className="filter-group">
-            <select
-              value={filterPriority}
-              onChange={(e) => setFilterPriority(e.target.value)}
-              className="filter-select"
-            >
-              <option value="All">All Priorities</option>
-              <option value="Low">Low</option>
-              <option value="Medium">Medium</option>
-              <option value="High">High</option>
-              <option value="Urgent">Urgent</option>
-            </select>
-          </div>
+        <div className="stat-card-small">
+          <div className="stat-number-small">{people.filter(p => p.stage === 'Closed Won').length}</div>
+          <div className="stat-label-small">Closed Won</div>
         </div>
       </div>
 
@@ -2127,10 +2054,6 @@ function PeopleListView({ people, setPeople, setSelectedDetail }) {
                 <tr>
                   <th className="contact-column">Contact</th>
                   <th className="company-column">Company</th>
-                  <th className="stage-column">Stage</th>
-                  <th className="priority-column">Priority</th>
-                  <th className="budget-column">Budget</th>
-                  <th className="last-contact-column">Last Contact</th>
                   <th className="actions-column">Actions</th>
                 </tr>
               </thead>
@@ -2156,41 +2079,6 @@ function PeopleListView({ people, setPeople, setSelectedDetail }) {
                         <div className="company-name">{person.company || 'No company'}</div>
                         {person.role && (
                           <div className="company-role">{person.role}</div>
-                        )}
-                      </div>
-                    </td>
-                    <td className="stage-cell">
-                      <select 
-                        value={person.stage} 
-                        onChange={(e) => updatePersonStage(person.id, e.target.value)}
-                        className="stage-select-capsule"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <option value="Lead">Lead</option>
-                        <option value="Qualified">Qualified</option>
-                        <option value="Proposal">Proposal</option>
-                        <option value="Negotiation">Negotiation</option>
-                        <option value="Closed Won">Closed Won</option>
-                        <option value="Closed Lost">Closed Lost</option>
-                      </select>
-                    </td>
-                    <td className="priority-cell">
-                      <span className={`priority-indicator priority-${person.priority.toLowerCase()}`}>
-                        {person.priority}
-                      </span>
-                    </td>
-                    <td className="budget-cell">
-                      {person.budget ? (
-                        <div className="budget-amount">£{parseInt(person.budget).toLocaleString()}</div>
-                      ) : (
-                        <span className="no-budget">No budget</span>
-                      )}
-                    </td>
-                    <td className="last-contact-cell">
-                      <div className="last-contact-info">
-                        <div className="last-contact-date">{person.lastContact || 'Never'}</div>
-                        {person.source && (
-                          <div className="contact-source">via {person.source}</div>
                         )}
                       </div>
                     </td>
