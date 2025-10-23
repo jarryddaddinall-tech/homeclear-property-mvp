@@ -619,7 +619,6 @@ function App() {
         {/* Sidebar */}
         <nav className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
           <div className="sidebar-header">
-            <div className="logo">HomeClear</div>
             <button 
               className="sidebar-toggle"
               onClick={toggleSidebar}
@@ -723,6 +722,7 @@ function App() {
               setProperties={setProperties}
               people={people}
               projects={projects}
+              setSelectedDetail={setSelectedDetail}
             />
           )}
           
@@ -2047,7 +2047,7 @@ function PeopleListView({ people, setPeople, setSelectedDetail }) {
 }
 
 // Properties Section Component
-function PropertiesSection({ currentView, properties, setProperties, people, projects }) {
+function PropertiesSection({ currentView, properties, setProperties, people, projects, setSelectedDetail }) {
   const getFilteredProperties = () => {
     switch (currentView) {
       case 'properties-for-sale':
@@ -2082,7 +2082,7 @@ function PropertiesSection({ currentView, properties, setProperties, people, pro
       {currentView === 'add-property' ? (
         <AddPropertyView properties={properties} setProperties={setProperties} people={people} />
       ) : (
-        <PropertiesListView properties={filteredProperties} setProperties={setProperties} people={people} />
+        <PropertiesListView properties={filteredProperties} setProperties={setProperties} people={people} setSelectedDetail={setSelectedDetail} />
       )}
     </div>
   );
@@ -2289,7 +2289,7 @@ function AddPropertyView({ properties, setProperties, people }) {
 }
 
 // Properties List View Component
-function PropertiesListView({ properties, setProperties, people }) {
+function PropertiesListView({ properties, setProperties, people, setSelectedDetail }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
 
@@ -2336,7 +2336,7 @@ function PropertiesListView({ properties, setProperties, people }) {
         </div>
       </div>
 
-      <div className="people-grid">
+      <div className="crm-table">
         {filteredProperties.length === 0 ? (
           <div className="empty-state">
             <div className="empty-icon">
@@ -2346,55 +2346,61 @@ function PropertiesListView({ properties, setProperties, people }) {
             <p>Start by adding your first property.</p>
           </div>
         ) : (
-          filteredProperties.map(property => (
-            <div key={property.id} className="crm-person-card">
-              <div className="card-header">
-                <div className="person-avatar">
-                  <div className="avatar-circle">
-                    <Building size={16} />
-                  </div>
-                </div>
-                <div className="person-info">
-                  <div className="person-name">{property.address}</div>
-                  <div className="person-company">{property.type}</div>
-                  <div className="person-role">{property.status}</div>
-                </div>
-                <div className="priority-badge priority-Medium">
-                  {property.status}
-                </div>
-              </div>
-              
-              <div className="contact-info">
-                <div className="contact-item">
-                  <span className="contact-icon">💰</span>
-                  <span className="contact-value">
-                    {property.purchasePrice ? `£${parseInt(property.purchasePrice).toLocaleString()}` : 'No price set'}
-                  </span>
-                </div>
-                {property.beds && (
-                  <div className="contact-item">
-                    <span className="contact-icon">🛏️</span>
-                    <span className="contact-value">{property.beds} bed{property.beds > 1 ? 's' : ''}</span>
-                  </div>
-                )}
-                {property.sqft && (
-                  <div className="contact-item">
-                    <span className="contact-icon">📐</span>
-                    <span className="contact-value">{property.sqft} sq ft</span>
-                  </div>
-                )}
-              </div>
-              
-              <div className="crm-actions">
-                <button className="action-btn primary">📋 View</button>
-                <button className="action-btn secondary">✏️ Edit</button>
-                <button className="action-btn secondary">📄 Documents</button>
-                <button className="action-btn danger" onClick={() => deleteProperty(property.id)}>
-                  🗑️
-                </button>
-              </div>
-            </div>
-          ))
+          <table>
+            <thead>
+              <tr>
+                <th>Property</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Owner</th>
+                <th>Price</th>
+                <th>Details</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredProperties.map(property => (
+                <tr key={property.id} onClick={() => setSelectedDetail({ type: 'property', data: property })} style={{ cursor: 'pointer' }}>
+                  <td>
+                    <div className="table-contact">
+                      <div className="contact-avatar">
+                        <Building size={16} />
+                      </div>
+                      <div>
+                        <div className="contact-name">{property.address}</div>
+                        <div className="contact-email">{property.type}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>{property.type}</td>
+                  <td>
+                    <span className={`status-badge ${property.status.toLowerCase().replace(' ', '-')}`}>
+                      {property.status}
+                    </span>
+                  </td>
+                  <td>{property.owner || '-'}</td>
+                  <td>£{property.price}</td>
+                  <td>{property.beds} bed, {property.baths} bath</td>
+                  <td>
+                    <div className="table-actions">
+                      <button className="table-btn">
+                        <Eye size={14} />
+                      </button>
+                      <button className="table-btn">
+                        <Edit size={14} />
+                      </button>
+                      <button className="table-btn danger" onClick={(e) => {
+                        e.stopPropagation();
+                        deleteProperty(property.id);
+                      }}>
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         )}
       </div>
     </div>
