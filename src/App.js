@@ -102,10 +102,149 @@ const importData = () => {
   input.click();
 };
 
+// Shared Detail View Component
+function DetailView({ selectedDetail, setSelectedDetail, people, properties, projects }) {
+  if (!selectedDetail) return null;
+
+  const { type, data } = selectedDetail;
+  
+  const getRelatedItems = () => {
+    if (type === 'person') {
+      const personProperties = properties.filter(p => p.owner === data.name);
+      const personProjects = projects.filter(p => p.people && p.people.includes(data.id));
+      return { properties: personProperties, projects: personProjects };
+    } else if (type === 'property') {
+      const propertyProjects = projects.filter(p => p.property === data.id);
+      const propertyPeople = people.filter(p => p.name === data.owner);
+      return { projects: propertyProjects, people: propertyPeople };
+    } else if (type === 'project') {
+      const projectPeople = people.filter(p => data.people && data.people.includes(p.id));
+      const projectProperty = properties.find(p => p.id === data.property);
+      return { people: projectPeople, property: projectProperty };
+    }
+    return {};
+  };
+
+  const relatedItems = getRelatedItems();
+
+  return (
+    <div className="detail-view">
+      <div className="detail-header">
+        <button 
+          className="back-button"
+          onClick={() => setSelectedDetail(null)}
+        >
+          ← Back
+        </button>
+        <h1 className="detail-title">
+          {type === 'person' && data.name}
+          {type === 'property' && data.address}
+          {type === 'project' && data.name}
+        </h1>
+      </div>
+
+      <div className="detail-content">
+        <div className="detail-info">
+          <h2>Details</h2>
+          {type === 'person' && (
+            <div className="info-grid">
+              <div><strong>Role:</strong> {data.role}</div>
+              <div><strong>Company:</strong> {data.company}</div>
+              <div><strong>Email:</strong> {data.email}</div>
+              <div><strong>Phone:</strong> {data.phone}</div>
+              <div><strong>Location:</strong> {data.location}</div>
+              <div><strong>Priority:</strong> {data.priority}</div>
+              <div><strong>Stage:</strong> {data.stage}</div>
+              <div><strong>Budget:</strong> £{data.budget}</div>
+              <div><strong>Notes:</strong> {data.notes}</div>
+            </div>
+          )}
+          {type === 'property' && (
+            <div className="info-grid">
+              <div><strong>Type:</strong> {data.type}</div>
+              <div><strong>Status:</strong> {data.status}</div>
+              <div><strong>Price:</strong> £{data.price}</div>
+              <div><strong>Owner:</strong> {data.owner}</div>
+              <div><strong>Bedrooms:</strong> {data.beds}</div>
+              <div><strong>Bathrooms:</strong> {data.baths}</div>
+              <div><strong>Square Feet:</strong> {data.sqft}</div>
+              <div><strong>Notes:</strong> {data.notes}</div>
+            </div>
+          )}
+          {type === 'project' && (
+            <div className="info-grid">
+              <div><strong>Type:</strong> {data.type}</div>
+              <div><strong>Status:</strong> {data.status}</div>
+              <div><strong>Phase:</strong> {data.phase}</div>
+              <div><strong>Start Date:</strong> {data.startDate}</div>
+              <div><strong>End Date:</strong> {data.endDate}</div>
+              <div><strong>Budget:</strong> £{data.budget}</div>
+              <div><strong>Notes:</strong> {data.notes}</div>
+            </div>
+          )}
+        </div>
+
+        {relatedItems.properties && relatedItems.properties.length > 0 && (
+          <div className="related-section">
+            <h3>Related Properties</h3>
+            <div className="related-list">
+              {relatedItems.properties.map(property => (
+                <div key={property.id} className="related-item">
+                  <div className="related-title">{property.address}</div>
+                  <div className="related-subtitle">{property.type} - {property.status}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {relatedItems.projects && relatedItems.projects.length > 0 && (
+          <div className="related-section">
+            <h3>Related Projects</h3>
+            <div className="related-list">
+              {relatedItems.projects.map(project => (
+                <div key={project.id} className="related-item">
+                  <div className="related-title">{project.name}</div>
+                  <div className="related-subtitle">{project.type} - {project.phase}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {relatedItems.people && relatedItems.people.length > 0 && (
+          <div className="related-section">
+            <h3>Related People</h3>
+            <div className="related-list">
+              {relatedItems.people.map(person => (
+                <div key={person.id} className="related-item">
+                  <div className="related-title">{person.name}</div>
+                  <div className="related-subtitle">{person.role} - {person.company}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {relatedItems.property && (
+          <div className="related-section">
+            <h3>Related Property</h3>
+            <div className="related-item">
+              <div className="related-title">{relatedItems.property.address}</div>
+              <div className="related-subtitle">{relatedItems.property.type} - {relatedItems.property.status}</div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // Main App Component - Fixed for Vercel deployment
 function App() {
   const [currentView, setCurrentView] = useState('dashboard');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [selectedDetail, setSelectedDetail] = useState(null);
   const [timelineEvents, setTimelineEvents] = useLocalStorage('hc.timelineEvents', []);
   const [parties, setParties] = useLocalStorage('hc.parties', [
     { id: 1, role: 'Solicitor', name: 'Emma Wilson', company: 'Wilson & Partners', email: 'emma@wilsonpartners.co.uk', phone: '0161 123 4567', lastContactedISO: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), notes: 'Specializes in residential conveyancing' },
@@ -480,7 +619,7 @@ function App() {
         {/* Sidebar */}
         <nav className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
           <div className="sidebar-header">
-            <div className="logo">Property<span className="logo-accent">Axis</span></div>
+            <div className="logo">HomeClear</div>
             <button 
               className="sidebar-toggle"
               onClick={toggleSidebar}
@@ -548,7 +687,15 @@ function App() {
 
         {/* Main Content */}
         <main className={`main-content ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
-        {currentView === 'dashboard' && (
+        {selectedDetail ? (
+          <DetailView 
+            selectedDetail={selectedDetail}
+            setSelectedDetail={setSelectedDetail}
+            people={people}
+            properties={properties}
+            projects={projects}
+          />
+        ) : currentView === 'dashboard' && (
             <DashboardOverview 
               people={people}
               properties={properties}
@@ -564,6 +711,7 @@ function App() {
               setPeople={setPeople}
               properties={properties}
               projects={projects}
+              setSelectedDetail={setSelectedDetail}
             />
           )}
           
@@ -593,6 +741,7 @@ function App() {
           {currentView === 'timeline' && <TimelineView />}
           {currentView === 'documents' && <DocumentsView />}
           {currentView === 'reports' && <ReportsView />}
+        )}
         </main>
       </div>
 
@@ -1264,7 +1413,7 @@ function PropertySearchView() {
 }
 
 // People Section Component
-function PeopleSection({ currentView, people, setPeople, properties, projects }) {
+function PeopleSection({ currentView, people, setPeople, properties, projects, setSelectedDetail }) {
   const getFilteredPeople = () => {
     switch (currentView) {
       case 'people-buyers':
@@ -1301,7 +1450,7 @@ function PeopleSection({ currentView, people, setPeople, properties, projects })
       {currentView === 'add-person' ? (
         <AddPersonView people={people} setPeople={setPeople} />
       ) : (
-        <PeopleListView people={filteredPeople} setPeople={setPeople} />
+        <PeopleListView people={filteredPeople} setPeople={setPeople} setSelectedDetail={setSelectedDetail} />
       )}
     </div>
   );
@@ -1599,7 +1748,7 @@ function AddPersonView({ people, setPeople }) {
 }
 
 // People List View Component
-function PeopleListView({ people, setPeople }) {
+function PeopleListView({ people, setPeople, setSelectedDetail }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStage, setFilterStage] = useState('All');
   const [filterPriority, setFilterPriority] = useState('All');
@@ -1837,7 +1986,7 @@ function PeopleListView({ people, setPeople }) {
             </thead>
             <tbody>
               {filteredPeople.map(person => (
-                <tr key={person.id}>
+                <tr key={person.id} onClick={() => setSelectedDetail({ type: 'person', data: person })} style={{ cursor: 'pointer' }}>
                   <td>
                     <div className="table-contact">
                       <div className="contact-avatar">
