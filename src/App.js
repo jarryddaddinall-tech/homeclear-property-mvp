@@ -275,10 +275,6 @@ function App() {
             </div>
           </div>
           
-          <div className="notification-badge">
-            <Bell size={20} />
-            {liveUpdates.length > 0 && <span className="badge-dot"></span>}
-          </div>
           
           <div className="data-menu">
             <Menu size={20} />
