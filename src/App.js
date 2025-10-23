@@ -314,11 +314,16 @@ function DetailView({ selectedDetail, setSelectedDetail, people, properties, pro
         {relatedItems.people && relatedItems.people.length > 0 && (
           <div className="related-section">
             <h3>Related People</h3>
-            <div className="related-list">
+            <div className="related-people-list">
               {relatedItems.people.map(person => (
-                <div key={person.id} className="related-item">
-                  <div className="related-title">{person.name}</div>
-                  <div className="related-subtitle">{person.role} - {person.company}</div>
+                <div key={person.id} className="related-person">
+                  <div className="related-person-avatar">
+                    {person.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="related-person-info">
+                    <div className="related-person-name">{person.name}</div>
+                    <div className="related-person-role">{person.role}</div>
+                  </div>
                 </div>
               ))}
             </div>
