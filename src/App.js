@@ -103,10 +103,37 @@ const importData = () => {
 };
 
 // Shared Detail View Component
-function DetailView({ selectedDetail, setSelectedDetail, people, properties, projects }) {
+function DetailView({ selectedDetail, setSelectedDetail, people, properties, projects, setProperties }) {
   if (!selectedDetail) return null;
 
   const { type, data } = selectedDetail;
+  const [newNote, setNewNote] = useState('');
+  const [notes, setNotes] = useState(data.notes || []);
+  
+  const addNote = () => {
+    if (!newNote.trim()) return;
+    
+    const note = {
+      id: Date.now(),
+      text: newNote,
+      author: 'You', // In a real app, this would be the current user
+      timestamp: new Date().toISOString(),
+      type: 'note'
+    };
+    
+    const updatedNotes = [...notes, note];
+    setNotes(updatedNotes);
+    
+    // Update the property with the new notes
+    if (type === 'property') {
+      const updatedProperties = properties.map(p => 
+        p.id === data.id ? { ...p, notes: updatedNotes } : p
+      );
+      setProperties(updatedProperties);
+    }
+    
+    setNewNote('');
+  };
   
   const getRelatedItems = () => {
     if (type === 'person') {
@@ -235,6 +262,40 @@ function DetailView({ selectedDetail, setSelectedDetail, people, properties, pro
             </div>
           </div>
         )}
+
+        {/* Activity/Notes Section */}
+        <div className="activity-section">
+          <h3>Activity & Notes</h3>
+          <div className="add-note-form">
+            <textarea
+              value={newNote}
+              onChange={(e) => setNewNote(e.target.value)}
+              placeholder="Add a note about this property..."
+              className="note-input"
+              rows="3"
+            />
+            <button onClick={addNote} className="add-note-btn">
+              Add Note
+            </button>
+          </div>
+          
+          <div className="notes-list">
+            {notes.map(note => (
+              <div key={note.id} className="note-item">
+                <div className="note-content">{note.text}</div>
+                <div className="note-meta">
+                  <span className="note-author">{note.author}</span>
+                  <span className="note-time">
+                    {new Date(note.timestamp).toLocaleString()}
+                  </span>
+                </div>
+              </div>
+            ))}
+            {notes.length === 0 && (
+              <div className="no-notes">No notes yet. Add the first one above!</div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -686,15 +747,7 @@ function App() {
 
         {/* Main Content */}
         <main className={`main-content ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
-        {selectedDetail ? (
-          <DetailView 
-            selectedDetail={selectedDetail}
-            setSelectedDetail={setSelectedDetail}
-            people={people}
-            properties={properties}
-            projects={projects}
-          />
-        ) : currentView === 'dashboard' && (
+        {currentView === 'dashboard' && (
             <DashboardOverview 
               people={people}
               properties={properties}
@@ -744,6 +797,23 @@ function App() {
         )}
         </main>
       </div>
+
+      {/* Detail View Overlay */}
+      {selectedDetail && (
+        <div className="detail-overlay">
+          <div className="detail-overlay-backdrop" onClick={() => setSelectedDetail(null)}></div>
+          <div className="detail-overlay-content">
+            <DetailView 
+              selectedDetail={selectedDetail}
+              setSelectedDetail={setSelectedDetail}
+              people={people}
+              properties={properties}
+              projects={projects}
+              setProperties={setProperties}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Saved Indicator */}
       {showSaved && (
@@ -2092,16 +2162,58 @@ function PropertiesSection({ currentView, properties, setProperties, people, pro
 function AddPropertyView({ properties, setProperties, people }) {
   const [formData, setFormData] = useState({
     address: '',
+    postcode: '',
     type: 'House',
     status: 'For Sale',
-    purchasePrice: '',
-    currentValue: '',
+    price: '',
     owner: '',
     beds: '',
     baths: '',
     sqft: '',
     notes: ''
   });
+  const [postcodeLookup, setPostcodeLookup] = useState('');
+  const [lookupResults, setLookupResults] = useState([]);
+  const [isLookingUp, setIsLookingUp] = useState(false);
+
+  const handlePostcodeLookup = async () => {
+    if (!postcodeLookup.trim()) return;
+    
+    setIsLookingUp(true);
+    try {
+      // Using a free UK postcode API
+      const response = await fetch(`https://api.postcodes.io/postcodes/${postcodeLookup.trim()}`);
+      const data = await response.json();
+      
+      if (data.status === 200) {
+        const result = data.result;
+        setLookupResults([{
+          address: `${result.parish || result.admin_ward || result.parliamentary_constituency}, ${result.postcode}`,
+          fullAddress: `${result.parish || result.admin_ward || result.parliamentary_constituency}, ${result.postcode}`,
+          postcode: result.postcode,
+          latitude: result.latitude,
+          longitude: result.longitude
+        }]);
+      } else {
+        setLookupResults([]);
+        alert('Postcode not found. Please enter manually.');
+      }
+    } catch (error) {
+      console.error('Postcode lookup failed:', error);
+      alert('Postcode lookup failed. Please enter manually.');
+    }
+    setIsLookingUp(false);
+  };
+
+  const selectLookupResult = (result) => {
+    setFormData({
+      ...formData,
+      address: result.fullAddress,
+      postcode: result.postcode
+    });
+    setLookupResults([]);
+    setPostcodeLookup('');
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -2117,10 +2229,10 @@ function AddPropertyView({ properties, setProperties, people }) {
     setProperties([...properties, newProperty]);
     setFormData({
       address: '',
+      postcode: '',
       type: 'House',
       status: 'For Sale',
-      purchasePrice: '',
-      currentValue: '',
+      price: '',
       owner: '',
       beds: '',
       baths: '',
@@ -2141,6 +2253,40 @@ function AddPropertyView({ properties, setProperties, people }) {
     <div className="card">
       <form onSubmit={handleSubmit} className="person-form">
         <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="postcode-lookup">Postcode Lookup</label>
+            <div className="postcode-lookup">
+              <input
+                type="text"
+                id="postcode-lookup"
+                value={postcodeLookup}
+                onChange={(e) => setPostcodeLookup(e.target.value)}
+                placeholder="Enter postcode (e.g., M1 2AB)"
+                className="postcode-input"
+              />
+              <button 
+                type="button" 
+                onClick={handlePostcodeLookup}
+                disabled={isLookingUp}
+                className="lookup-btn"
+              >
+                {isLookingUp ? 'Looking up...' : 'Lookup'}
+              </button>
+            </div>
+            {lookupResults.length > 0 && (
+              <div className="lookup-results">
+                {lookupResults.map((result, index) => (
+                  <div 
+                    key={index} 
+                    className="lookup-result-item"
+                    onClick={() => selectLookupResult(result)}
+                  >
+                    {result.address}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
           <div className="form-group">
             <label htmlFor="address">Property Address *</label>
             <input
@@ -2203,25 +2349,25 @@ function AddPropertyView({ properties, setProperties, people }) {
 
         <div className="form-row">
           <div className="form-group">
-            <label htmlFor="purchasePrice">Purchase Price (£)</label>
+            <label htmlFor="price">Price (£)</label>
             <input
               type="number"
-              id="purchasePrice"
-              name="purchasePrice"
-              value={formData.purchasePrice}
+              id="price"
+              name="price"
+              value={formData.price}
               onChange={handleChange}
-              placeholder="Enter purchase price"
+              placeholder="Enter property price"
             />
           </div>
           <div className="form-group">
-            <label htmlFor="currentValue">Current Value (£)</label>
+            <label htmlFor="postcode">Postcode</label>
             <input
-              type="number"
-              id="currentValue"
-              name="currentValue"
-              value={formData.currentValue}
+              type="text"
+              id="postcode"
+              name="postcode"
+              value={formData.postcode}
               onChange={handleChange}
-              placeholder="Enter current value"
+              placeholder="Enter postcode"
             />
           </div>
         </div>
