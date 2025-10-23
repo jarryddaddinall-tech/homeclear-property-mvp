@@ -825,12 +825,18 @@ function AddPersonView({ people, setPeople }) {
     name: '',
     email: '',
     phone: '',
+    company: '',
     role: 'Buyer',
     propertyType: 'House to Rent Out',
     budget: '',
     location: '',
+    source: 'Website',
+    priority: 'Medium',
+    stage: 'Lead',
     notes: '',
-    status: 'Active'
+    status: 'Active',
+    lastContact: '',
+    nextFollowUp: ''
   });
 
   const handleSubmit = (e) => {
@@ -846,12 +852,18 @@ function AddPersonView({ people, setPeople }) {
       name: '',
       email: '',
       phone: '',
+      company: '',
       role: 'Buyer',
       propertyType: 'House to Rent Out',
       budget: '',
       location: '',
+      source: 'Website',
+      priority: 'Medium',
+      stage: 'Lead',
       notes: '',
-      status: 'Active'
+      status: 'Active',
+      lastContact: '',
+      nextFollowUp: ''
     });
     alert('Person added successfully!');
   };
@@ -912,6 +924,20 @@ function AddPersonView({ people, setPeople }) {
               />
             </div>
             <div className="form-group">
+              <label htmlFor="company">Company</label>
+              <input
+                type="text"
+                id="company"
+                name="company"
+                value={formData.company}
+                onChange={handleChange}
+                placeholder="Enter company name"
+              />
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
               <label htmlFor="role">Role</label>
               <select
                 id="role"
@@ -923,6 +949,25 @@ function AddPersonView({ people, setPeople }) {
                 <option value="Investor">Investor</option>
                 <option value="Landlord">Landlord</option>
                 <option value="Property Developer">Property Developer</option>
+                <option value="Real Estate Agent">Real Estate Agent</option>
+                <option value="Property Manager">Property Manager</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label htmlFor="source">Lead Source</label>
+              <select
+                id="source"
+                name="source"
+                value={formData.source}
+                onChange={handleChange}
+              >
+                <option value="Website">Website</option>
+                <option value="Referral">Referral</option>
+                <option value="Social Media">Social Media</option>
+                <option value="Cold Call">Cold Call</option>
+                <option value="Email Campaign">Email Campaign</option>
+                <option value="Event">Event</option>
+                <option value="Other">Other</option>
               </select>
             </div>
           </div>
@@ -968,6 +1013,39 @@ function AddPersonView({ people, setPeople }) {
               />
             </div>
             <div className="form-group">
+              <label htmlFor="priority">Priority</label>
+              <select
+                id="priority"
+                name="priority"
+                value={formData.priority}
+                onChange={handleChange}
+              >
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+                <option value="Urgent">Urgent</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="stage">Sales Stage</label>
+              <select
+                id="stage"
+                name="stage"
+                value={formData.stage}
+                onChange={handleChange}
+              >
+                <option value="Lead">Lead</option>
+                <option value="Qualified">Qualified</option>
+                <option value="Proposal">Proposal</option>
+                <option value="Negotiation">Negotiation</option>
+                <option value="Closed Won">Closed Won</option>
+                <option value="Closed Lost">Closed Lost</option>
+              </select>
+            </div>
+            <div className="form-group">
               <label htmlFor="status">Status</label>
               <select
                 id="status"
@@ -980,6 +1058,29 @@ function AddPersonView({ people, setPeople }) {
                 <option value="Prospect">Prospect</option>
                 <option value="Lead">Lead</option>
               </select>
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="lastContact">Last Contact Date</label>
+              <input
+                type="date"
+                id="lastContact"
+                name="lastContact"
+                value={formData.lastContact}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="nextFollowUp">Next Follow-up Date</label>
+              <input
+                type="date"
+                id="nextFollowUp"
+                name="nextFollowUp"
+                value={formData.nextFollowUp}
+                onChange={handleChange}
+              />
             </div>
           </div>
 
@@ -1012,14 +1113,18 @@ function AddPersonView({ people, setPeople }) {
 // People List View Component
 function PeopleListView({ people, setPeople }) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState('All');
+  const [filterStage, setFilterStage] = useState('All');
+  const [filterPriority, setFilterPriority] = useState('All');
+  const [viewMode, setViewMode] = useState('cards'); // cards or table
 
   const filteredPeople = people.filter(person => {
     const matchesSearch = person.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          person.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         person.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          person.location.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = filterStatus === 'All' || person.status === filterStatus;
-    return matchesSearch && matchesStatus;
+    const matchesStage = filterStage === 'All' || person.stage === filterStage;
+    const matchesPriority = filterPriority === 'All' || person.priority === filterPriority;
+    return matchesSearch && matchesStage && matchesPriority;
   });
 
   const deletePerson = (id) => {
@@ -1028,11 +1133,59 @@ function PeopleListView({ people, setPeople }) {
     }
   };
 
+  const updatePersonStage = (id, newStage) => {
+    setPeople(people.map(person => 
+      person.id === id ? { ...person, stage: newStage } : person
+    ));
+  };
+
+  const updatePersonPriority = (id, newPriority) => {
+    setPeople(people.map(person => 
+      person.id === id ? { ...person, priority: newPriority } : person
+    ));
+  };
+
   return (
     <div className="view">
       <div className="page-header">
-        <h1 className="page-title">People List</h1>
-        <p className="page-subtitle">Manage all people in your database</p>
+        <h1 className="page-title">CRM Dashboard</h1>
+        <p className="page-subtitle">Manage your contacts and sales pipeline</p>
+        <div className="header-actions">
+          <div className="view-toggle">
+            <button 
+              className={`toggle-btn ${viewMode === 'cards' ? 'active' : ''}`}
+              onClick={() => setViewMode('cards')}
+            >
+              📋 Cards
+            </button>
+            <button 
+              className={`toggle-btn ${viewMode === 'table' ? 'active' : ''}`}
+              onClick={() => setViewMode('table')}
+            >
+              📊 Table
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* CRM Stats */}
+      <div className="crm-stats">
+        <div className="stat-card">
+          <div className="stat-number">{people.length}</div>
+          <div className="stat-label">Total Contacts</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-number">{people.filter(p => p.stage === 'Lead').length}</div>
+          <div className="stat-label">Leads</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-number">{people.filter(p => p.stage === 'Qualified').length}</div>
+          <div className="stat-label">Qualified</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-number">{people.filter(p => p.stage === 'Closed Won').length}</div>
+          <div className="stat-label">Closed Won</div>
+        </div>
       </div>
 
       <div className="card">
@@ -1040,7 +1193,7 @@ function PeopleListView({ people, setPeople }) {
           <div className="search-group">
             <input
               type="text"
-              placeholder="Search by name, email, or location..."
+              placeholder="Search by name, email, company, or location..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="search-input"
@@ -1048,92 +1201,186 @@ function PeopleListView({ people, setPeople }) {
           </div>
           <div className="filter-group">
             <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
+              value={filterStage}
+              onChange={(e) => setFilterStage(e.target.value)}
               className="filter-select"
             >
-              <option value="All">All Status</option>
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
-              <option value="Prospect">Prospect</option>
+              <option value="All">All Stages</option>
               <option value="Lead">Lead</option>
+              <option value="Qualified">Qualified</option>
+              <option value="Proposal">Proposal</option>
+              <option value="Negotiation">Negotiation</option>
+              <option value="Closed Won">Closed Won</option>
+              <option value="Closed Lost">Closed Lost</option>
+            </select>
+          </div>
+          <div className="filter-group">
+            <select
+              value={filterPriority}
+              onChange={(e) => setFilterPriority(e.target.value)}
+              className="filter-select"
+            >
+              <option value="All">All Priorities</option>
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="High">High</option>
+              <option value="Urgent">Urgent</option>
             </select>
           </div>
         </div>
       </div>
 
-      <div className="people-grid">
-        {filteredPeople.length === 0 ? (
-          <div className="empty-state">
-            <div className="empty-icon">👥</div>
-            <h3>No people found</h3>
-            <p>Start by adding your first person using the "Add Person" page.</p>
-          </div>
-        ) : (
-          filteredPeople.map(person => (
-            <div key={person.id} className="person-card">
-              <div className="person-header">
-                <div className="person-avatar">
-                  <div className="avatar-circle">
-                    {person.name.charAt(0).toUpperCase()}
-                  </div>
-                </div>
-                <div className="person-info">
-                  <div className="person-name">{person.name}</div>
-                  <div className="person-role">{person.role}</div>
-                  <div className="person-status">{person.status}</div>
-                </div>
-              </div>
-              
-              <div className="person-details">
-                <div className="detail-item">
-                  <span className="detail-label">Email:</span>
-                  <span className="detail-value">{person.email}</span>
-                </div>
-                {person.phone && (
-                  <div className="detail-item">
-                    <span className="detail-label">Phone:</span>
-                    <span className="detail-value">{person.phone}</span>
-                  </div>
-                )}
-                <div className="detail-item">
-                  <span className="detail-label">Property Type:</span>
-                  <span className="detail-value">{person.propertyType}</span>
-                </div>
-                {person.budget && (
-                  <div className="detail-item">
-                    <span className="detail-label">Budget:</span>
-                    <span className="detail-value">£{parseInt(person.budget).toLocaleString()}</span>
-                  </div>
-                )}
-                {person.location && (
-                  <div className="detail-item">
-                    <span className="detail-label">Location:</span>
-                    <span className="detail-value">{person.location}</span>
-                  </div>
-                )}
-                {person.notes && (
-                  <div className="detail-item">
-                    <span className="detail-label">Notes:</span>
-                    <span className="detail-value">{person.notes}</span>
-                  </div>
-                )}
-              </div>
-              
-              <div className="person-actions">
-                <button className="btn-small">📞 Contact</button>
-                <button className="btn-small">✏️ Edit</button>
-                <button 
-                  className="btn-small btn-danger" 
-                  onClick={() => deletePerson(person.id)}
-                >
-                  🗑️ Delete
-                </button>
-              </div>
+      {viewMode === 'cards' ? (
+        <div className="people-grid">
+          {filteredPeople.length === 0 ? (
+            <div className="empty-state">
+              <div className="empty-icon">👥</div>
+              <h3>No contacts found</h3>
+              <p>Start by adding your first contact using the "Add Person" page.</p>
             </div>
-          ))
-        )}
-      </div>
+          ) : (
+            filteredPeople.map(person => (
+              <div key={person.id} className="crm-person-card">
+                <div className="card-header">
+                  <div className="person-avatar">
+                    <div className="avatar-circle">
+                      {person.name.charAt(0).toUpperCase()}
+                    </div>
+                  </div>
+                  <div className="person-info">
+                    <div className="person-name">{person.name}</div>
+                    <div className="person-company">{person.company || 'No Company'}</div>
+                    <div className="person-role">{person.role}</div>
+                  </div>
+                  <div className="priority-badge priority-{person.priority}">
+                    {person.priority}
+                  </div>
+                </div>
+                
+                <div className="contact-info">
+                  <div className="contact-item">
+                    <span className="contact-icon">📧</span>
+                    <span className="contact-value">{person.email}</span>
+                  </div>
+                  {person.phone && (
+                    <div className="contact-item">
+                      <span className="contact-icon">📞</span>
+                      <span className="contact-value">{person.phone}</span>
+                    </div>
+                  )}
+                  {person.location && (
+                    <div className="contact-item">
+                      <span className="contact-icon">📍</span>
+                      <span className="contact-value">{person.location}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="crm-details">
+                  <div className="detail-row">
+                    <span className="detail-label">Stage:</span>
+                    <select 
+                      value={person.stage} 
+                      onChange={(e) => updatePersonStage(person.id, e.target.value)}
+                      className="stage-select"
+                    >
+                      <option value="Lead">Lead</option>
+                      <option value="Qualified">Qualified</option>
+                      <option value="Proposal">Proposal</option>
+                      <option value="Negotiation">Negotiation</option>
+                      <option value="Closed Won">Closed Won</option>
+                      <option value="Closed Lost">Closed Lost</option>
+                    </select>
+                  </div>
+                  <div className="detail-row">
+                    <span className="detail-label">Source:</span>
+                    <span className="detail-value">{person.source}</span>
+                  </div>
+                  {person.budget && (
+                    <div className="detail-row">
+                      <span className="detail-label">Budget:</span>
+                      <span className="detail-value">£{parseInt(person.budget).toLocaleString()}</span>
+                    </div>
+                  )}
+                </div>
+                
+                <div className="crm-actions">
+                  <button className="action-btn primary">📞 Call</button>
+                  <button className="action-btn secondary">📧 Email</button>
+                  <button className="action-btn secondary">💬 Message</button>
+                  <button className="action-btn secondary">📅 Schedule</button>
+                  <button className="action-btn danger" onClick={() => deletePerson(person.id)}>
+                    🗑️
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      ) : (
+        <div className="crm-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Contact</th>
+                <th>Company</th>
+                <th>Stage</th>
+                <th>Priority</th>
+                <th>Budget</th>
+                <th>Last Contact</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredPeople.map(person => (
+                <tr key={person.id}>
+                  <td>
+                    <div className="table-contact">
+                      <div className="contact-avatar">
+                        {person.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <div className="contact-name">{person.name}</div>
+                        <div className="contact-email">{person.email}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>{person.company || '-'}</td>
+                  <td>
+                    <select 
+                      value={person.stage} 
+                      onChange={(e) => updatePersonStage(person.id, e.target.value)}
+                      className="table-select"
+                    >
+                      <option value="Lead">Lead</option>
+                      <option value="Qualified">Qualified</option>
+                      <option value="Proposal">Proposal</option>
+                      <option value="Negotiation">Negotiation</option>
+                      <option value="Closed Won">Closed Won</option>
+                      <option value="Closed Lost">Closed Lost</option>
+                    </select>
+                  </td>
+                  <td>
+                    <span className={`priority-badge priority-${person.priority}`}>
+                      {person.priority}
+                    </span>
+                  </td>
+                  <td>{person.budget ? `£${parseInt(person.budget).toLocaleString()}` : '-'}</td>
+                  <td>{person.lastContact || '-'}</td>
+                  <td>
+                    <div className="table-actions">
+                      <button className="table-btn">📞</button>
+                      <button className="table-btn">📧</button>
+                      <button className="table-btn">✏️</button>
+                      <button className="table-btn danger" onClick={() => deletePerson(person.id)}>🗑️</button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
