@@ -597,9 +597,26 @@ function App() {
     }
   ]);
   const [tasks, setTasks] = useLocalStorage('hc.tasks', [
-    { id: 1, title: 'Review contract terms', dueISO: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(), done: false, relatedEventId: null, createdAt: new Date().toISOString() },
-    { id: 2, title: 'Submit mortgage documents', dueISO: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(), done: false, relatedEventId: null, createdAt: new Date().toISOString() },
-    { id: 3, title: 'Book survey appointment', dueISO: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), done: false, relatedEventId: null, createdAt: new Date().toISOString() }
+    { id: 1, title: 'Review contract terms', description: 'Review solicitor contract terms for Oak Avenue purchase', dueISO: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(), done: false, priority: 'High', category: 'Legal', assignedTo: 3, relatedProperty: 1, relatedProject: 1, relatedEventId: null, createdAt: new Date().toISOString() },
+    { id: 2, title: 'Submit mortgage documents', description: 'Submit required documents to mortgage broker', dueISO: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(), done: false, priority: 'High', category: 'Financial', assignedTo: 2, relatedProperty: 3, relatedProject: 2, relatedEventId: null, createdAt: new Date().toISOString() },
+    { id: 3, title: 'Book survey appointment', description: 'Schedule building survey for Pine Road property', dueISO: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), done: false, priority: 'Medium', category: 'Inspection', assignedTo: 2, relatedProperty: 3, relatedProject: 2, relatedEventId: null, createdAt: new Date().toISOString() },
+    { id: 4, title: 'Follow up with Emma Wilson', description: 'Check on conveyancing progress for Oak Avenue', dueISO: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString(), done: false, priority: 'High', category: 'Follow-up', assignedTo: 1, relatedProperty: 1, relatedProject: 1, relatedEventId: null, createdAt: new Date().toISOString() },
+    { id: 5, title: 'Schedule viewing for new client', description: 'Arrange property viewing for potential buyer', dueISO: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(), done: false, priority: 'Medium', category: 'Viewing', assignedTo: 1, relatedProperty: 1, relatedProject: null, relatedEventId: null, createdAt: new Date().toISOString() }
+  ]);
+  const [activities, setActivities] = useLocalStorage('hc.activities', [
+    { id: 1, type: 'contact_added', description: 'Added Emma Wilson (Solicitor)', relatedTo: { type: 'contact', id: 1, name: 'Emma Wilson' }, performedBy: 'System', timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), details: 'Contact added to parties list' },
+    { id: 2, type: 'property_added', description: 'Added Oak Avenue property', relatedTo: { type: 'property', id: 1, name: '45 Oak Avenue, Manchester M1 2AB' }, performedBy: 'System', timestamp: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(), details: 'Property added to portfolio' },
+    { id: 3, type: 'task_created', description: 'Created task: Review contract terms', relatedTo: { type: 'task', id: 1, name: 'Review contract terms' }, performedBy: 'System', timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), details: 'Task created for legal review' }
+  ]);
+  const [documents, setDocuments] = useLocalStorage('hc.documents', [
+    { id: 1, name: 'Property Contract - Oak Avenue', type: 'Contract', category: 'Legal', dateAdded: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(), addedBy: 'System', size: '2.4MB', notes: 'Main purchase contract', relatedTo: { type: 'property', id: 1, name: '45 Oak Avenue, Manchester M1 2AB' } },
+    { id: 2, name: 'Survey Report - Oak Avenue', type: 'Survey', category: 'Survey', dateAdded: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(), addedBy: 'System', size: '5.1MB', notes: 'Structural survey completed', relatedTo: { type: 'property', id: 1, name: '45 Oak Avenue, Manchester M1 2AB' } },
+    { id: 3, name: 'Mortgage Offer Letter', type: 'Financial', category: 'Financial', dateAdded: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), addedBy: 'System', size: '1.2MB', notes: 'Mortgage approval from bank', relatedTo: { type: 'property', id: 3, name: '78 Pine Road, Manchester M3 4EF' } }
+  ]);
+  const [notes, setNotes] = useLocalStorage('hc.notes', [
+    { id: 1, content: 'Property has excellent potential for rental income. Located in prime area with good transport links.', createdBy: 'System', timestamp: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), relatedTo: { type: 'property', id: 1, name: '45 Oak Avenue, Manchester M1 2AB' }, pinned: true },
+    { id: 2, content: 'Client very interested, wants to view again this weekend. Mentioned budget flexibility.', createdBy: 'System', timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), relatedTo: { type: 'contact', id: 1, name: 'Emma Wilson' }, pinned: false },
+    { id: 3, content: 'Survey revealed minor damp issue in basement. Not structural, estimated repair cost £2,000.', createdBy: 'System', timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), relatedTo: { type: 'property', id: 1, name: '45 Oak Avenue, Manchester M1 2AB' }, pinned: false }
   ]);
   const [messages, setMessages] = useLocalStorage('hc.messages', []);
   const [property, setProperty] = useLocalStorage('hc.property', {
@@ -619,6 +636,110 @@ function App() {
   const [notifications, setNotifications] = useState([]);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [currentTime, setCurrentTime] = useState(new Date());
+
+  // Activity logging helper function
+  const logActivity = (type, description, relatedTo, details = '') => {
+    const newActivity = {
+      id: Date.now(),
+      type,
+      description,
+      relatedTo,
+      performedBy: currentProfile,
+      timestamp: new Date().toISOString(),
+      details
+    };
+    setActivities(prev => [newActivity, ...prev]);
+  };
+
+  // Task management functions
+  const addTask = (taskData) => {
+    const newTask = {
+      id: Date.now(),
+      ...taskData,
+      done: false,
+      createdAt: new Date().toISOString()
+    };
+    setTasks(prev => [...prev, newTask]);
+    logActivity('task_created', `Created task: ${taskData.title}`, { type: 'task', id: newTask.id, name: taskData.title });
+  };
+
+  const updateTask = (taskId, updates) => {
+    setTasks(prev => prev.map(task => 
+      task.id === taskId ? { ...task, ...updates } : task
+    ));
+    const task = tasks.find(t => t.id === taskId);
+    if (task) {
+      logActivity('task_updated', `Updated task: ${task.title}`, { type: 'task', id: taskId, name: task.title });
+    }
+  };
+
+  const deleteTask = (taskId) => {
+    const task = tasks.find(t => t.id === taskId);
+    setTasks(prev => prev.filter(task => task.id !== taskId));
+    if (task) {
+      logActivity('task_deleted', `Deleted task: ${task.title}`, { type: 'task', id: taskId, name: task.title });
+    }
+  };
+
+  const toggleTaskComplete = (taskId) => {
+    const task = tasks.find(t => t.id === taskId);
+    if (task) {
+      updateTask(taskId, { done: !task.done });
+      logActivity(task.done ? 'task_reopened' : 'task_completed', 
+        `${task.done ? 'Reopened' : 'Completed'} task: ${task.title}`, 
+        { type: 'task', id: taskId, name: task.title });
+    }
+  };
+
+  // Document management functions
+  const addDocument = (documentData) => {
+    const newDocument = {
+      id: Date.now(),
+      ...documentData,
+      dateAdded: new Date().toISOString(),
+      addedBy: currentProfile
+    };
+    setDocuments(prev => [...prev, newDocument]);
+    logActivity('document_added', `Added document: ${documentData.name}`, { type: 'document', id: newDocument.id, name: documentData.name });
+  };
+
+  const deleteDocument = (documentId) => {
+    const document = documents.find(d => d.id === documentId);
+    setDocuments(prev => prev.filter(doc => doc.id !== documentId));
+    if (document) {
+      logActivity('document_deleted', `Deleted document: ${document.name}`, { type: 'document', id: documentId, name: document.name });
+    }
+  };
+
+  // Notes management functions
+  const addNote = (noteData) => {
+    const newNote = {
+      id: Date.now(),
+      ...noteData,
+      createdBy: currentProfile,
+      timestamp: new Date().toISOString()
+    };
+    setNotes(prev => [...prev, newNote]);
+    logActivity('note_added', `Added note`, { type: 'note', id: newNote.id, name: 'Note' });
+  };
+
+  const updateNote = (noteId, updates) => {
+    setNotes(prev => prev.map(note => 
+      note.id === noteId ? { ...note, ...updates } : note
+    ));
+    const note = notes.find(n => n.id === noteId);
+    if (note) {
+      logActivity('note_updated', `Updated note`, { type: 'note', id: noteId, name: 'Note' });
+    }
+  };
+
+  const deleteNote = (noteId) => {
+    const note = notes.find(n => n.id === noteId);
+    setNotes(prev => prev.filter(n => n.id !== noteId));
+    if (note) {
+      logActivity('note_deleted', `Deleted note`, { type: 'note', id: noteId, name: 'Note' });
+    }
+  };
 
   // REACT POWER: useEffect hooks for real-time features
   useEffect(() => {
@@ -801,7 +922,10 @@ function App() {
         { id: 'projects-completed', label: 'Completed', icon: CheckSquare },
         { id: 'projects-planned', label: 'Planned', icon: Clock }
       ]
-    }
+    },
+    { id: 'tasks', label: 'Tasks', icon: CheckSquare, type: 'main' },
+    { id: 'documents', label: 'Documents', icon: FileText, type: 'main' },
+    { id: 'notes', label: 'Notes', icon: MessageSquare, type: 'main' }
   ];
 
 
@@ -1232,44 +1356,89 @@ function App() {
                     </div>
                   </div>
 
-                  <div className="recent-activity">
-                    <h3>Recent Activity</h3>
-                    <div className="activity-list">
-                      <div className="activity-item">
-                        <div className="activity-icon">
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                            <polyline points="9,22 9,12 15,12 15,22"/>
-                          </svg>
+                  <div className="dashboard-grid">
+                    <div className="priority-tasks">
+                      <h3>Today's Priority Tasks</h3>
+                      <div className="task-list">
+                        {tasks.filter(task => !task.done && new Date(task.dueISO).toDateString() === new Date().toDateString()).slice(0, 3).map(task => (
+                          <div key={task.id} className="task-item-small">
+                            <div className="task-checkbox">
+                              <input
+                                type="checkbox"
+                                checked={task.done}
+                                onChange={() => toggleTaskComplete(task.id)}
+                              />
+                            </div>
+                            <div className="task-content">
+                              <div className="task-title">{task.title}</div>
+                              <div className="task-meta">
+                                <span className="task-category">{task.category}</span>
+                                <span className="task-priority" style={{ color: task.priority === 'High' ? '#ef4444' : task.priority === 'Medium' ? '#f59e0b' : '#10b981' }}>
+                                  {task.priority}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <button onClick={() => setCurrentView('tasks')} className="btn-secondary">View All Tasks</button>
+                    </div>
+
+                    <div className="recent-activity">
+                      <ActivityFeed activities={activities} filter="my" />
+                    </div>
+                  </div>
+
+                  <div className="estate-agent-widgets">
+                    <div className="widget">
+                      <h3>Viewings This Week</h3>
+                      <div className="viewing-list">
+                        <div className="viewing-item">
+                          <div className="viewing-date">Jan 20, 2:00 PM</div>
+                          <div className="viewing-property">45 Oak Avenue</div>
+                          <div className="viewing-client">Sarah Johnson</div>
                         </div>
-                        <div className="activity-content">
-                          <div className="activity-title">New Listing: 23 Maple Street</div>
-                          <div className="activity-description">3-bed semi-detached • £350,000</div>
-                          <div className="activity-time">2 hours ago</div>
+                        <div className="viewing-item">
+                          <div className="viewing-date">Jan 22, 10:30 AM</div>
+                          <div className="viewing-property">12 Elm Street</div>
+                          <div className="viewing-client">Mike Thompson</div>
+                        </div>
+                        <div className="viewing-item">
+                          <div className="viewing-date">Jan 24, 3:15 PM</div>
+                          <div className="viewing-property">78 Pine Road</div>
+                          <div className="viewing-client">Emma Wilson</div>
                         </div>
                       </div>
-                      <div className="activity-item">
-                        <div className="activity-icon">
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-                          </svg>
+                    </div>
+
+                    <div className="widget">
+                      <h3>Active Offers</h3>
+                      <div className="offers-list">
+                        <div className="offer-item">
+                          <div className="offer-property">45 Oak Avenue</div>
+                          <div className="offer-amount">£425,000</div>
+                          <div className="offer-status">Under Review</div>
                         </div>
-                        <div className="activity-content">
-                          <div className="activity-title">Viewing Scheduled</div>
-                          <div className="activity-description">45 Oak Avenue • Tomorrow 2:00 PM</div>
-                          <div className="activity-time">4 hours ago</div>
+                        <div className="offer-item">
+                          <div className="offer-property">12 Elm Street</div>
+                          <div className="offer-amount">£280,000</div>
+                          <div className="offer-status">Accepted</div>
                         </div>
                       </div>
-                      <div className="activity-item">
-                        <div className="activity-icon">
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <polyline points="20,6 9,17 4,12"/>
-                          </svg>
+                    </div>
+
+                    <div className="widget">
+                      <h3>Follow-ups Needed</h3>
+                      <div className="followup-list">
+                        <div className="followup-item">
+                          <div className="followup-contact">Emma Wilson</div>
+                          <div className="followup-reason">Contract review</div>
+                          <div className="followup-days">2 days overdue</div>
                         </div>
-                        <div className="activity-content">
-                          <div className="activity-title">Offer Accepted</div>
-                          <div className="activity-description">12 Elm Street • £280,000</div>
-                          <div className="activity-time">1 day ago</div>
+                        <div className="followup-item">
+                          <div className="followup-contact">Mike Thompson</div>
+                          <div className="followup-reason">Survey results</div>
+                          <div className="followup-days">Due today</div>
                         </div>
                       </div>
                     </div>
@@ -1774,6 +1943,62 @@ function App() {
               openEditContact={openEditContact}
               deleteContact={deleteContact}
             />
+          )}
+          
+          {/* Tasks View */}
+          {currentView === 'tasks' && (
+            <div className="view">
+              <div className="page-header">
+                <h1 className="page-title">Task Management</h1>
+                <p className="page-subtitle">Manage your tasks and track progress</p>
+              </div>
+              <TaskManager
+                tasks={tasks}
+                addTask={addTask}
+                updateTask={updateTask}
+                deleteTask={deleteTask}
+                toggleTaskComplete={toggleTaskComplete}
+                people={people}
+                properties={properties}
+                projects={projects}
+              />
+            </div>
+          )}
+          
+          {/* Documents View */}
+          {currentView === 'documents' && (
+            <div className="view">
+              <div className="page-header">
+                <h1 className="page-title">Document Management</h1>
+                <p className="page-subtitle">Store and organize your property documents</p>
+              </div>
+              <DocumentManager
+                documents={documents}
+                addDocument={addDocument}
+                deleteDocument={deleteDocument}
+                people={people}
+                properties={properties}
+                projects={projects}
+              />
+            </div>
+          )}
+          
+          {/* Notes View */}
+          {currentView === 'notes' && (
+            <div className="view">
+              <div className="page-header">
+                <h1 className="page-title">Notes Management</h1>
+                <p className="page-subtitle">Keep track of important information and insights</p>
+              </div>
+              <NotesManager
+                notes={notes}
+                addNote={addNote}
+                updateNote={updateNote}
+                deleteNote={deleteNote}
+                people={people}
+                properties={properties}
+              />
+            </div>
           )}
           
         </main>
@@ -2848,6 +3073,701 @@ function PeopleSection({ currentView, people, setPeople, properties, projects, s
   );
 }
 
+// ActivityFeed Component
+const ActivityFeed = ({ activities, filter = 'all' }) => {
+  const filteredActivities = activities.filter(activity => {
+    if (filter === 'my') {
+      return activity.performedBy !== 'System';
+    }
+    return true;
+  }).slice(0, 20); // Show last 20 activities
+
+  const getActivityIcon = (type) => {
+    switch (type) {
+      case 'contact_added': return '👤';
+      case 'contact_updated': return '✏️';
+      case 'contact_deleted': return '🗑️';
+      case 'property_added': return '🏠';
+      case 'property_updated': return '✏️';
+      case 'property_deleted': return '🗑️';
+      case 'task_created': return '📋';
+      case 'task_completed': return '✅';
+      case 'task_reopened': return '🔄';
+      case 'task_deleted': return '🗑️';
+      case 'communication_logged': return '📞';
+      case 'document_added': return '📄';
+      case 'note_added': return '📝';
+      default: return '📋';
+    }
+  };
+
+  const formatTimeAgo = (timestamp) => {
+    const now = new Date();
+    const activityTime = new Date(timestamp);
+    const diffInMinutes = Math.floor((now - activityTime) / (1000 * 60));
+    
+    if (diffInMinutes < 1) return 'Just now';
+    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
+    return `${Math.floor(diffInMinutes / 1440)}d ago`;
+  };
+
+  return (
+    <div className="activity-feed">
+      <div className="activity-header">
+        <h3>Recent Activity</h3>
+        <span className="activity-count">{filteredActivities.length} activities</span>
+      </div>
+      <div className="activity-list">
+        {filteredActivities.map(activity => (
+          <div key={activity.id} className="activity-item">
+            <div className="activity-icon">
+              {getActivityIcon(activity.type)}
+            </div>
+            <div className="activity-content">
+              <div className="activity-description">
+                {activity.description}
+              </div>
+              <div className="activity-meta">
+                <span className="activity-time">{formatTimeAgo(activity.timestamp)}</span>
+                {activity.relatedTo && (
+                  <span className="activity-related">
+                    • {activity.relatedTo.name}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+        {filteredActivities.length === 0 && (
+          <div className="no-activities">
+            <p>No recent activity</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// DocumentManager Component
+const DocumentManager = ({ documents, addDocument, deleteDocument, people, properties, projects }) => {
+  const [showAddDocument, setShowAddDocument] = useState(false);
+  const [filter, setFilter] = useState('all');
+  const [documentForm, setDocumentForm] = useState({
+    name: '',
+    type: 'Contract',
+    category: 'Legal',
+    notes: '',
+    relatedTo: { type: 'property', id: '', name: '' }
+  });
+
+  const filteredDocuments = documents.filter(doc => {
+    if (filter === 'legal') return doc.category === 'Legal';
+    if (filter === 'financial') return doc.category === 'Financial';
+    if (filter === 'survey') return doc.category === 'Survey';
+    if (filter === 'photos') return doc.category === 'Photos';
+    return true;
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    addDocument(documentForm);
+    setDocumentForm({
+      name: '',
+      type: 'Contract',
+      category: 'Legal',
+      notes: '',
+      relatedTo: { type: 'property', id: '', name: '' }
+    });
+    setShowAddDocument(false);
+  };
+
+  const getCategoryIcon = (category) => {
+    switch (category) {
+      case 'Legal': return '⚖️';
+      case 'Financial': return '💰';
+      case 'Survey': return '📋';
+      case 'Photos': return '📸';
+      default: return '📄';
+    }
+  };
+
+  const formatFileSize = (size) => {
+    return size;
+  };
+
+  return (
+    <div className="document-manager">
+      <div className="document-header">
+        <h3>Document Management</h3>
+        <div className="document-controls">
+          <select value={filter} onChange={(e) => setFilter(e.target.value)} className="filter-select">
+            <option value="all">All Documents</option>
+            <option value="legal">Legal</option>
+            <option value="financial">Financial</option>
+            <option value="survey">Survey</option>
+            <option value="photos">Photos</option>
+          </select>
+          <button onClick={() => setShowAddDocument(true)} className="btn-primary">Add Document</button>
+        </div>
+      </div>
+
+      {showAddDocument && (
+        <div className="modal-overlay" onClick={() => setShowAddDocument(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Add New Document</h3>
+              <button onClick={() => setShowAddDocument(false)} className="modal-close">&times;</button>
+            </div>
+            <form onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label>Document Name</label>
+                <input
+                  type="text"
+                  value={documentForm.name}
+                  onChange={(e) => setDocumentForm({...documentForm, name: e.target.value})}
+                  required
+                />
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Document Type</label>
+                  <select
+                    value={documentForm.type}
+                    onChange={(e) => setDocumentForm({...documentForm, type: e.target.value})}
+                  >
+                    <option value="Contract">Contract</option>
+                    <option value="Survey">Survey</option>
+                    <option value="Financial">Financial</option>
+                    <option value="Photo">Photo</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Category</label>
+                  <select
+                    value={documentForm.category}
+                    onChange={(e) => setDocumentForm({...documentForm, category: e.target.value})}
+                  >
+                    <option value="Legal">Legal</option>
+                    <option value="Financial">Financial</option>
+                    <option value="Survey">Survey</option>
+                    <option value="Photos">Photos</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+              </div>
+              <div className="form-group">
+                <label>Related To</label>
+                <select
+                  value={documentForm.relatedTo.id}
+                  onChange={(e) => {
+                    const selectedId = e.target.value;
+                    const relatedItem = properties.find(p => p.id == selectedId) || people.find(p => p.id == selectedId);
+                    setDocumentForm({
+                      ...documentForm, 
+                      relatedTo: { 
+                        type: properties.find(p => p.id == selectedId) ? 'property' : 'contact',
+                        id: selectedId,
+                        name: relatedItem ? relatedItem.name || relatedItem.address : ''
+                      }
+                    });
+                  }}
+                >
+                  <option value="">Select Property or Contact</option>
+                  <optgroup label="Properties">
+                    {properties.map(property => (
+                      <option key={property.id} value={property.id}>{property.address}</option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="Contacts">
+                    {people.map(person => (
+                      <option key={person.id} value={person.id}>{person.name}</option>
+                    ))}
+                  </optgroup>
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Notes</label>
+                <textarea
+                  value={documentForm.notes}
+                  onChange={(e) => setDocumentForm({...documentForm, notes: e.target.value})}
+                  rows="3"
+                />
+              </div>
+              <div className="form-actions">
+                <button type="button" onClick={() => setShowAddDocument(false)} className="btn-secondary">Cancel</button>
+                <button type="submit" className="btn-primary">Add Document</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      <div className="document-list">
+        {filteredDocuments.map(document => (
+          <div key={document.id} className="document-item">
+            <div className="document-icon">
+              {getCategoryIcon(document.category)}
+            </div>
+            <div className="document-content">
+              <div className="document-header">
+                <h4>{document.name}</h4>
+                <div className="document-meta">
+                  <span className="document-category">{document.category}</span>
+                  <span className="document-size">{formatFileSize(document.size)}</span>
+                </div>
+              </div>
+              <div className="document-details">
+                <span className="document-date">
+                  Added: {new Date(document.dateAdded).toLocaleDateString()}
+                </span>
+                {document.relatedTo && (
+                  <span className="document-related">
+                    Related to: {document.relatedTo.name}
+                  </span>
+                )}
+              </div>
+              {document.notes && <p className="document-notes">{document.notes}</p>}
+            </div>
+            <div className="document-actions">
+              <button className="btn-small">View</button>
+              <button className="btn-small">Download</button>
+              <button 
+                onClick={() => deleteDocument(document.id)}
+                className="btn-small btn-danger"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// NotesManager Component
+const NotesManager = ({ notes, addNote, updateNote, deleteNote, people, properties }) => {
+  const [showAddNote, setShowAddNote] = useState(false);
+  const [filter, setFilter] = useState('all');
+  const [noteForm, setNoteForm] = useState({
+    content: '',
+    relatedTo: { type: 'property', id: '', name: '' },
+    pinned: false
+  });
+
+  const filteredNotes = notes.filter(note => {
+    if (filter === 'pinned') return note.pinned;
+    if (filter === 'property') return note.relatedTo.type === 'property';
+    if (filter === 'contact') return note.relatedTo.type === 'contact';
+    return true;
+  }).sort((a, b) => {
+    if (a.pinned && !b.pinned) return -1;
+    if (!a.pinned && b.pinned) return 1;
+    return new Date(b.timestamp) - new Date(a.timestamp);
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    addNote(noteForm);
+    setNoteForm({
+      content: '',
+      relatedTo: { type: 'property', id: '', name: '' },
+      pinned: false
+    });
+    setShowAddNote(false);
+  };
+
+  const togglePin = (noteId) => {
+    const note = notes.find(n => n.id === noteId);
+    updateNote(noteId, { pinned: !note.pinned });
+  };
+
+  return (
+    <div className="notes-manager">
+      <div className="notes-header">
+        <h3>Notes Management</h3>
+        <div className="notes-controls">
+          <select value={filter} onChange={(e) => setFilter(e.target.value)} className="filter-select">
+            <option value="all">All Notes</option>
+            <option value="pinned">Pinned</option>
+            <option value="property">Property Notes</option>
+            <option value="contact">Contact Notes</option>
+          </select>
+          <button onClick={() => setShowAddNote(true)} className="btn-primary">Add Note</button>
+        </div>
+      </div>
+
+      {showAddNote && (
+        <div className="modal-overlay" onClick={() => setShowAddNote(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Add New Note</h3>
+              <button onClick={() => setShowAddNote(false)} className="modal-close">&times;</button>
+            </div>
+            <form onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label>Note Content</label>
+                <textarea
+                  value={noteForm.content}
+                  onChange={(e) => setNoteForm({...noteForm, content: e.target.value})}
+                  rows="4"
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Related To</label>
+                <select
+                  value={noteForm.relatedTo.id}
+                  onChange={(e) => {
+                    const selectedId = e.target.value;
+                    const relatedItem = properties.find(p => p.id == selectedId) || people.find(p => p.id == selectedId);
+                    setNoteForm({
+                      ...noteForm, 
+                      relatedTo: { 
+                        type: properties.find(p => p.id == selectedId) ? 'property' : 'contact',
+                        id: selectedId,
+                        name: relatedItem ? relatedItem.name || relatedItem.address : ''
+                      }
+                    });
+                  }}
+                >
+                  <option value="">Select Property or Contact</option>
+                  <optgroup label="Properties">
+                    {properties.map(property => (
+                      <option key={property.id} value={property.id}>{property.address}</option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="Contacts">
+                    {people.map(person => (
+                      <option key={person.id} value={person.id}>{person.name}</option>
+                    ))}
+                  </optgroup>
+                </select>
+              </div>
+              <div className="form-group">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={noteForm.pinned}
+                    onChange={(e) => setNoteForm({...noteForm, pinned: e.target.checked})}
+                  />
+                  Pin this note
+                </label>
+              </div>
+              <div className="form-actions">
+                <button type="button" onClick={() => setShowAddNote(false)} className="btn-secondary">Cancel</button>
+                <button type="submit" className="btn-primary">Add Note</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      <div className="notes-list">
+        {filteredNotes.map(note => (
+          <div key={note.id} className={`note-item ${note.pinned ? 'pinned' : ''}`}>
+            <div className="note-content">
+              <div className="note-header">
+                <div className="note-text">{note.content}</div>
+                <div className="note-actions">
+                  <button 
+                    onClick={() => togglePin(note.id)}
+                    className={`pin-btn ${note.pinned ? 'pinned' : ''}`}
+                    title={note.pinned ? 'Unpin' : 'Pin'}
+                  >
+                    📌
+                  </button>
+                  <button 
+                    onClick={() => deleteNote(note.id)}
+                    className="btn-small btn-danger"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+              <div className="note-meta">
+                <span className="note-date">
+                  {new Date(note.timestamp).toLocaleDateString()}
+                </span>
+                {note.relatedTo && (
+                  <span className="note-related">
+                    • {note.relatedTo.name}
+                  </span>
+                )}
+                {note.pinned && (
+                  <span className="note-pinned">📌 Pinned</span>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// TaskManager Component
+const TaskManager = ({ tasks, addTask, updateTask, deleteTask, toggleTaskComplete, people, properties, projects }) => {
+  const [showAddTask, setShowAddTask] = useState(false);
+  const [filter, setFilter] = useState('all');
+  const [taskForm, setTaskForm] = useState({
+    title: '',
+    description: '',
+    dueISO: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    priority: 'Medium',
+    category: 'Follow-up',
+    assignedTo: '',
+    relatedProperty: '',
+    relatedProject: ''
+  });
+
+  const filteredTasks = tasks.filter(task => {
+    if (filter === 'today') {
+      const today = new Date().toDateString();
+      return new Date(task.dueISO).toDateString() === today;
+    }
+    if (filter === 'overdue') {
+      return !task.done && new Date(task.dueISO) < new Date();
+    }
+    if (filter === 'completed') {
+      return task.done;
+    }
+    return true;
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    addTask(taskForm);
+    setTaskForm({
+      title: '',
+      description: '',
+      dueISO: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+      priority: 'Medium',
+      category: 'Follow-up',
+      assignedTo: '',
+      relatedProperty: '',
+      relatedProject: ''
+    });
+    setShowAddTask(false);
+  };
+
+  const getPriorityColor = (priority) => {
+    switch (priority) {
+      case 'High': return '#ef4444';
+      case 'Medium': return '#f59e0b';
+      case 'Low': return '#10b981';
+      default: return '#6b7280';
+    }
+  };
+
+  const getCategoryIcon = (category) => {
+    switch (category) {
+      case 'Follow-up': return '📞';
+      case 'Document Review': return '📄';
+      case 'Viewing': return '👁️';
+      case 'Inspection': return '🔍';
+      case 'Legal': return '⚖️';
+      case 'Financial': return '💰';
+      default: return '📋';
+    }
+  };
+
+  return (
+    <div className="task-manager">
+      <div className="task-header">
+        <h3>Task Management</h3>
+        <div className="task-controls">
+          <select value={filter} onChange={(e) => setFilter(e.target.value)} className="filter-select">
+            <option value="all">All Tasks</option>
+            <option value="today">Today</option>
+            <option value="overdue">Overdue</option>
+            <option value="completed">Completed</option>
+          </select>
+          <button onClick={() => setShowAddTask(true)} className="btn-primary">Add Task</button>
+        </div>
+      </div>
+
+      {showAddTask && (
+        <div className="modal-overlay" onClick={() => setShowAddTask(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Add New Task</h3>
+              <button onClick={() => setShowAddTask(false)} className="modal-close">&times;</button>
+            </div>
+            <form onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label>Task Title</label>
+                <input
+                  type="text"
+                  value={taskForm.title}
+                  onChange={(e) => setTaskForm({...taskForm, title: e.target.value})}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Description</label>
+                <textarea
+                  value={taskForm.description}
+                  onChange={(e) => setTaskForm({...taskForm, description: e.target.value})}
+                  rows="3"
+                />
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Due Date</label>
+                  <input
+                    type="datetime-local"
+                    value={taskForm.dueISO.slice(0, 16)}
+                    onChange={(e) => setTaskForm({...taskForm, dueISO: new Date(e.target.value).toISOString()})}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Priority</label>
+                  <select
+                    value={taskForm.priority}
+                    onChange={(e) => setTaskForm({...taskForm, priority: e.target.value})}
+                  >
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High</option>
+                  </select>
+                </div>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Category</label>
+                  <select
+                    value={taskForm.category}
+                    onChange={(e) => setTaskForm({...taskForm, category: e.target.value})}
+                  >
+                    <option value="Follow-up">Follow-up</option>
+                    <option value="Document Review">Document Review</option>
+                    <option value="Viewing">Viewing</option>
+                    <option value="Inspection">Inspection</option>
+                    <option value="Legal">Legal</option>
+                    <option value="Financial">Financial</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Assigned To</label>
+                  <select
+                    value={taskForm.assignedTo}
+                    onChange={(e) => setTaskForm({...taskForm, assignedTo: e.target.value})}
+                  >
+                    <option value="">Select Contact</option>
+                    {people.map(person => (
+                      <option key={person.id} value={person.id}>{person.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Related Property</label>
+                  <select
+                    value={taskForm.relatedProperty}
+                    onChange={(e) => setTaskForm({...taskForm, relatedProperty: e.target.value})}
+                  >
+                    <option value="">Select Property</option>
+                    {properties.map(property => (
+                      <option key={property.id} value={property.id}>{property.address}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Related Project</label>
+                  <select
+                    value={taskForm.relatedProject}
+                    onChange={(e) => setTaskForm({...taskForm, relatedProject: e.target.value})}
+                  >
+                    <option value="">Select Project</option>
+                    {projects.map(project => (
+                      <option key={project.id} value={project.id}>{project.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div className="form-actions">
+                <button type="button" onClick={() => setShowAddTask(false)} className="btn-secondary">Cancel</button>
+                <button type="submit" className="btn-primary">Add Task</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      <div className="task-list">
+        {filteredTasks.map(task => {
+          const assignedPerson = people.find(p => p.id === task.assignedTo);
+          const relatedProperty = properties.find(p => p.id === task.relatedProperty);
+          const isOverdue = !task.done && new Date(task.dueISO) < new Date();
+          
+          return (
+            <div key={task.id} className={`task-item ${task.done ? 'completed' : ''} ${isOverdue ? 'overdue' : ''}`}>
+              <div className="task-checkbox">
+                <input
+                  type="checkbox"
+                  checked={task.done}
+                  onChange={() => toggleTaskComplete(task.id)}
+                />
+              </div>
+              <div className="task-content">
+                <div className="task-header">
+                  <h4 className={task.done ? 'completed' : ''}>{task.title}</h4>
+                  <div className="task-meta">
+                    <span className="task-category">
+                      {getCategoryIcon(task.category)} {task.category}
+                    </span>
+                    <span 
+                      className="task-priority" 
+                      style={{ color: getPriorityColor(task.priority) }}
+                    >
+                      {task.priority}
+                    </span>
+                  </div>
+                </div>
+                {task.description && <p className="task-description">{task.description}</p>}
+                <div className="task-details">
+                  <span className="task-due">
+                    Due: {new Date(task.dueISO).toLocaleDateString()}
+                  </span>
+                  {assignedPerson && (
+                    <span className="task-assigned">
+                      Assigned to: {assignedPerson.name}
+                    </span>
+                  )}
+                  {relatedProperty && (
+                    <span className="task-property">
+                      Property: {relatedProperty.address}
+                    </span>
+                  )}
+                </div>
+              </div>
+              <div className="task-actions">
+                <button 
+                  onClick={() => updateTask(task.id, { done: !task.done })}
+                  className="btn-small"
+                >
+                  {task.done ? 'Reopen' : 'Complete'}
+                </button>
+                <button 
+                  onClick={() => deleteTask(task.id)}
+                  className="btn-small btn-danger"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
 // Add Person View Component
 function AddPersonView({ people, setPeople, onClose }) {
   const [formData, setFormData] = useState({
@@ -3371,6 +4291,8 @@ function PeopleListView({ people, setPeople, setSelectedDetail }) {
 
 // Properties Section Component
 function PropertiesSection({ currentView, properties, setProperties, people, projects, setSelectedDetail, setCurrentView }) {
+  const [editingProperty, setEditingProperty] = useState(null);
+
   const getFilteredProperties = () => {
     switch (currentView) {
       case 'properties-for-sale':
@@ -3390,6 +4312,14 @@ function PropertiesSection({ currentView, properties, setProperties, people, pro
   const sectionTitle = currentView === 'properties' ? 'All Properties' : 
     currentView.replace('properties-', '').replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
 
+  const handleEditProperty = (property) => {
+    setEditingProperty(property);
+  };
+
+  const handleCloseEdit = () => {
+    setEditingProperty(null);
+  };
+
   return (
     <div className="view">
       <div className="page-header">
@@ -3404,8 +4334,21 @@ function PropertiesSection({ currentView, properties, setProperties, people, pro
       
       {currentView === 'add-property' ? (
         <AddPropertyView properties={properties} setProperties={setProperties} people={people} />
+      ) : editingProperty ? (
+        <EditPropertyView 
+          property={editingProperty} 
+          setProperties={setProperties} 
+          people={people} 
+          onClose={handleCloseEdit} 
+        />
       ) : (
-        <PropertiesListView properties={filteredProperties} setProperties={setProperties} people={people} setSelectedDetail={setSelectedDetail} />
+        <PropertiesListView 
+          properties={filteredProperties} 
+          setProperties={setProperties} 
+          people={people} 
+          setSelectedDetail={setSelectedDetail}
+          onEditProperty={handleEditProperty}
+        />
       )}
     </div>
   );
@@ -3423,6 +4366,11 @@ function AddPropertyView({ properties, setProperties, people }) {
     beds: '',
     baths: '',
     sqft: '',
+    listingDate: new Date().toISOString().split('T')[0],
+    viewingDates: '',
+    offersReceived: '',
+    marketValue: '',
+    rentalIncome: '',
     notes: ''
   });
   const [postcodeLookup, setPostcodeLookup] = useState('');
@@ -3490,6 +4438,11 @@ function AddPropertyView({ properties, setProperties, people }) {
       beds: '',
       baths: '',
       sqft: '',
+      listingDate: new Date().toISOString().split('T')[0],
+      viewingDates: '',
+      offersReceived: '',
+      marketValue: '',
+      rentalIncome: '',
       notes: ''
     });
     alert('Property added successfully!');
@@ -3650,6 +4603,7 @@ function AddPropertyView({ properties, setProperties, people }) {
           </div>
         </div>
 
+        <div className="form-row">
         <div className="form-group">
           <label htmlFor="sqft">Square Footage</label>
           <input
@@ -3660,6 +4614,67 @@ function AddPropertyView({ properties, setProperties, people }) {
             onChange={handleChange}
             placeholder="Enter square footage"
           />
+          </div>
+          <div className="form-group">
+            <label htmlFor="listingDate">Listing Date</label>
+            <input
+              type="date"
+              id="listingDate"
+              name="listingDate"
+              value={formData.listingDate}
+              onChange={handleChange}
+            />
+          </div>
+        </div>
+
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="viewingDates">Viewing Dates</label>
+            <input
+              type="text"
+              id="viewingDates"
+              name="viewingDates"
+              value={formData.viewingDates}
+              onChange={handleChange}
+              placeholder="e.g., Jan 15, Jan 20, Jan 25"
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="offersReceived">Offers Received</label>
+            <input
+              type="text"
+              id="offersReceived"
+              name="offersReceived"
+              value={formData.offersReceived}
+              onChange={handleChange}
+              placeholder="e.g., £425,000, £430,000"
+            />
+          </div>
+        </div>
+
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="marketValue">Market Value (£)</label>
+            <input
+              type="number"
+              id="marketValue"
+              name="marketValue"
+              value={formData.marketValue}
+              onChange={handleChange}
+              placeholder="Estimated market value"
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="rentalIncome">Monthly Rental Income (£)</label>
+            <input
+              type="number"
+              id="rentalIncome"
+              name="rentalIncome"
+              value={formData.rentalIncome}
+              onChange={handleChange}
+              placeholder="Monthly rental income"
+            />
+          </div>
         </div>
 
         <div className="form-group">
@@ -3687,8 +4702,261 @@ function AddPropertyView({ properties, setProperties, people }) {
   );
 }
 
+// Edit Property View Component
+function EditPropertyView({ property, setProperties, people, onClose }) {
+  const [formData, setFormData] = useState({
+    address: property.address || '',
+    postcode: property.postcode || '',
+    type: property.type || 'House',
+    status: property.status || 'For Sale',
+    price: property.price || '',
+    owner: property.owner || '',
+    beds: property.beds || '',
+    baths: property.baths || '',
+    sqft: property.sqft || '',
+    listingDate: property.listingDate || new Date().toISOString().split('T')[0],
+    viewingDates: property.viewingDates || '',
+    offersReceived: property.offersReceived || '',
+    marketValue: property.marketValue || '',
+    rentalIncome: property.rentalIncome || '',
+    notes: property.notes || ''
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setProperties(prev => prev.map(p => 
+      p.id === property.id ? { ...p, ...formData, updatedAt: new Date().toISOString() } : p
+    ));
+    alert('Property updated successfully!');
+    onClose();
+  };
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  return (
+    <div className="card">
+      <div className="card-header">
+        <h3>Edit Property</h3>
+        <button onClick={onClose} className="close-btn">&times;</button>
+      </div>
+      <form onSubmit={handleSubmit} className="person-form">
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="address">Property Address *</label>
+            <input
+              type="text"
+              id="address"
+              name="address"
+              value={formData.address}
+              onChange={handleChange}
+              required
+              placeholder="Enter full address"
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="type">Property Type</label>
+            <select
+              id="type"
+              name="type"
+              value={formData.type}
+              onChange={handleChange}
+            >
+              <option value="House">House</option>
+              <option value="Apartment">Apartment</option>
+              <option value="Commercial">Commercial</option>
+              <option value="Land">Land</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="status">Status</label>
+            <select
+              id="status"
+              name="status"
+              value={formData.status}
+              onChange={handleChange}
+            >
+              <option value="For Sale">For Sale</option>
+              <option value="For Rent">For Rent</option>
+              <option value="In Renovation">In Renovation</option>
+              <option value="Sold">Sold</option>
+              <option value="Rented">Rented</option>
+            </select>
+          </div>
+          <div className="form-group">
+            <label htmlFor="owner">Owner</label>
+            <select
+              id="owner"
+              name="owner"
+              value={formData.owner}
+              onChange={handleChange}
+            >
+              <option value="">Select Owner</option>
+              {people.map(person => (
+                <option key={person.id} value={person.id}>{person.name}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="price">Price (£)</label>
+            <input
+              type="number"
+              id="price"
+              name="price"
+              value={formData.price}
+              onChange={handleChange}
+              placeholder="Enter property price"
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="postcode">Postcode</label>
+            <input
+              type="text"
+              id="postcode"
+              name="postcode"
+              value={formData.postcode}
+              onChange={handleChange}
+              placeholder="Enter postcode"
+            />
+          </div>
+        </div>
+
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="beds">Bedrooms</label>
+            <input
+              type="number"
+              id="beds"
+              name="beds"
+              value={formData.beds}
+              onChange={handleChange}
+              placeholder="Number of bedrooms"
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="baths">Bathrooms</label>
+            <input
+              type="number"
+              id="baths"
+              name="baths"
+              value={formData.baths}
+              onChange={handleChange}
+              placeholder="Number of bathrooms"
+            />
+          </div>
+        </div>
+
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="sqft">Square Footage</label>
+            <input
+              type="number"
+              id="sqft"
+              name="sqft"
+              value={formData.sqft}
+              onChange={handleChange}
+              placeholder="Enter square footage"
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="listingDate">Listing Date</label>
+            <input
+              type="date"
+              id="listingDate"
+              name="listingDate"
+              value={formData.listingDate}
+              onChange={handleChange}
+            />
+          </div>
+        </div>
+
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="viewingDates">Viewing Dates</label>
+            <input
+              type="text"
+              id="viewingDates"
+              name="viewingDates"
+              value={formData.viewingDates}
+              onChange={handleChange}
+              placeholder="e.g., Jan 15, Jan 20, Jan 25"
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="offersReceived">Offers Received</label>
+            <input
+              type="text"
+              id="offersReceived"
+              name="offersReceived"
+              value={formData.offersReceived}
+              onChange={handleChange}
+              placeholder="e.g., £425,000, £430,000"
+            />
+          </div>
+        </div>
+
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="marketValue">Market Value (£)</label>
+            <input
+              type="number"
+              id="marketValue"
+              name="marketValue"
+              value={formData.marketValue}
+              onChange={handleChange}
+              placeholder="Estimated market value"
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="rentalIncome">Monthly Rental Income (£)</label>
+            <input
+              type="number"
+              id="rentalIncome"
+              name="rentalIncome"
+              value={formData.rentalIncome}
+              onChange={handleChange}
+              placeholder="Monthly rental income"
+            />
+          </div>
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="notes">Notes</label>
+          <textarea
+            id="notes"
+            name="notes"
+            value={formData.notes}
+            onChange={handleChange}
+            rows="4"
+            placeholder="Add any additional notes about this property..."
+          />
+        </div>
+
+        <div className="form-actions">
+          <button type="submit" className="btn btn-primary">
+            Update Property
+          </button>
+          <button type="button" onClick={onClose} className="btn btn-secondary">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
 // Properties List View Component
-function PropertiesListView({ properties, setProperties, people, setSelectedDetail }) {
+function PropertiesListView({ properties, setProperties, people, setSelectedDetail, onEditProperty }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
 
@@ -3762,7 +5030,7 @@ function PropertiesListView({ properties, setProperties, people, setSelectedDeta
                       </button>
                       <button className="table-btn" onClick={(e) => {
                         e.stopPropagation();
-                        setSelectedDetail({ type: 'property', data: property });
+                        onEditProperty(property);
                       }}>
                         <Edit size={14} />
                       </button>
