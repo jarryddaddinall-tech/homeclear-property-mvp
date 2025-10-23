@@ -2581,7 +2581,6 @@ function PropertiesListView({ properties, setProperties, people, setSelectedDeta
                       </div>
                       <div>
                         <div className="contact-name">{property.address}</div>
-                        <div className="contact-email">{property.type}</div>
                       </div>
                     </div>
                   </td>
