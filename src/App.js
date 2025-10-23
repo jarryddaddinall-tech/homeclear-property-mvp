@@ -292,15 +292,15 @@ function App() {
   );
 }
 
-// Dashboard View Component - REACT POWER: Dynamic and reactive
+// Dashboard V2 - Customer-Centric View
 function DashboardView({ timelineEvents, tasks, liveUpdates, progressPercentage, upcomingTasks, overdueTasks, property }) {
   const [showLiveUpdates, setShowLiveUpdates] = useState(false);
 
   return (
     <div className="view">
       <div className="page-header">
-        <h1 className="page-title">Dashboard</h1>
-        <p className="page-subtitle">Your property purchase overview</p>
+        <h1 className="page-title">Welcome back, Nick</h1>
+        <p className="page-subtitle">Your journey to homeownership</p>
       </div>
       
       {/* REACT POWER: Dynamic alerts based on state */}
