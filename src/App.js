@@ -852,6 +852,7 @@ function App() {
               people={people}
               properties={properties}
               setCurrentView={setCurrentView}
+              setSelectedDetail={setSelectedDetail}
             />
           )}
           
@@ -2519,33 +2520,6 @@ function PropertiesListView({ properties, setProperties, people, setSelectedDeta
 
   return (
     <div className="view">
-      <div className="card">
-        <div className="search-filters">
-          <div className="search-group">
-            <input
-              type="text"
-              placeholder="Search by address or type..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input"
-            />
-          </div>
-          <div className="filter-group">
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="filter-select"
-            >
-              <option value="All">All Status</option>
-              <option value="For Sale">For Sale</option>
-              <option value="For Rent">For Rent</option>
-              <option value="In Renovation">In Renovation</option>
-              <option value="Sold">Sold</option>
-              <option value="Rented">Rented</option>
-            </select>
-          </div>
-        </div>
-      </div>
 
       <div className="crm-table">
         {filteredProperties.length === 0 ? (
@@ -2618,7 +2592,7 @@ function PropertiesListView({ properties, setProperties, people, setSelectedDeta
 }
 
 // Projects Section Component
-function ProjectsSection({ currentView, projects, setProjects, people, properties, setCurrentView }) {
+function ProjectsSection({ currentView, projects, setProjects, people, properties, setCurrentView, setSelectedDetail }) {
   const getFilteredProjects = () => {
     switch (currentView) {
       case 'projects-active':
@@ -2651,7 +2625,7 @@ function ProjectsSection({ currentView, projects, setProjects, people, propertie
       {currentView === 'add-project' ? (
         <AddProjectView projects={projects} setProjects={setProjects} people={people} properties={properties} />
       ) : (
-        <ProjectsListView projects={filteredProjects} setProjects={setProjects} people={people} properties={properties} />
+        <ProjectsListView projects={filteredProjects} setProjects={setProjects} people={people} properties={properties} setSelectedDetail={setSelectedDetail} />
       )}
     </div>
   );
@@ -2846,16 +2820,7 @@ function AddProjectView({ projects, setProjects, people, properties }) {
 }
 
 // Projects List View Component
-function ProjectsListView({ projects, setProjects, people, properties }) {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterType, setFilterType] = useState('All');
-
-  const filteredProjects = projects.filter(project => {
-    const matchesSearch = project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         project.type.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesType = filterType === 'All' || project.type === filterType;
-    return matchesSearch && matchesType;
-  });
+function ProjectsListView({ projects, setProjects, people, properties, setSelectedDetail }) {
 
   const deleteProject = (id) => {
     if (window.confirm('Are you sure you want to delete this project?')) {
@@ -2865,96 +2830,71 @@ function ProjectsListView({ projects, setProjects, people, properties }) {
 
   return (
     <div className="view">
-      <div className="card">
-        <div className="search-filters">
-          <div className="search-group">
-            <input
-              type="text"
-              placeholder="Search by name or type..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input"
-            />
-          </div>
-          <div className="filter-group">
-            <select
-              value={filterType}
-              onChange={(e) => setFilterType(e.target.value)}
-              className="filter-select"
-            >
-              <option value="All">All Types</option>
-              <option value="Purchase">Purchase</option>
-              <option value="Renovation">Renovation</option>
-              <option value="Sale">Sale</option>
-              <option value="Letting">Letting</option>
-              <option value="Maintenance">Maintenance</option>
-            </select>
-          </div>
-        </div>
-      </div>
 
-      <div className="people-grid">
-        {filteredProjects.length === 0 ? (
+      <div className="crm-table">
+        {projects.length === 0 ? (
           <div className="empty-state">
-            <div className="empty-icon">⚡</div>
+            <div className="empty-icon">
+              <Clock size={32} />
+            </div>
             <h3>No projects found</h3>
             <p>Start by creating your first project.</p>
           </div>
         ) : (
-          filteredProjects.map(project => (
-            <div key={project.id} className="crm-person-card">
-              <div className="card-header">
-                <div className="person-avatar">
-                  <div className="avatar-circle">
-                    <Clock size={16} />
-                  </div>
-                </div>
-                <div className="person-info">
-                  <div className="person-name">{project.name}</div>
-                  <div className="person-company">{project.type}</div>
-                  <div className="person-role">{project.phase}</div>
-                </div>
-                <div className={`priority-badge priority-${project.status === 'Active' ? 'High' : project.status === 'Completed' ? 'Low' : 'Medium'}`}>
-                  {project.status}
-                </div>
-              </div>
-              
-              <div className="contact-info">
-                <div className="contact-item">
-                  <span className="contact-icon">
-                    <Building size={12} />
-                  </span>
-                  <span className="contact-value">
-                    {project.property ? 
-                      properties.find(p => p.id === project.property)?.address || 'Unknown Property' :
-                      'No Property'
-                    }
-                  </span>
-                </div>
-                {project.budget && (
-                  <div className="contact-item">
-                    <span className="contact-icon">💰</span>
-                    <span className="contact-value">£{parseInt(project.budget).toLocaleString()}</span>
-                  </div>
-                )}
-                {project.startDate && (
-                  <div className="contact-item">
-                    <span className="contact-icon">📅</span>
-                    <span className="contact-value">{new Date(project.startDate).toLocaleDateString()}</span>
-                  </div>
-                )}
-              </div>
-              
-              <div className="crm-actions">
-                <button className="action-btn primary">📋 View</button>
-                <button className="action-btn secondary">✏️ Edit</button>
-                <button className="action-btn secondary">📄 Tasks</button>
-                <button className="action-btn danger" onClick={() => deleteProject(project.id)}>
-                  🗑️
-                </button>
-              </div>
-            </div>
-          ))
+          <table>
+            <thead>
+              <tr>
+                <th>Project</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Phase</th>
+                <th>Budget</th>
+                <th>Start Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {projects.map(project => (
+                <tr key={project.id} onClick={() => setSelectedDetail({ type: 'project', data: project })} style={{ cursor: 'pointer' }}>
+                  <td>
+                    <div className="table-contact">
+                      <div className="contact-avatar">
+                        <Clock size={16} />
+                      </div>
+                      <div>
+                        <div className="contact-name">{project.name}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>{project.type}</td>
+                  <td>
+                    <span className={`status-badge ${project.status.toLowerCase().replace(' ', '-')}`}>
+                      {project.status}
+                    </span>
+                  </td>
+                  <td>{project.phase}</td>
+                  <td>£{project.budget}</td>
+                  <td>{project.startDate}</td>
+                  <td>
+                    <div className="table-actions">
+                      <button className="table-btn">
+                        <Eye size={14} />
+                      </button>
+                      <button className="table-btn">
+                        <Edit size={14} />
+                      </button>
+                      <button className="table-btn danger" onClick={(e) => {
+                        e.stopPropagation();
+                        deleteProject(project.id);
+                      }}>
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         )}
       </div>
     </div>
