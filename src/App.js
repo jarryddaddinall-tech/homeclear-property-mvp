@@ -98,6 +98,8 @@ function App() {
     { id: 2, role: 'Estate Agent', name: 'James Parker', company: 'Parker & Co Estate Agents', email: 'james@parkerco.co.uk', phone: '0161 234 5678', lastContactedISO: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), notes: 'Very responsive, good local knowledge' }
   ]);
   const [people, setPeople] = useLocalStorage('hc.people', []);
+  const [properties, setProperties] = useLocalStorage('hc.properties', []);
+  const [projects, setProjects] = useLocalStorage('hc.projects', []);
   const [tasks, setTasks] = useLocalStorage('hc.tasks', [
     { id: 1, title: 'Review contract terms', dueISO: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(), done: false, relatedEventId: null, createdAt: new Date().toISOString() },
     { id: 2, title: 'Submit mortgage documents', dueISO: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(), done: false, relatedEventId: null, createdAt: new Date().toISOString() },
@@ -180,19 +182,62 @@ function App() {
     !task.done && new Date(task.dueISO) < new Date()
   );
 
-  // Navigation
-  const navigation = [
-    { id: 'dashboard', label: 'Dashboard', icon: Home },
-    { id: 'timeline', label: 'Live Timeline', icon: Clock },
-    { id: 'team', label: 'Your Team', icon: Users },
-    { id: 'add-person', label: 'Add Person', icon: Users },
-    { id: 'people-list', label: 'People List', icon: Users },
-    { id: 'fees', label: 'Fees & Costs', icon: DollarSign },
-    { id: 'messages', label: 'Messages', icon: MessageSquare },
+  // Navigation Structure
+  const [expandedSections, setExpandedSections] = useState({});
+  
+  const toggleSection = (section) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
+
+  const mainNavigation = [
+    { id: 'dashboard', label: 'Dashboard', icon: Home, type: 'main' },
+    { 
+      id: 'people', 
+      label: 'People', 
+      icon: Users, 
+      type: 'section',
+      children: [
+        { id: 'people-all', label: 'All Contacts', icon: Users },
+        { id: 'people-buyers', label: 'Buyers', icon: Users },
+        { id: 'people-sellers', label: 'Sellers', icon: Users },
+        { id: 'people-tenants', label: 'Tenants', icon: Users },
+        { id: 'people-contractors', label: 'Contractors', icon: Wrench },
+        { id: 'people-agents', label: 'Agents', icon: Users }
+      ]
+    },
+    { 
+      id: 'properties', 
+      label: 'Properties', 
+      icon: Home, 
+      type: 'section',
+      children: [
+        { id: 'properties-all', label: 'All Properties', icon: Home },
+        { id: 'properties-for-sale', label: 'For Sale', icon: Home },
+        { id: 'properties-for-rent', label: 'For Rent', icon: Home },
+        { id: 'properties-renovation', label: 'In Renovation', icon: Wrench },
+        { id: 'properties-sold', label: 'Sold', icon: CheckSquare }
+      ]
+    },
+    { 
+      id: 'projects', 
+      label: 'Projects', 
+      icon: Clock, 
+      type: 'section',
+      children: [
+        { id: 'projects-active', label: 'Active Projects', icon: Clock },
+        { id: 'projects-completed', label: 'Completed', icon: CheckSquare },
+        { id: 'projects-planned', label: 'Planned', icon: Clock }
+      ]
+    }
+  ];
+
+  const secondNavigation = [
     { id: 'documents', label: 'Documents', icon: FileText },
-    { id: 'tradespeople', label: 'Find Tradespeople', icon: Wrench },
-    { id: 'checklist', label: 'Move-In Checklist', icon: CheckSquare },
-    { id: 'property-search', label: 'Property Search', icon: Search }
+    { id: 'timeline', label: 'Timeline', icon: Clock },
+    { id: 'reports', label: 'Reports', icon: DollarSign }
   ];
 
   return (
@@ -237,55 +282,113 @@ function App() {
       <div className="layout">
         {/* Sidebar */}
         <nav className="sidebar">
+          <div className="sidebar-header">
+            <div className="logo">Property<span className="logo-accent">Axis</span></div>
+          </div>
+          
           <div className="nav-section">
-            <div className="nav-section-title">Purchase Journey</div>
-            {navigation.slice(0, 8).map(item => (
-              <div 
-                key={item.id}
-                className={`nav-item ${currentView === item.id ? 'active' : ''}`}
-                onClick={() => setCurrentView(item.id)}
+            <div className="nav-section-title">Main Menu</div>
+            {mainNavigation.map(item => (
+              <div key={item.id}>
+                <div 
+                  className={`nav-item ${currentView === item.id ? 'active' : ''} ${item.type === 'section' ? 'nav-section-header' : ''}`}
+                  onClick={() => {
+                    if (item.type === 'section') {
+                      toggleSection(item.id);
+                    } else {
+                      setCurrentView(item.id);
+                    }
+                  }}
               >
                 <item.icon size={20} />
                 <span>{item.label}</span>
+                  {item.type === 'section' && (
+                    <span className={`nav-arrow ${expandedSections[item.id] ? 'expanded' : ''}`}>
+                      ▶
+                    </span>
+                  )}
+                </div>
+                
+                {item.type === 'section' && expandedSections[item.id] && item.children && (
+                  <div className="nav-subsection">
+                    {item.children.map(child => (
+                      <div 
+                        key={child.id}
+                        className={`nav-subitem ${currentView === child.id ? 'active' : ''}`}
+                        onClick={() => setCurrentView(child.id)}
+                      >
+                        <child.icon size={16} />
+                        <span>{child.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
           </div>
           
           <div className="nav-section">
-            <div className="nav-section-title">Property Search</div>
+            <div className="nav-section-title">Second Menu</div>
+            {secondNavigation.map(item => (
             <div 
-              className={`nav-item ${currentView === 'property-search' ? 'active' : ''}`}
-              onClick={() => setCurrentView('property-search')}
+                key={item.id}
+                className={`nav-item ${currentView === item.id ? 'active' : ''}`}
+                onClick={() => setCurrentView(item.id)}
             >
-              <Search size={20} />
-              <span>Property Search</span>
+                <item.icon size={20} />
+                <span>{item.label}</span>
             </div>
+            ))}
           </div>
         </nav>
 
         {/* Main Content */}
         <main className="main-content">
         {currentView === 'dashboard' && (
-          <DashboardView 
-            timelineEvents={timelineEvents}
-            tasks={tasks}
-            liveUpdates={liveUpdates}
-            progressPercentage={progressPercentage}
-            upcomingTasks={upcomingTasks}
-            overdueTasks={overdueTasks}
-            property={property}
-          />
-        )}
+            <DashboardOverview 
+              people={people}
+              properties={properties}
+              projects={projects}
+            />
+          )}
+          
+          {/* People Section */}
+          {(currentView === 'people' || currentView.startsWith('people-')) && (
+            <PeopleSection 
+              currentView={currentView}
+              people={people}
+              setPeople={setPeople}
+              properties={properties}
+              projects={projects}
+            />
+          )}
+          
+          {/* Properties Section */}
+          {(currentView === 'properties' || currentView.startsWith('properties-')) && (
+            <PropertiesSection 
+              currentView={currentView}
+              properties={properties}
+              setProperties={setProperties}
+              people={people}
+              projects={projects}
+            />
+          )}
+          
+          {/* Projects Section */}
+          {(currentView === 'projects' || currentView.startsWith('projects-')) && (
+            <ProjectsSection 
+              currentView={currentView}
+              projects={projects}
+              setProjects={setProjects}
+              people={people}
+              properties={properties}
+            />
+          )}
+          
+          {/* Legacy Views */}
           {currentView === 'timeline' && <TimelineView />}
-          {currentView === 'team' && <TeamView />}
-          {currentView === 'add-person' && <AddPersonView people={people} setPeople={setPeople} />}
-          {currentView === 'people-list' && <PeopleListView people={people} setPeople={setPeople} />}
-          {currentView === 'fees' && <FeesView />}
-          {currentView === 'messages' && <MessagesView />}
           {currentView === 'documents' && <DocumentsView />}
-          {currentView === 'tradespeople' && <TradespeopleView />}
-          {currentView === 'checklist' && <ChecklistView />}
-          {currentView === 'property-search' && <PropertySearchView />}
+          {currentView === 'reports' && <ReportsView />}
         </main>
       </div>
 
@@ -299,7 +402,123 @@ function App() {
   );
 }
 
-// Dashboard V2 - Customer-Centric View
+// Dashboard Overview - Three Core Entities
+function DashboardOverview({ people, properties, projects }) {
+  const totalPeople = people.length;
+  const totalProperties = properties.length;
+  const activeProjects = projects.filter(p => p.status === 'Active').length;
+  
+  const peopleByRole = people.reduce((acc, person) => {
+    const role = person.role || 'Other';
+    acc[role] = (acc[role] || 0) + 1;
+    return acc;
+  }, {});
+  
+  const propertiesByStatus = properties.reduce((acc, property) => {
+    const status = property.status || 'Unknown';
+    acc[status] = (acc[status] || 0) + 1;
+    return acc;
+  }, {});
+  
+  const projectsByPhase = projects.reduce((acc, project) => {
+    const phase = project.phase || 'Planning';
+    acc[phase] = (acc[phase] || 0) + 1;
+    return acc;
+  }, {});
+
+  return (
+    <div className="view">
+      <div className="page-header">
+        <h1 className="page-title">Dashboard</h1>
+        <p className="page-subtitle">Overview of your property management</p>
+      </div>
+      
+      {/* Main Stats Cards */}
+      <div className="dashboard-stats">
+        <div className="stat-card">
+          <div className="stat-header">
+            <div className="stat-icon">👥</div>
+            <div className="stat-title">Total People</div>
+          </div>
+          <div className="stat-number">{totalPeople}</div>
+          <div className="stat-breakdown">
+            {Object.entries(peopleByRole).slice(0, 3).map(([role, count]) => (
+              <div key={role} className="breakdown-item">
+                <span className="breakdown-label">{role}:</span>
+                <span className="breakdown-value">{count}</span>
+              </div>
+            ))}
+          </div>
+          <div className="stat-chart">
+            <div className="mini-chart">📊</div>
+          </div>
+        </div>
+        
+        <div className="stat-card">
+          <div className="stat-header">
+            <div className="stat-icon">🏠</div>
+            <div className="stat-title">Total Properties</div>
+          </div>
+          <div className="stat-number">{totalProperties}</div>
+          <div className="stat-breakdown">
+            {Object.entries(propertiesByStatus).slice(0, 3).map(([status, count]) => (
+              <div key={status} className="breakdown-item">
+                <span className="breakdown-label">{status}:</span>
+                <span className="breakdown-value">{count}</span>
+              </div>
+            ))}
+          </div>
+          <div className="stat-chart">
+            <div className="mini-chart">📈</div>
+          </div>
+        </div>
+        
+        <div className="stat-card">
+          <div className="stat-header">
+            <div className="stat-icon">⚡</div>
+            <div className="stat-title">Active Projects</div>
+          </div>
+          <div className="stat-number">{activeProjects}</div>
+          <div className="stat-breakdown">
+            {Object.entries(projectsByPhase).slice(0, 3).map(([phase, count]) => (
+              <div key={phase} className="breakdown-item">
+                <span className="breakdown-label">{phase}:</span>
+                <span className="breakdown-value">{count}</span>
+              </div>
+            ))}
+          </div>
+          <div className="stat-chart">
+            <div className="mini-chart">📊</div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Quick Actions */}
+      <div className="quick-actions">
+        <h3>Quick Actions</h3>
+        <div className="action-grid">
+          <button className="action-card" onClick={() => setCurrentView('people-all')}>
+            <div className="action-icon">👤</div>
+            <div className="action-title">Add Person</div>
+            <div className="action-subtitle">New contact</div>
+          </button>
+          <button className="action-card" onClick={() => setCurrentView('properties-all')}>
+            <div className="action-icon">🏠</div>
+            <div className="action-title">Add Property</div>
+            <div className="action-subtitle">New property</div>
+          </button>
+          <button className="action-card" onClick={() => setCurrentView('projects-active')}>
+            <div className="action-icon">⚡</div>
+            <div className="action-title">Start Project</div>
+            <div className="action-subtitle">New project</div>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Dashboard V2 - Customer-Centric View (Legacy)
 function DashboardView({ timelineEvents, tasks, liveUpdates, progressPercentage, upcomingTasks, overdueTasks, property }) {
   const [showLiveUpdates, setShowLiveUpdates] = useState(false);
 
@@ -815,6 +1034,50 @@ function PropertySearchView() {
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+// People Section Component
+function PeopleSection({ currentView, people, setPeople, properties, projects }) {
+  const getFilteredPeople = () => {
+    switch (currentView) {
+      case 'people-buyers':
+        return people.filter(p => p.role === 'Buyer');
+      case 'people-sellers':
+        return people.filter(p => p.role === 'Seller');
+      case 'people-tenants':
+        return people.filter(p => p.role === 'Tenant');
+      case 'people-contractors':
+        return people.filter(p => p.role === 'Contractor');
+      case 'people-agents':
+        return people.filter(p => p.role === 'Agent');
+      default:
+        return people;
+    }
+  };
+
+  const filteredPeople = getFilteredPeople();
+  const sectionTitle = currentView === 'people' ? 'All Contacts' : 
+    currentView.replace('people-', '').replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+  return (
+    <div className="view">
+      <div className="page-header">
+        <h1 className="page-title">{sectionTitle}</h1>
+        <p className="page-subtitle">Manage your contacts and relationships</p>
+        <div className="header-actions">
+          <button className="btn btn-primary" onClick={() => setCurrentView('add-person')}>
+            + Add Person
+          </button>
+        </div>
+      </div>
+      
+      {currentView === 'add-person' ? (
+        <AddPersonView people={people} setPeople={setPeople} />
+      ) : (
+        <PeopleListView people={filteredPeople} setPeople={setPeople} />
+      )}
     </div>
   );
 }
@@ -1385,12 +1648,700 @@ function PeopleListView({ people, setPeople }) {
   );
 }
 
+// Properties Section Component
+function PropertiesSection({ currentView, properties, setProperties, people, projects }) {
+  const getFilteredProperties = () => {
+    switch (currentView) {
+      case 'properties-for-sale':
+        return properties.filter(p => p.status === 'For Sale');
+      case 'properties-for-rent':
+        return properties.filter(p => p.status === 'For Rent');
+      case 'properties-renovation':
+        return properties.filter(p => p.status === 'In Renovation');
+      case 'properties-sold':
+        return properties.filter(p => p.status === 'Sold');
+      default:
+        return properties;
+    }
+  };
+
+  const filteredProperties = getFilteredProperties();
+  const sectionTitle = currentView === 'properties' ? 'All Properties' : 
+    currentView.replace('properties-', '').replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+  return (
+    <div className="view">
+      <div className="page-header">
+        <h1 className="page-title">{sectionTitle}</h1>
+        <p className="page-subtitle">Manage your property portfolio</p>
+        <div className="header-actions">
+          <button className="btn btn-primary" onClick={() => setCurrentView('add-property')}>
+            + Add Property
+          </button>
+        </div>
+      </div>
+      
+      {currentView === 'add-property' ? (
+        <AddPropertyView properties={properties} setProperties={setProperties} people={people} />
+      ) : (
+        <PropertiesListView properties={filteredProperties} setProperties={setProperties} people={people} />
+      )}
+    </div>
+  );
+}
+
+// Add Property View Component
+function AddPropertyView({ properties, setProperties, people }) {
+  const [formData, setFormData] = useState({
+    address: '',
+    type: 'House',
+    status: 'For Sale',
+    purchasePrice: '',
+    currentValue: '',
+    owner: '',
+    beds: '',
+    baths: '',
+    sqft: '',
+    notes: ''
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const newProperty = {
+      id: Date.now(),
+      ...formData,
+      createdAt: new Date().toISOString(),
+      tenants: [],
+      projects: [],
+      documents: [],
+      timeline: []
+    };
+    setProperties([...properties, newProperty]);
+    setFormData({
+      address: '',
+      type: 'House',
+      status: 'For Sale',
+      purchasePrice: '',
+      currentValue: '',
+      owner: '',
+      beds: '',
+      baths: '',
+      sqft: '',
+      notes: ''
+    });
+    alert('Property added successfully!');
+  };
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  return (
+    <div className="card">
+      <form onSubmit={handleSubmit} className="person-form">
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="address">Property Address *</label>
+            <input
+              type="text"
+              id="address"
+              name="address"
+              value={formData.address}
+              onChange={handleChange}
+              required
+              placeholder="Enter full address"
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="type">Property Type</label>
+            <select
+              id="type"
+              name="type"
+              value={formData.type}
+              onChange={handleChange}
+            >
+              <option value="House">House</option>
+              <option value="Apartment">Apartment</option>
+              <option value="Commercial">Commercial</option>
+              <option value="Land">Land</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="status">Status</label>
+            <select
+              id="status"
+              name="status"
+              value={formData.status}
+              onChange={handleChange}
+            >
+              <option value="For Sale">For Sale</option>
+              <option value="For Rent">For Rent</option>
+              <option value="In Renovation">In Renovation</option>
+              <option value="Sold">Sold</option>
+              <option value="Rented">Rented</option>
+            </select>
+          </div>
+          <div className="form-group">
+            <label htmlFor="owner">Owner</label>
+            <select
+              id="owner"
+              name="owner"
+              value={formData.owner}
+              onChange={handleChange}
+            >
+              <option value="">Select Owner</option>
+              {people.map(person => (
+                <option key={person.id} value={person.id}>{person.name}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="purchasePrice">Purchase Price (£)</label>
+            <input
+              type="number"
+              id="purchasePrice"
+              name="purchasePrice"
+              value={formData.purchasePrice}
+              onChange={handleChange}
+              placeholder="Enter purchase price"
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="currentValue">Current Value (£)</label>
+            <input
+              type="number"
+              id="currentValue"
+              name="currentValue"
+              value={formData.currentValue}
+              onChange={handleChange}
+              placeholder="Enter current value"
+            />
+          </div>
+        </div>
+
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="beds">Bedrooms</label>
+            <input
+              type="number"
+              id="beds"
+              name="beds"
+              value={formData.beds}
+              onChange={handleChange}
+              placeholder="Number of bedrooms"
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="baths">Bathrooms</label>
+            <input
+              type="number"
+              id="baths"
+              name="baths"
+              value={formData.baths}
+              onChange={handleChange}
+              placeholder="Number of bathrooms"
+            />
+          </div>
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="sqft">Square Footage</label>
+          <input
+            type="number"
+            id="sqft"
+            name="sqft"
+            value={formData.sqft}
+            onChange={handleChange}
+            placeholder="Enter square footage"
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="notes">Notes</label>
+          <textarea
+            id="notes"
+            name="notes"
+            value={formData.notes}
+            onChange={handleChange}
+            rows="4"
+            placeholder="Add any additional notes about this property..."
+          />
+        </div>
+
+        <div className="form-actions">
+          <button type="submit" className="btn btn-primary">
+            Add Property
+          </button>
+          <button type="button" className="btn btn-secondary">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+// Properties List View Component
+function PropertiesListView({ properties, setProperties, people }) {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterStatus, setFilterStatus] = useState('All');
+
+  const filteredProperties = properties.filter(property => {
+    const matchesSearch = property.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         property.type.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = filterStatus === 'All' || property.status === filterStatus;
+    return matchesSearch && matchesStatus;
+  });
+
+  const deleteProperty = (id) => {
+    if (window.confirm('Are you sure you want to delete this property?')) {
+      setProperties(properties.filter(property => property.id !== id));
+    }
+  };
+
+  return (
+    <div className="view">
+      <div className="card">
+        <div className="search-filters">
+          <div className="search-group">
+            <input
+              type="text"
+              placeholder="Search by address or type..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="search-input"
+            />
+          </div>
+          <div className="filter-group">
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="filter-select"
+            >
+              <option value="All">All Status</option>
+              <option value="For Sale">For Sale</option>
+              <option value="For Rent">For Rent</option>
+              <option value="In Renovation">In Renovation</option>
+              <option value="Sold">Sold</option>
+              <option value="Rented">Rented</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div className="people-grid">
+        {filteredProperties.length === 0 ? (
+          <div className="empty-state">
+            <div className="empty-icon">🏠</div>
+            <h3>No properties found</h3>
+            <p>Start by adding your first property.</p>
+          </div>
+        ) : (
+          filteredProperties.map(property => (
+            <div key={property.id} className="crm-person-card">
+              <div className="card-header">
+                <div className="person-avatar">
+                  <div className="avatar-circle">🏠</div>
+                </div>
+                <div className="person-info">
+                  <div className="person-name">{property.address}</div>
+                  <div className="person-company">{property.type}</div>
+                  <div className="person-role">{property.status}</div>
+                </div>
+                <div className="priority-badge priority-Medium">
+                  {property.status}
+                </div>
+              </div>
+              
+              <div className="contact-info">
+                <div className="contact-item">
+                  <span className="contact-icon">💰</span>
+                  <span className="contact-value">
+                    {property.purchasePrice ? `£${parseInt(property.purchasePrice).toLocaleString()}` : 'No price set'}
+                  </span>
+                </div>
+                {property.beds && (
+                  <div className="contact-item">
+                    <span className="contact-icon">🛏️</span>
+                    <span className="contact-value">{property.beds} bed{property.beds > 1 ? 's' : ''}</span>
+                  </div>
+                )}
+                {property.sqft && (
+                  <div className="contact-item">
+                    <span className="contact-icon">📐</span>
+                    <span className="contact-value">{property.sqft} sq ft</span>
+                  </div>
+                )}
+              </div>
+              
+              <div className="crm-actions">
+                <button className="action-btn primary">📋 View</button>
+                <button className="action-btn secondary">✏️ Edit</button>
+                <button className="action-btn secondary">📄 Documents</button>
+                <button className="action-btn danger" onClick={() => deleteProperty(property.id)}>
+                  🗑️
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Projects Section Component
+function ProjectsSection({ currentView, projects, setProjects, people, properties }) {
+  const getFilteredProjects = () => {
+    switch (currentView) {
+      case 'projects-active':
+        return projects.filter(p => p.status === 'Active');
+      case 'projects-completed':
+        return projects.filter(p => p.status === 'Completed');
+      case 'projects-planned':
+        return projects.filter(p => p.status === 'Planned');
+      default:
+        return projects;
+    }
+  };
+
+  const filteredProjects = getFilteredProjects();
+  const sectionTitle = currentView === 'projects' ? 'All Projects' : 
+    currentView.replace('projects-', '').replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+  return (
+    <div className="view">
+      <div className="page-header">
+        <h1 className="page-title">{sectionTitle}</h1>
+        <p className="page-subtitle">Track your property projects and transactions</p>
+        <div className="header-actions">
+          <button className="btn btn-primary" onClick={() => setCurrentView('add-project')}>
+            + Start Project
+          </button>
+        </div>
+      </div>
+      
+      {currentView === 'add-project' ? (
+        <AddProjectView projects={projects} setProjects={setProjects} people={people} properties={properties} />
+      ) : (
+        <ProjectsListView projects={filteredProjects} setProjects={setProjects} people={people} properties={properties} />
+      )}
+    </div>
+  );
+}
+
+// Add Project View Component
+function AddProjectView({ projects, setProjects, people, properties }) {
+  const [formData, setFormData] = useState({
+    name: '',
+    type: 'Purchase',
+    status: 'Planned',
+    phase: 'Planning',
+    property: '',
+    people: [],
+    startDate: '',
+    endDate: '',
+    budget: '',
+    notes: ''
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const newProject = {
+      id: Date.now(),
+      ...formData,
+      createdAt: new Date().toISOString(),
+      tasks: [],
+      documents: [],
+      timeline: []
+    };
+    setProjects([...projects, newProject]);
+    setFormData({
+      name: '',
+      type: 'Purchase',
+      status: 'Planned',
+      phase: 'Planning',
+      property: '',
+      people: [],
+      startDate: '',
+      endDate: '',
+      budget: '',
+      notes: ''
+    });
+    alert('Project created successfully!');
+  };
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  return (
+    <div className="card">
+      <form onSubmit={handleSubmit} className="person-form">
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="name">Project Name *</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+              placeholder="Enter project name"
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="type">Project Type</label>
+            <select
+              id="type"
+              name="type"
+              value={formData.type}
+              onChange={handleChange}
+            >
+              <option value="Purchase">Purchase/Acquisition</option>
+              <option value="Renovation">Renovation/Refurbishment</option>
+              <option value="Sale">Sale/Disposal</option>
+              <option value="Letting">Letting/Tenancy</option>
+              <option value="Maintenance">Maintenance</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="status">Status</label>
+            <select
+              id="status"
+              name="status"
+              value={formData.status}
+              onChange={handleChange}
+            >
+              <option value="Planned">Planned</option>
+              <option value="Active">Active</option>
+              <option value="Completed">Completed</option>
+              <option value="On Hold">On Hold</option>
+            </select>
+          </div>
+          <div className="form-group">
+            <label htmlFor="phase">Phase</label>
+            <select
+              id="phase"
+              name="phase"
+              value={formData.phase}
+              onChange={handleChange}
+            >
+              <option value="Planning">Planning</option>
+              <option value="Execution">Execution</option>
+              <option value="Review">Review</option>
+              <option value="Complete">Complete</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="property">Property</label>
+            <select
+              id="property"
+              name="property"
+              value={formData.property}
+              onChange={handleChange}
+            >
+              <option value="">Select Property</option>
+              {properties.map(property => (
+                <option key={property.id} value={property.id}>{property.address}</option>
+              ))}
+            </select>
+          </div>
+          <div className="form-group">
+            <label htmlFor="budget">Budget (£)</label>
+            <input
+              type="number"
+              id="budget"
+              name="budget"
+              value={formData.budget}
+              onChange={handleChange}
+              placeholder="Enter project budget"
+            />
+          </div>
+        </div>
+
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="startDate">Start Date</label>
+            <input
+              type="date"
+              id="startDate"
+              name="startDate"
+              value={formData.startDate}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="endDate">End Date</label>
+            <input
+              type="date"
+              id="endDate"
+              name="endDate"
+              value={formData.endDate}
+              onChange={handleChange}
+            />
+          </div>
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="notes">Notes</label>
+          <textarea
+            id="notes"
+            name="notes"
+            value={formData.notes}
+            onChange={handleChange}
+            rows="4"
+            placeholder="Add project details and notes..."
+          />
+        </div>
+
+        <div className="form-actions">
+          <button type="submit" className="btn btn-primary">
+            Create Project
+          </button>
+          <button type="button" className="btn btn-secondary">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+// Projects List View Component
+function ProjectsListView({ projects, setProjects, people, properties }) {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterType, setFilterType] = useState('All');
+
+  const filteredProjects = projects.filter(project => {
+    const matchesSearch = project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         project.type.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesType = filterType === 'All' || project.type === filterType;
+    return matchesSearch && matchesType;
+  });
+
+  const deleteProject = (id) => {
+    if (window.confirm('Are you sure you want to delete this project?')) {
+      setProjects(projects.filter(project => project.id !== id));
+    }
+  };
+
+  return (
+    <div className="view">
+      <div className="card">
+        <div className="search-filters">
+          <div className="search-group">
+            <input
+              type="text"
+              placeholder="Search by name or type..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="search-input"
+            />
+          </div>
+          <div className="filter-group">
+            <select
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value)}
+              className="filter-select"
+            >
+              <option value="All">All Types</option>
+              <option value="Purchase">Purchase</option>
+              <option value="Renovation">Renovation</option>
+              <option value="Sale">Sale</option>
+              <option value="Letting">Letting</option>
+              <option value="Maintenance">Maintenance</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div className="people-grid">
+        {filteredProjects.length === 0 ? (
+          <div className="empty-state">
+            <div className="empty-icon">⚡</div>
+            <h3>No projects found</h3>
+            <p>Start by creating your first project.</p>
+          </div>
+        ) : (
+          filteredProjects.map(project => (
+            <div key={project.id} className="crm-person-card">
+              <div className="card-header">
+                <div className="person-avatar">
+                  <div className="avatar-circle">⚡</div>
+                </div>
+                <div className="person-info">
+                  <div className="person-name">{project.name}</div>
+                  <div className="person-company">{project.type}</div>
+                  <div className="person-role">{project.phase}</div>
+                </div>
+                <div className={`priority-badge priority-${project.status === 'Active' ? 'High' : project.status === 'Completed' ? 'Low' : 'Medium'}`}>
+                  {project.status}
+                </div>
+              </div>
+              
+              <div className="contact-info">
+                <div className="contact-item">
+                  <span className="contact-icon">🏠</span>
+                  <span className="contact-value">
+                    {project.property ? 
+                      properties.find(p => p.id === project.property)?.address || 'Unknown Property' :
+                      'No Property'
+                    }
+                  </span>
+                </div>
+                {project.budget && (
+                  <div className="contact-item">
+                    <span className="contact-icon">💰</span>
+                    <span className="contact-value">£{parseInt(project.budget).toLocaleString()}</span>
+                  </div>
+                )}
+                {project.startDate && (
+                  <div className="contact-item">
+                    <span className="contact-icon">📅</span>
+                    <span className="contact-value">{new Date(project.startDate).toLocaleDateString()}</span>
+                  </div>
+                )}
+              </div>
+              
+              <div className="crm-actions">
+                <button className="action-btn primary">📋 View</button>
+                <button className="action-btn secondary">✏️ Edit</button>
+                <button className="action-btn secondary">📄 Tasks</button>
+                <button className="action-btn danger" onClick={() => deleteProject(project.id)}>
+                  🗑️
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
 // Other view components (simplified for now)
-function FeesView() { return <div className="view"><h1>Fees & Costs</h1></div>; }
-function MessagesView() { return <div className="view"><h1>Messages</h1></div>; }
 function DocumentsView() { return <div className="view"><h1>Documents</h1></div>; }
-function TradespeopleView() { return <div className="view"><h1>Find Tradespeople</h1></div>; }
-function ChecklistView() { return <div className="view"><h1>Move-In Checklist</h1></div>; }
+function ReportsView() { return <div className="view"><h1>Reports</h1></div>; }
 
 // Export/Import functions
 
