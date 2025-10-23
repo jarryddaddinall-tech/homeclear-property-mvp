@@ -12,7 +12,19 @@ import {
   Bell,
   Menu,
   Download,
-  Upload
+  Upload,
+  ChevronLeft,
+  ChevronRight,
+  Building,
+  MapPin,
+  Phone,
+  Mail,
+  Calendar,
+  Plus,
+  Eye,
+  Edit,
+  Trash2,
+  Filter
 } from 'lucide-react';
 import './App.css';
 
@@ -92,6 +104,7 @@ const importData = () => {
 // Main App Component - Fixed for Vercel deployment
 function App() {
   const [currentView, setCurrentView] = useState('dashboard');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [timelineEvents, setTimelineEvents] = useLocalStorage('hc.timelineEvents', []);
   const [parties, setParties] = useLocalStorage('hc.parties', [
     { id: 1, role: 'Solicitor', name: 'Emma Wilson', company: 'Wilson & Partners', email: 'emma@wilsonpartners.co.uk', phone: '0161 123 4567', lastContactedISO: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), notes: 'Specializes in residential conveyancing' },
@@ -192,6 +205,10 @@ function App() {
     }));
   };
 
+  const toggleSidebar = () => {
+    setSidebarCollapsed(!sidebarCollapsed);
+  };
+
   const mainNavigation = [
     { id: 'dashboard', label: 'Dashboard', icon: Home, type: 'main' },
     { 
@@ -281,9 +298,16 @@ function App() {
 
       <div className="layout">
         {/* Sidebar */}
-        <nav className="sidebar">
+        <nav className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
           <div className="sidebar-header">
             <div className="logo">Property<span className="logo-accent">Axis</span></div>
+            <button 
+              className="sidebar-toggle"
+              onClick={toggleSidebar}
+              title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            >
+              {sidebarCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+            </button>
           </div>
           
           <div className="nav-section">
@@ -343,7 +367,7 @@ function App() {
         </nav>
 
         {/* Main Content */}
-        <main className="main-content">
+        <main className={`main-content ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
         {currentView === 'dashboard' && (
             <DashboardOverview 
               people={people}
@@ -437,7 +461,9 @@ function DashboardOverview({ people, properties, projects }) {
       <div className="dashboard-stats">
         <div className="stat-card">
           <div className="stat-header">
-            <div className="stat-icon people">👥</div>
+            <div className="stat-icon people">
+              <Users size={20} />
+            </div>
             <div className="stat-title">Total People</div>
           </div>
           <div className="stat-number">{totalPeople}</div>
@@ -456,7 +482,9 @@ function DashboardOverview({ people, properties, projects }) {
         
         <div className="stat-card">
           <div className="stat-header">
-            <div className="stat-icon properties">🏠</div>
+            <div className="stat-icon properties">
+              <Building size={20} />
+            </div>
             <div className="stat-title">Total Properties</div>
           </div>
           <div className="stat-number">{totalProperties}</div>
@@ -475,7 +503,9 @@ function DashboardOverview({ people, properties, projects }) {
         
         <div className="stat-card">
           <div className="stat-header">
-            <div className="stat-icon projects">⚡</div>
+            <div className="stat-icon projects">
+              <Clock size={20} />
+            </div>
             <div className="stat-title">Active Projects</div>
           </div>
           <div className="stat-number">{activeProjects}</div>
@@ -498,19 +528,22 @@ function DashboardOverview({ people, properties, projects }) {
         <h3>Quick Actions</h3>
         <div className="action-grid">
           <button className="action-card" onClick={() => setCurrentView('people-all')}>
-            <div className="action-icon">👤</div>
+            <div className="action-icon">
+              <Users size={16} />
+            </div>
             <div className="action-title">Add Person</div>
-            <div className="action-subtitle">New contact</div>
           </button>
           <button className="action-card" onClick={() => setCurrentView('properties-all')}>
-            <div className="action-icon">🏠</div>
+            <div className="action-icon">
+              <Building size={16} />
+            </div>
             <div className="action-title">Add Property</div>
-            <div className="action-subtitle">New property</div>
           </button>
           <button className="action-card" onClick={() => setCurrentView('projects-active')}>
-            <div className="action-icon">⚡</div>
+            <div className="action-icon">
+              <Clock size={16} />
+            </div>
             <div className="action-title">Start Project</div>
-            <div className="action-subtitle">New project</div>
           </button>
         </div>
       </div>
@@ -1522,18 +1555,24 @@ function PeopleListView({ people, setPeople }) {
                 
                 <div className="contact-info">
                   <div className="contact-item">
-                    <span className="contact-icon">📧</span>
+                    <span className="contact-icon">
+                      <Mail size={12} />
+                    </span>
                     <span className="contact-value">{person.email}</span>
                   </div>
                   {person.phone && (
                     <div className="contact-item">
-                      <span className="contact-icon">📞</span>
+                      <span className="contact-icon">
+                        <Phone size={12} />
+                      </span>
                       <span className="contact-value">{person.phone}</span>
                     </div>
                   )}
                   {person.location && (
                     <div className="contact-item">
-                      <span className="contact-icon">📍</span>
+                      <span className="contact-icon">
+                        <MapPin size={12} />
+                      </span>
                       <span className="contact-value">{person.location}</span>
                     </div>
                   )}
@@ -1950,7 +1989,9 @@ function PropertiesListView({ properties, setProperties, people }) {
             <div key={property.id} className="crm-person-card">
               <div className="card-header">
                 <div className="person-avatar">
-                  <div className="avatar-circle">🏠</div>
+                  <div className="avatar-circle">
+                    <Building size={16} />
+                  </div>
                 </div>
                 <div className="person-info">
                   <div className="person-name">{property.address}</div>
@@ -2287,7 +2328,9 @@ function ProjectsListView({ projects, setProjects, people, properties }) {
             <div key={project.id} className="crm-person-card">
               <div className="card-header">
                 <div className="person-avatar">
-                  <div className="avatar-circle">⚡</div>
+                  <div className="avatar-circle">
+                    <Clock size={16} />
+                  </div>
                 </div>
                 <div className="person-info">
                   <div className="person-name">{project.name}</div>
