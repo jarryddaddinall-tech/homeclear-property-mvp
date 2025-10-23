@@ -759,8 +759,8 @@ function App() {
                   {currentProfile === 'buyer' ? 'B' : 
                    currentProfile === 'estate-agent' ? 'E' :
                    currentProfile === 'project-manager' ? 'P' : 'S'}
-                </div>
-              </div>
+            </div>
+          </div>
               <div className="user-details">
                 <div className="user-name">
                   {currentProfile === 'buyer' ? 'Sarah Thompson' : 
@@ -776,8 +776,8 @@ function App() {
               <div className="dropdown-arrow">
                 <ChevronDown size={16} />
               </div>
-            </div>
-            
+          </div>
+          
             {showProfileDropdown && (
               <div className="profile-dropdown">
                 <div 
@@ -791,8 +791,8 @@ function App() {
                   <div className="profile-info">
                     <div className="profile-name">Sarah Thompson</div>
                     <div className="profile-role">Property Buyer</div>
-                  </div>
-                </div>
+            </div>
+          </div>
                 <div 
                   className="profile-option"
                   onClick={() => {
@@ -2130,10 +2130,6 @@ function PeopleListView({ people, setPeople, setSelectedDetail }) {
               <span className="contact-count">{filteredPeople.length} contacts</span>
             </div>
             <div className="table-actions-header">
-              <button className="btn-secondary">
-                <Download size={16} />
-                Export
-              </button>
               <button className="btn-primary">
                 <Plus size={16} />
                 Add Contact

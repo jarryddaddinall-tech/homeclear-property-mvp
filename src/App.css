@@ -3463,7 +3463,7 @@ body {
   align-items: center;
   padding: 24px 32px;
   border-bottom: 1px solid #f3f4f6;
-  background: #fafafa;
+  background: white;
 }
 
 .table-title h2 {
@@ -3536,7 +3536,7 @@ body {
 }
 
 .crm-table-container thead th {
-  background: #f8fafc;
+  background: white;
   padding: 16px 24px;
   text-align: left;
   font-weight: 600;
