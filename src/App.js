@@ -609,6 +609,11 @@ function App() {
   });
   const [showSaved, setShowSaved] = useState(false);
   
+  // Contact management state
+  const [showAddContactModal, setShowAddContactModal] = useState(false);
+  const [showEditContactModal, setShowEditContactModal] = useState(false);
+  const [editingContact, setEditingContact] = useState(null);
+  
   // REACT POWER: Real-time state management
   const [liveUpdates, setLiveUpdates] = useState([]);
   const [notifications, setNotifications] = useState([]);
@@ -690,6 +695,47 @@ function App() {
 
   const toggleSidebar = () => {
     setSidebarCollapsed(!sidebarCollapsed);
+  };
+
+  // Debug the setCurrentView function
+  const debugSetCurrentView = (newView) => {
+    console.log('setCurrentView called with:', newView);
+    console.log('Current currentView before update:', currentView);
+    setCurrentView(newView);
+    console.log('setCurrentView function completed');
+  };
+
+  // Contact management functions
+  const addContact = (contactData) => {
+    const newContact = {
+      id: Date.now(),
+      ...contactData,
+      status: 'Active',
+      createdAt: new Date().toISOString()
+    };
+    setParties(prev => [...prev, newContact]);
+    setShowAddContactModal(false);
+  };
+
+  const editContact = (contactId, updatedData) => {
+    setParties(prev => prev.map(contact => 
+      contact.id === contactId ? { ...contact, ...updatedData } : contact
+    ));
+    setShowEditContactModal(false);
+    setEditingContact(null);
+  };
+
+  const deleteContact = (contactId) => {
+    if (window.confirm('Are you sure you want to delete this contact?')) {
+      setParties(prev => prev.filter(contact => contact.id !== contactId));
+      setShowEditContactModal(false);
+      setEditingContact(null);
+    }
+  };
+
+  const openEditContact = (contact) => {
+    setEditingContact(contact);
+    setShowEditContactModal(true);
   };
 
   // Close profile dropdown when clicking outside or pressing Escape
@@ -924,7 +970,15 @@ function App() {
           </div>
           
           <div className="nav-section">
-            {mainNavigation.map(item => (
+            {mainNavigation
+              .filter(item => {
+                // Hide Projects section for Estate Agents
+                if (item.id === 'projects' && currentProfile === 'estate-agent') {
+                  return false;
+                }
+                return true;
+              })
+              .map(item => (
               <div key={item.id}>
                 <div 
                   className={`nav-item ${currentView === item.id ? 'active' : ''} ${item.type === 'section' ? 'nav-section-header' : ''}`}
@@ -976,12 +1030,64 @@ function App() {
         {/* Main Content */}
         <main className={`main-content ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
         {currentView === 'dashboard' && (
-            <DashboardOverview 
-              people={people}
-              properties={properties}
-              projects={projects}
-              setCurrentView={setCurrentView}
-            />
+            <div className="view">
+              <div className="page-header">
+                <h1 className="page-title">Dashboard</h1>
+                <p className="page-subtitle">Your property purchase overview</p>
+              </div>
+              
+              <div className="dashboard-grid">
+                <div className="dashboard-card">
+                  <h3>📊 Quick Stats</h3>
+                  <div className="stats-grid">
+                    <div className="stat-item">
+                      <div className="stat-number">{people.length}</div>
+                      <div className="stat-label">Contacts</div>
+                    </div>
+                    <div className="stat-item">
+                      <div className="stat-number">{properties.length}</div>
+                      <div className="stat-label">Properties</div>
+                    </div>
+                    {currentProfile !== 'estate-agent' && (
+                      <div className="stat-item">
+                        <div className="stat-number">{projects.length}</div>
+                        <div className="stat-label">Projects</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="dashboard-card">
+                  <h3>👥 Recent Contacts</h3>
+                  <div className="contact-list">
+                    {people.slice(0, 3).map(person => (
+                      <div key={person.id} className="contact-item">
+                        <div className="contact-name">{person.name}</div>
+                        <div className="contact-role">{person.role}</div>
+                      </div>
+                    ))}
+                    {people.length === 0 && (
+                      <p>No contacts yet</p>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="dashboard-card">
+                  <h3>🏠 Properties</h3>
+                  <div className="property-list">
+                    {properties.slice(0, 3).map(property => (
+                      <div key={property.id} className="property-item">
+                        <div className="property-address">{property.address}</div>
+                        <div className="property-status">{property.status}</div>
+                      </div>
+                    ))}
+                    {properties.length === 0 && (
+                      <p>No properties yet</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
           )}
           
           {/* People Section */}
@@ -993,7 +1099,7 @@ function App() {
               properties={properties}
               projects={projects}
               setSelectedDetail={setSelectedDetail}
-              setCurrentView={setCurrentView}
+              setCurrentView={debugSetCurrentView}
             />
           )}
           
@@ -1023,8 +1129,36 @@ function App() {
             />
           )}
           
+          {/* Team View */}
+          {currentView === 'team' && (
+            <TeamView
+              parties={parties}
+              setShowAddContactModal={setShowAddContactModal}
+              openEditContact={openEditContact}
+              deleteContact={deleteContact}
+            />
+          )}
+          
         </main>
       </div>
+
+      {/* Contact Modals */}
+      <AddContactModal
+        show={showAddContactModal}
+        onClose={() => setShowAddContactModal(false)}
+        onAdd={addContact}
+      />
+      
+      <EditContactModal
+        show={showEditContactModal}
+        contact={editingContact}
+        onClose={() => {
+          setShowEditContactModal(false);
+          setEditingContact(null);
+        }}
+        onUpdate={editContact}
+        onDelete={deleteContact}
+      />
 
       {/* Detail View Overlay */}
       {selectedDetail && (
@@ -1603,61 +1737,375 @@ function TimelineView() {
 }
 
 // Team View Component
-function TeamView() {
+function TeamView({ parties, setShowAddContactModal, openEditContact, deleteContact }) {
+  const getStatusColor = (status) => {
+    switch(status) {
+      case 'Active': return '#3b82f6';
+      case 'Complete': return '#22c55e';
+      case 'Approved': return '#22c55e';
+      case 'Pending': return '#f59e0b';
+      default: return '#6b7280';
+    }
+  };
+
+  const formatLastContacted = (lastContactedISO) => {
+    if (!lastContactedISO) return 'Never';
+    const date = new Date(lastContactedISO);
+    const now = new Date();
+    const diffTime = Math.abs(now - date);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 1) return '1 day ago';
+    if (diffDays < 7) return `${diffDays} days ago`;
+    return date.toLocaleDateString();
+  };
+
   return (
     <div className="view">
       <div className="page-header">
         <h1 className="page-title">Your Team</h1>
         <p className="page-subtitle">Everyone involved in your property purchase</p>
-        <button className="btn btn-primary">＋ Add Person</button>
+        <button className="btn btn-primary" onClick={() => setShowAddContactModal(true)}>
+          ＋ Add Person
+        </button>
       </div>
       
       <div className="team-grid">
-        <div className="person-card">
-          <div className="person-header">
-            <div>
-              <div className="person-name">Emma Wilson</div>
-              <div className="person-role">Solicitor</div>
-              <div className="person-company">Wilson & Partners</div>
-              <div className="person-contact">
-                <Mail size={14} /> emma@wilsonpartners.co.uk<br/>
-                <Phone size={14} /> 0161 123 4567<br/>
-                Last contacted: <span>2 days ago</span>
+        {parties.length === 0 ? (
+          <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px', color: '#666' }}>
+            <div style={{ fontSize: '48px', marginBottom: '20px' }}>👥</div>
+            <h3>No contacts yet</h3>
+            <p>Add your first contact to get started</p>
+          </div>
+        ) : (
+          parties.map(contact => (
+            <div key={contact.id} className="person-card">
+              <div className="person-header">
+                <div>
+                  <div className="person-name">{contact.name}</div>
+                  <div className="person-role">{contact.role}</div>
+                  <div className="person-company">{contact.company || 'No company'}</div>
+                  <div className="person-contact">
+                    {contact.email && (
+                      <>
+                        <Mail size={14} /> {contact.email}<br/>
+                      </>
+                    )}
+                    {contact.phone && (
+                      <>
+                        <Phone size={14} /> {contact.phone}<br/>
+                      </>
+                    )}
+                    Last contacted: <span>{formatLastContacted(contact.lastContactedISO)}</span>
+                  </div>
+                </div>
+                <div className="person-status" style={{ background: getStatusColor(contact.status) }}>
+                  {contact.status}
+                </div>
+              </div>
+              <div className="person-actions">
+                {contact.phone && (
+                  <button className="btn-small" onClick={() => window.open(`tel:${contact.phone}`)}>
+                    <Phone size={14} /> Call
+                  </button>
+                )}
+                {contact.email && (
+                  <button className="btn-small" onClick={() => window.open(`mailto:${contact.email}`)}>
+                    💬 Email
+                  </button>
+                )}
+                <button className="btn-small" onClick={() => openEditContact(contact)}>
+                  ✏️ Edit
+                </button>
+                <button className="btn-small" onClick={() => deleteContact(contact.id)} style={{ color: '#dc2626' }}>
+                  🗑️ Delete
+                </button>
               </div>
             </div>
-            <div className="person-status">Active</div>
-          </div>
-          <div className="person-actions">
-            <button className="btn-small">
-              <Phone size={14} /> Log Call
-            </button>
-            <button className="btn-small">💬 Log Message</button>
-            <button className="btn-small">✏️ Edit</button>
-          </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Add Contact Modal Component
+function AddContactModal({ show, onClose, onAdd }) {
+  const [formData, setFormData] = useState({
+    name: '',
+    role: '',
+    company: '',
+    email: '',
+    phone: '',
+    notes: ''
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onAdd(formData);
+    setFormData({
+      name: '',
+      role: '',
+      company: '',
+      email: '',
+      phone: '',
+      notes: ''
+    });
+  };
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  if (!show) return null;
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content" onClick={e => e.stopPropagation()}>
+        <div className="modal-header">
+          <h3>Add New Contact</h3>
+          <button onClick={onClose} className="modal-close">&times;</button>
         </div>
-        
-        <div className="person-card">
-          <div className="person-header">
-            <div>
-              <div className="person-name">James Parker</div>
-              <div className="person-role">Estate Agent</div>
-              <div className="person-company">Parker & Co Estate Agents</div>
-              <div className="person-contact">
-                <Mail size={14} /> james@parkerco.co.uk<br/>
-                <Phone size={14} /> 0161 234 5678<br/>
-                Last contacted: <span>1 day ago</span>
-              </div>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="name">Name *</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="role">Role *</label>
+              <select
+                id="role"
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Select Role</option>
+                <option value="Solicitor">Solicitor</option>
+                <option value="Estate Agent">Estate Agent</option>
+                <option value="Mortgage Broker">Mortgage Broker</option>
+                <option value="Surveyor">Surveyor</option>
+                <option value="Lender">Lender</option>
+                <option value="Contractor">Contractor</option>
+                <option value="Project Manager">Project Manager</option>
+                <option value="Other">Other</option>
+              </select>
             </div>
-            <div className="person-status">Active</div>
+            
+            <div className="form-group">
+              <label htmlFor="company">Company</label>
+              <input
+                type="text"
+                id="company"
+                name="company"
+                value={formData.company}
+                onChange={handleChange}
+              />
+            </div>
           </div>
-          <div className="person-actions">
-            <button className="btn-small">
-              <Phone size={14} /> Log Call
+          
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+              />
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="phone">Phone</label>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="notes">Notes</label>
+            <textarea
+              id="notes"
+              name="notes"
+              value={formData.notes}
+              onChange={handleChange}
+              rows="3"
+              placeholder="Any additional information about this contact..."
+            />
+          </div>
+          
+          <div className="form-actions">
+            <button type="button" className="btn btn-secondary" onClick={onClose}>
+              Cancel
             </button>
-            <button className="btn-small">💬 Log Message</button>
-            <button className="btn-small">✏️ Edit</button>
+            <button type="submit" className="btn btn-primary">
+              Add Contact
+            </button>
           </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// Edit Contact Modal Component
+function EditContactModal({ show, contact, onClose, onUpdate, onDelete }) {
+  const [formData, setFormData] = useState({
+    name: '',
+    role: '',
+    company: '',
+    email: '',
+    phone: '',
+    notes: ''
+  });
+
+  useEffect(() => {
+    if (contact) {
+      setFormData({
+        name: contact.name || '',
+        role: contact.role || '',
+        company: contact.company || '',
+        email: contact.email || '',
+        phone: contact.phone || '',
+        notes: contact.notes || ''
+      });
+    }
+  }, [contact]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onUpdate(contact.id, formData);
+  };
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  if (!show || !contact) return null;
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content" onClick={e => e.stopPropagation()}>
+        <div className="modal-header">
+          <h3>Edit Contact</h3>
+          <button onClick={onClose} className="modal-close">&times;</button>
         </div>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="editName">Name *</label>
+            <input
+              type="text"
+              id="editName"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="editRole">Role *</label>
+              <select
+                id="editRole"
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Select Role</option>
+                <option value="Solicitor">Solicitor</option>
+                <option value="Estate Agent">Estate Agent</option>
+                <option value="Mortgage Broker">Mortgage Broker</option>
+                <option value="Surveyor">Surveyor</option>
+                <option value="Lender">Lender</option>
+                <option value="Contractor">Contractor</option>
+                <option value="Project Manager">Project Manager</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="editCompany">Company</label>
+              <input
+                type="text"
+                id="editCompany"
+                name="company"
+                value={formData.company}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+          
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="editEmail">Email</label>
+              <input
+                type="email"
+                id="editEmail"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+              />
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="editPhone">Phone</label>
+              <input
+                type="tel"
+                id="editPhone"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="editNotes">Notes</label>
+            <textarea
+              id="editNotes"
+              name="notes"
+              value={formData.notes}
+              onChange={handleChange}
+              rows="3"
+              placeholder="Any additional information about this contact..."
+            />
+          </div>
+          
+          <div className="form-actions">
+            <button type="button" className="btn btn-secondary" onClick={onClose}>
+              Cancel
+            </button>
+            <button type="submit" className="btn btn-primary">
+              Update Contact
+            </button>
+            <button type="button" className="btn btn-danger" onClick={() => onDelete(contact.id)}>
+              Delete Contact
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
@@ -1712,6 +2160,15 @@ function PropertySearchView() {
 
 // People Section Component
 function PeopleSection({ currentView, people, setPeople, properties, projects, setSelectedDetail, setCurrentView }) {
+  console.log('PeopleSection currentView:', currentView); // Debug log
+  
+  // Local state for add person view
+  const [showAddPerson, setShowAddPerson] = useState(false);
+  
+  const closeAddPersonForm = () => {
+    setShowAddPerson(false);
+  };
+  
   const getFilteredPeople = () => {
     switch (currentView) {
       case 'people-buyers':
@@ -1730,23 +2187,25 @@ function PeopleSection({ currentView, people, setPeople, properties, projects, s
   };
 
   const filteredPeople = getFilteredPeople();
-  const sectionTitle = currentView === 'people' ? 'All Contacts' : 
-    currentView.replace('people-', '').replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
-
   return (
     <div className="view">
-      <div className="page-header">
-        <h1 className="page-title">{sectionTitle}</h1>
-        <p className="page-subtitle">Manage your contacts and relationships</p>
-        <div className="header-actions">
-          <button className="btn btn-primary" onClick={() => setCurrentView('add-person')}>
-            + Add Contact
-          </button>
+      {!showAddPerson && (
+        <div className="page-header">
+          <h1 className="page-title">All Contacts</h1>
+          <p className="page-subtitle">Manage your contacts and relationships</p>
+          <div className="header-actions">
+            <button className="btn btn-primary" onClick={() => {
+              console.log('Add Contact button clicked!'); // Debug log
+              setShowAddPerson(true);
+            }}>
+              + Add Contact
+            </button>
+          </div>
         </div>
-      </div>
+      )}
       
-      {currentView === 'add-person' ? (
-        <AddPersonView people={people} setPeople={setPeople} />
+      {showAddPerson ? (
+        <AddPersonView people={people} setPeople={setPeople} onClose={closeAddPersonForm} />
       ) : (
         <PeopleListView people={filteredPeople} setPeople={setPeople} setSelectedDetail={setSelectedDetail} />
       )}
@@ -1755,7 +2214,9 @@ function PeopleSection({ currentView, people, setPeople, properties, projects, s
 }
 
 // Add Person View Component
-function AddPersonView({ people, setPeople }) {
+function AddPersonView({ people, setPeople, onClose }) {
+  console.log('AddPersonView rendering...'); // Debug log
+  
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -1801,6 +2262,7 @@ function AddPersonView({ people, setPeople }) {
       nextFollowUp: ''
     });
     alert('Person added successfully!');
+    onClose(); // Close the form and go back to people list
   };
 
   const handleChange = (e) => {
@@ -1813,12 +2275,10 @@ function AddPersonView({ people, setPeople }) {
   return (
     <div className="view">
       <div className="page-header">
-        <h1 className="page-title">Add New Person</h1>
-        <p className="page-subtitle">Add someone who is buying a house to rent out</p>
+        <h1 className="page-title">Add New Contact</h1>
       </div>
 
-      <div className="card">
-        <form onSubmit={handleSubmit} className="person-form">
+      <form onSubmit={handleSubmit} className="person-form">
           <div className="form-row">
             <div className="form-group">
               <label htmlFor="name">Full Name *</label>
@@ -2035,12 +2495,11 @@ function AddPersonView({ people, setPeople }) {
             <button type="submit" className="btn btn-primary">
               Add Person
             </button>
-            <button type="button" className="btn btn-secondary">
+            <button type="button" className="btn btn-secondary" onClick={onClose}>
               Cancel
             </button>
           </div>
         </form>
-      </div>
     </div>
   );
 }
