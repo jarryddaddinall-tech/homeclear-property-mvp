@@ -155,15 +155,15 @@ function DetailView({ selectedDetail, setSelectedDetail, people, properties, pro
   const relatedItems = getRelatedItems();
 
   return (
-    <div className="detail-view">
-      <div className="detail-header">
+    <div className="detail-view-fullscreen">
+      <div className="detail-header-fullscreen">
         <button 
           className="back-button"
           onClick={() => setSelectedDetail(null)}
         >
           ← Back
         </button>
-        <h1 className="detail-title">
+        <h1 className="detail-title-fullscreen">
           {type === 'person' && data.name}
           {type === 'property' && data.address}
           {type === 'project' && data.name}
@@ -210,6 +210,69 @@ function DetailView({ selectedDetail, setSelectedDetail, people, properties, pro
             </div>
           )}
         </div>
+
+        {/* Property Transaction Timeline */}
+        {type === 'property' && (
+          <div className="timeline-section">
+            <h3>Transaction Timeline</h3>
+            <div className="timeline-stepper">
+              <div className="timeline-step completed">
+                <div className="timeline-step-icon">
+                  <div className="step-number">1</div>
+                </div>
+                <div className="timeline-step-content">
+                  <div className="step-title">Offer Made</div>
+                  <div className="step-description">Initial offer submitted</div>
+                  <div className="step-date">Jan 10, 2024</div>
+                </div>
+              </div>
+              
+              <div className="timeline-step completed">
+                <div className="timeline-step-icon">
+                  <div className="step-number">2</div>
+                </div>
+                <div className="timeline-step-content">
+                  <div className="step-title">Survey Ordered</div>
+                  <div className="step-description">Structural survey completed</div>
+                  <div className="step-date">Jan 15, 2024</div>
+                </div>
+              </div>
+              
+              <div className={`timeline-step ${data.status === 'Under Offer' ? 'active' : 'pending'}`}>
+                <div className="timeline-step-icon">
+                  <div className="step-number">3</div>
+                </div>
+                <div className="timeline-step-content">
+                  <div className="step-title">Solicitor Review</div>
+                  <div className="step-description">Legal documentation review</div>
+                  <div className="step-date">{data.status === 'Under Offer' ? 'In Progress' : 'Pending'}</div>
+                </div>
+              </div>
+              
+              <div className="timeline-step pending">
+                <div className="timeline-step-icon">
+                  <div className="step-number">4</div>
+                </div>
+                <div className="timeline-step-content">
+                  <div className="step-title">Exchange</div>
+                  <div className="step-description">Contracts exchanged</div>
+                  <div className="step-date">Pending</div>
+                </div>
+              </div>
+              
+              <div className="timeline-step pending">
+                <div className="timeline-step-icon">
+                  <div className="step-number">5</div>
+                </div>
+                <div className="timeline-step-content">
+                  <div className="step-title">Completion</div>
+                  <div className="step-description">Property transfer completed</div>
+                  <div className="step-date">Pending</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {relatedItems.properties && relatedItems.properties.length > 0 && (
           <div className="related-section">
