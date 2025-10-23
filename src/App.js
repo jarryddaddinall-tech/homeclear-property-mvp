@@ -708,7 +708,10 @@ function App() {
     <div className="app">
       {/* Header */}
       <header className="header">
-        <div className="logo">HomeClear</div>
+        <div className="logo">
+          <Home size={20} />
+          <span>HomeClear</span>
+        </div>
         <div className="user-info">
           {/* REACT POWER: Real-time status indicators */}
           <div className="status-indicators">

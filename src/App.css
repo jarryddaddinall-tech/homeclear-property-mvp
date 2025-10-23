@@ -2701,6 +2701,13 @@ body {
   font-weight: 600;
   color: #111827;
   letter-spacing: -0.025em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logo svg {
+  color: #6366f1; /* Primary color for house icon */
 }
 
 .logo-accent {
