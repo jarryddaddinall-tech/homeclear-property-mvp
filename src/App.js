@@ -2123,21 +2123,7 @@ function PeopleListView({ people, setPeople, setSelectedDetail }) {
           )}
         </div>
       ) : (
-        <div className="crm-table-container">
-          <div className="table-header">
-            <div className="table-title">
-              <h2>Contacts</h2>
-              <span className="contact-count">{filteredPeople.length} contacts</span>
-            </div>
-            <div className="table-actions-header">
-              <button className="btn-primary">
-                <Plus size={16} />
-                Add Contact
-              </button>
-            </div>
-          </div>
-          
-          <div className="crm-table">
+        <div className="crm-table">
             <table>
               <thead>
                 <tr>

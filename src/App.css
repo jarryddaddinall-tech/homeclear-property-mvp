@@ -3535,7 +3535,7 @@ body {
   table-layout: fixed;
 }
 
-.crm-table-container thead th {
+.crm-table thead th {
   background: white;
   padding: 16px 24px;
   text-align: left;
@@ -3567,7 +3567,7 @@ body {
 }
 
 .contact-row td {
-  padding: 20px 24px;
+  padding: 16px 24px;
   vertical-align: top;
 }
 
