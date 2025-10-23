@@ -697,13 +697,6 @@ function App() {
     setSidebarCollapsed(!sidebarCollapsed);
   };
 
-  // Debug the setCurrentView function
-  const debugSetCurrentView = (newView) => {
-    console.log('setCurrentView called with:', newView);
-    console.log('Current currentView before update:', currentView);
-    setCurrentView(newView);
-    console.log('setCurrentView function completed');
-  };
 
   // Contact management functions
   const addContact = (contactData) => {
@@ -836,23 +829,29 @@ function App() {
               aria-expanded={showProfileDropdown}
               aria-haspopup="true"
             >
-              <div className="user-avatar">
+              <div className={`user-avatar ${currentProfile}`}>
                 <div className="avatar-circle">
                   {currentProfile === 'buyer' ? 'B' : 
                    currentProfile === 'estate-agent' ? 'E' :
-                   currentProfile === 'project-manager' ? 'P' : 'S'}
+                 currentProfile === 'project-manager' ? 'P' : 
+                 currentProfile === 'property-investor' ? 'I' : 
+                 currentProfile === 'administrator' ? 'A' : 'S'}
             </div>
           </div>
               <div className="user-details">
                 <div className="user-name">
                   {currentProfile === 'buyer' ? 'Sarah Thompson' : 
                    currentProfile === 'estate-agent' ? 'James Parker' :
-                   currentProfile === 'project-manager' ? 'Vanessa Chen' : 'Alex Rodriguez'}
+                   currentProfile === 'project-manager' ? 'Vanessa Chen' : 
+                   currentProfile === 'property-investor' ? 'David Kim' : 
+                   currentProfile === 'administrator' ? 'Luna Martinez' : 'Alex Rodriguez'}
                 </div>
                 <div className="user-role">
                   {currentProfile === 'buyer' ? 'Property Buyer' : 
                    currentProfile === 'estate-agent' ? 'Estate Agent' :
-                   currentProfile === 'project-manager' ? 'Project Manager' : 'Property Sourcer'}
+                   currentProfile === 'project-manager' ? 'Project Manager' : 
+                   currentProfile === 'property-investor' ? 'Property Investor' : 
+                   currentProfile === 'administrator' ? 'Administrator' : 'Property Sourcer'}
                 </div>
               </div>
               <div className="dropdown-arrow">
@@ -878,7 +877,7 @@ function App() {
                   tabIndex={0}
                   role="button"
                 >
-                  <div className="profile-avatar">B</div>
+                  <div className="profile-avatar buyer">B</div>
                   <div className="profile-info">
                     <div className="profile-name">Sarah Thompson</div>
                     <div className="profile-role">Property Buyer</div>
@@ -900,7 +899,7 @@ function App() {
                   tabIndex={0}
                   role="button"
                 >
-                  <div className="profile-avatar">E</div>
+                  <div className="profile-avatar estate-agent">E</div>
                   <div className="profile-info">
                     <div className="profile-name">James Parker</div>
                     <div className="profile-role">Estate Agent</div>
@@ -922,10 +921,54 @@ function App() {
                   tabIndex={0}
                   role="button"
                 >
-                  <div className="profile-avatar">P</div>
+                  <div className="profile-avatar project-manager">P</div>
                   <div className="profile-info">
                     <div className="profile-name">Vanessa Chen</div>
                     <div className="profile-role">Project Manager</div>
+                  </div>
+                </div>
+                <div 
+                  className="profile-option"
+                  onClick={() => {
+                    setCurrentProfile('property-investor');
+                    setShowProfileDropdown(false);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setCurrentProfile('property-investor');
+                      setShowProfileDropdown(false);
+                    }
+                  }}
+                  tabIndex={0}
+                  role="button"
+                >
+                  <div className="profile-avatar property-investor">I</div>
+                  <div className="profile-info">
+                    <div className="profile-name">David Kim</div>
+                    <div className="profile-role">Property Investor</div>
+                  </div>
+                </div>
+                <div 
+                  className="profile-option"
+                  onClick={() => {
+                    setCurrentProfile('administrator');
+                    setShowProfileDropdown(false);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setCurrentProfile('administrator');
+                      setShowProfileDropdown(false);
+                    }
+                  }}
+                  tabIndex={0}
+                  role="button"
+                >
+                  <div className="profile-avatar administrator">A</div>
+                  <div className="profile-info">
+                    <div className="profile-name">Luna Martinez</div>
+                    <div className="profile-role">Administrator</div>
                   </div>
                 </div>
                 <div 
@@ -944,7 +987,7 @@ function App() {
                   tabIndex={0}
                   role="button"
                 >
-                  <div className="profile-avatar">S</div>
+                  <div className="profile-avatar sourcer">S</div>
                   <div className="profile-info">
                     <div className="profile-name">Alex Rodriguez</div>
                     <div className="profile-role">Property Sourcer</div>
@@ -974,6 +1017,10 @@ function App() {
               .filter(item => {
                 // Hide Projects section for Estate Agents
                 if (item.id === 'projects' && currentProfile === 'estate-agent') {
+                  return false;
+                }
+                // Hide all sections except dashboard for Property Buyers
+                if (currentProfile === 'buyer' && item.id !== 'dashboard') {
                   return false;
                 }
                 return true;
@@ -1036,57 +1083,647 @@ function App() {
                 <p className="page-subtitle">Your property purchase overview</p>
               </div>
               
-              <div className="dashboard-grid">
-                <div className="dashboard-card">
-                  <h3>📊 Quick Stats</h3>
-                  <div className="stats-grid">
-                    <div className="stat-item">
-                      <div className="stat-number">{people.length}</div>
-                      <div className="stat-label">Contacts</div>
+              {currentProfile === 'buyer' ? (
+                // Property Buyer Timeline View - Improved UX/UI
+                <div className="buyer-dashboard">
+                  <div className="property-overview-card">
+                    <div className="property-header">
+                      <h2>45 Oak Avenue, Manchester M1 2AB</h2>
+                      <div className="property-status-badge">Under Offer</div>
                     </div>
-                    <div className="stat-item">
-                      <div className="stat-number">{properties.length}</div>
-                      <div className="stat-label">Properties</div>
+                    <div className="property-details">
+                      <div className="property-info">
+                        <span className="price">£425,000</span>
+                        <span className="details">3 bed • 2 bath • Semi-detached</span>
+                      </div>
                     </div>
-                    {currentProfile !== 'estate-agent' && (
+                  </div>
+
+                  <div className="timeline-section">
+                    <h3>Purchase Progress</h3>
+                    <div className="modern-timeline">
+                      <div className="timeline-step completed">
+                        <div className="step-indicator">
+                          <div className="step-circle completed">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                              <path d="M13.5 4.5L6 12L2.5 8.5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                          </div>
+                          <div className="step-line"></div>
+                        </div>
+                        <div className="step-content">
+                          <div className="step-title">Offer Accepted</div>
+                          <div className="step-description">Your offer of £425,000 has been accepted by the seller</div>
+                          <div className="step-date">Completed on Jan 10, 2024</div>
+                        </div>
+                      </div>
+
+                      <div className="timeline-step completed">
+                        <div className="step-indicator">
+                          <div className="step-circle completed">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                              <path d="M13.5 4.5L6 12L2.5 8.5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                          </div>
+                          <div className="step-line"></div>
+                        </div>
+                        <div className="step-content">
+                          <div className="step-title">Survey Completed</div>
+                          <div className="step-description">Structural survey passed with no major issues identified</div>
+                          <div className="step-date">Completed on Jan 15, 2024</div>
+                        </div>
+                      </div>
+
+                      <div className="timeline-step current">
+                        <div className="step-indicator">
+                          <div className="step-circle current">3</div>
+                          <div className="step-line"></div>
+                        </div>
+                        <div className="step-content">
+                          <div className="step-title">Legal Review</div>
+                          <div className="step-description">Your solicitor is reviewing the contract and legal documentation</div>
+                          <div className="step-date">In Progress • Expected completion: Jan 25, 2024</div>
+                        </div>
+                      </div>
+
+                      <div className="timeline-step pending">
+                        <div className="step-indicator">
+                          <div className="step-circle pending">4</div>
+                          <div className="step-line"></div>
+                        </div>
+                        <div className="step-content">
+                          <div className="step-title">Exchange of Contracts</div>
+                          <div className="step-description">Legal completion of the purchase agreement</div>
+                          <div className="step-date">Scheduled for Feb 1, 2024</div>
+                        </div>
+                      </div>
+
+                      <div className="timeline-step pending">
+                        <div className="step-indicator">
+                          <div className="step-circle pending">5</div>
+                        </div>
+                        <div className="step-content">
+                          <div className="step-title">Completion</div>
+                          <div className="step-description">Final completion and handover of keys</div>
+                          <div className="step-date">Scheduled for Feb 15, 2024</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="next-actions">
+                    <h3>Next Steps</h3>
+                    <div className="action-cards">
+                      <div className="action-card">
+                        <div className="action-icon">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14,2 14,8 20,8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                            <polyline points="10,9 9,9 8,9"/>
+                          </svg>
+                        </div>
+                        <div className="action-content">
+                          <div className="action-title">Review Contract</div>
+                          <div className="action-description">Your solicitor will contact you within 48 hours</div>
+                        </div>
+                      </div>
+                      <div className="action-card">
+                        <div className="action-icon">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <line x1="12" y1="1" x2="12" y2="23"/>
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                          </svg>
+                        </div>
+                        <div className="action-content">
+                          <div className="action-title">Prepare Deposit</div>
+                          <div className="action-description">10% deposit (£42,500) due at exchange</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : currentProfile === 'estate-agent' ? (
+                // Estate Agent Dashboard - Sales Focus
+                <div className="estate-agent-dashboard">
+                  <div className="sales-overview-card">
+                    <div className="sales-header">
+                      <h2>Sales Performance</h2>
+                      <div className="performance-badge">This Month</div>
+                    </div>
+                    <div className="sales-metrics">
+                      <div className="metric">
+                        <div className="metric-value">12</div>
+                        <div className="metric-label">Active Listings</div>
+                      </div>
+                      <div className="metric">
+                        <div className="metric-value">8</div>
+                        <div className="metric-label">Under Offer</div>
+                      </div>
+                      <div className="metric">
+                        <div className="metric-value">5</div>
+                        <div className="metric-label">Sold This Month</div>
+                      </div>
+                      <div className="metric">
+                        <div className="metric-value">£2.1M</div>
+                        <div className="metric-label">Sales Value</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="recent-activity">
+                    <h3>Recent Activity</h3>
+                    <div className="activity-list">
+                      <div className="activity-item">
+                        <div className="activity-icon">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                            <polyline points="9,22 9,12 15,12 15,22"/>
+                          </svg>
+                        </div>
+                        <div className="activity-content">
+                          <div className="activity-title">New Listing: 23 Maple Street</div>
+                          <div className="activity-description">3-bed semi-detached • £350,000</div>
+                          <div className="activity-time">2 hours ago</div>
+                        </div>
+                      </div>
+                      <div className="activity-item">
+                        <div className="activity-icon">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                          </svg>
+                        </div>
+                        <div className="activity-content">
+                          <div className="activity-title">Viewing Scheduled</div>
+                          <div className="activity-description">45 Oak Avenue • Tomorrow 2:00 PM</div>
+                          <div className="activity-time">4 hours ago</div>
+                        </div>
+                      </div>
+                      <div className="activity-item">
+                        <div className="activity-icon">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <polyline points="20,6 9,17 4,12"/>
+                          </svg>
+                        </div>
+                        <div className="activity-content">
+                          <div className="activity-title">Offer Accepted</div>
+                          <div className="activity-description">12 Elm Street • £280,000</div>
+                          <div className="activity-time">1 day ago</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="quick-actions">
+                    <h3>Quick Actions</h3>
+                    <div className="action-grid">
+                      <div className="action-button">
+                        <div className="action-icon">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                          </svg>
+                        </div>
+                        <div className="action-text">Add Listing</div>
+                      </div>
+                      <div className="action-button">
+                        <div className="action-icon">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                            <line x1="16" y1="2" x2="16" y2="6"/>
+                            <line x1="8" y1="2" x2="8" y2="6"/>
+                            <line x1="3" y1="10" x2="21" y2="10"/>
+                          </svg>
+                        </div>
+                        <div className="action-text">Schedule Viewing</div>
+                      </div>
+                      <div className="action-button">
+                        <div className="action-icon">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <line x1="18" y1="20" x2="18" y2="10"/>
+                            <line x1="12" y1="20" x2="12" y2="4"/>
+                            <line x1="6" y1="20" x2="6" y2="14"/>
+                          </svg>
+                        </div>
+                        <div className="action-text">Market Report</div>
+                      </div>
+                      <div className="action-button">
+                        <div className="action-icon">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                          </svg>
+                        </div>
+                        <div className="action-text">Client Management</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : currentProfile === 'project-manager' ? (
+                // Project Manager Dashboard - Construction Focus
+                <div className="project-manager-dashboard">
+                  <div className="projects-overview-card">
+                    <div className="projects-header">
+                      <h2>Active Projects</h2>
+                      <div className="projects-badge">3 In Progress</div>
+                    </div>
+                    <div className="projects-metrics">
+                      <div className="metric">
+                        <div className="metric-value">3</div>
+                        <div className="metric-label">Active Projects</div>
+                      </div>
+                      <div className="metric">
+                        <div className="metric-value">£450K</div>
+                        <div className="metric-label">Total Budget</div>
+                      </div>
+                      <div className="metric">
+                        <div className="metric-value">85%</div>
+                        <div className="metric-label">Avg Progress</div>
+                      </div>
+                      <div className="metric">
+                        <div className="metric-value">12</div>
+                        <div className="metric-label">Team Members</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="projects-list">
+                    <h3>Project Status</h3>
+                    <div className="project-cards">
+                      <div className="project-card">
+                        <div className="project-header">
+                          <h4>Kitchen Renovation</h4>
+                          <div className="project-status completed">Completed</div>
+                        </div>
+                        <div className="project-details">
+                          <div className="project-location">45 Oak Avenue</div>
+                          <div className="project-progress">
+                            <div className="progress-bar">
+                              <div className="progress-fill" style={{width: '100%'}}></div>
+                            </div>
+                            <span className="progress-text">100% Complete</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="project-card">
+                        <div className="project-header">
+                          <h4>Bathroom Refit</h4>
+                          <div className="project-status in-progress">In Progress</div>
+                        </div>
+                        <div className="project-details">
+                          <div className="project-location">12 Elm Street</div>
+                          <div className="project-progress">
+                            <div className="progress-bar">
+                              <div className="progress-fill" style={{width: '75%'}}></div>
+                            </div>
+                            <span className="progress-text">75% Complete</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="project-card">
+                        <div className="project-header">
+                          <h4>Garden Landscaping</h4>
+                          <div className="project-status pending">Starting Soon</div>
+                        </div>
+                        <div className="project-details">
+                          <div className="project-location">78 Pine Road</div>
+                          <div className="project-progress">
+                            <div className="progress-bar">
+                              <div className="progress-fill" style={{width: '0%'}}></div>
+                            </div>
+                            <span className="progress-text">0% Complete</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : currentProfile === 'property-investor' ? (
+                // Property Investor Dashboard - Portfolio Focus
+                <div className="property-investor-dashboard">
+                  <div className="portfolio-overview-card">
+                    <div className="portfolio-header">
+                      <h2>Investment Portfolio</h2>
+                      <div className="portfolio-badge">5 Properties</div>
+                    </div>
+                    <div className="portfolio-metrics">
+                      <div className="metric">
+                        <div className="metric-value">£2.1M</div>
+                        <div className="metric-label">Total Value</div>
+                      </div>
+                      <div className="metric">
+                        <div className="metric-value">£8.5K</div>
+                        <div className="metric-label">Monthly Income</div>
+                      </div>
+                      <div className="metric">
+                        <div className="metric-value">6.2%</div>
+                        <div className="metric-label">Yield</div>
+                      </div>
+                      <div className="metric">
+                        <div className="metric-value">£45K</div>
+                        <div className="metric-label">Annual Profit</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="properties-grid">
+                    <h3>Property Portfolio</h3>
+                    <div className="property-cards">
+                      <div className="property-card">
+                        <div className="property-image">
+                          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                            <polyline points="9,22 9,12 15,12 15,22"/>
+                          </svg>
+                        </div>
+                        <div className="property-info">
+                          <h4>45 Oak Avenue</h4>
+                          <div className="property-details">3 bed • £425K • 6.5% yield</div>
+                          <div className="property-status rented">Rented</div>
+                        </div>
+                      </div>
+                      <div className="property-card">
+                        <div className="property-image">
+                          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                            <polyline points="9,22 9,12 15,12 15,22"/>
+                          </svg>
+                        </div>
+                        <div className="property-info">
+                          <h4>12 Elm Street</h4>
+                          <div className="property-details">2 bed • £280K • 5.8% yield</div>
+                          <div className="property-status rented">Rented</div>
+                        </div>
+                      </div>
+                      <div className="property-card">
+                        <div className="property-image">
+                          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                            <polyline points="9,22 9,12 15,12 15,22"/>
+                          </svg>
+                        </div>
+                        <div className="property-info">
+                          <h4>78 Pine Road</h4>
+                          <div className="property-details">2 bed • £275K • 6.2% yield</div>
+                          <div className="property-status renovation">Renovation</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : currentProfile === 'sourcer' ? (
+                // Property Sourcer Dashboard - Deal Focus
+                <div className="property-sourcer-dashboard">
+                  <div className="deals-overview-card">
+                    <div className="deals-header">
+                      <h2>Deal Pipeline</h2>
+                      <div className="deals-badge">8 Active Deals</div>
+                    </div>
+                    <div className="deals-metrics">
+                      <div className="metric">
+                        <div className="metric-value">8</div>
+                        <div className="metric-label">Active Deals</div>
+                      </div>
+                      <div className="metric">
+                        <div className="metric-value">3</div>
+                        <div className="metric-label">Hot Leads</div>
+                      </div>
+                      <div className="metric">
+                        <div className="metric-value">£1.2M</div>
+                        <div className="metric-label">Pipeline Value</div>
+                      </div>
+                      <div className="metric">
+                        <div className="metric-value">15%</div>
+                        <div className="metric-label">Success Rate</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="deals-list">
+                    <h3>Recent Deals</h3>
+                    <div className="deal-cards">
+                      <div className="deal-card hot">
+                        <div className="deal-header">
+                          <h4>23 Maple Street</h4>
+                          <div className="deal-status hot">Hot Lead</div>
+                        </div>
+                        <div className="deal-details">
+                          <div className="deal-price">£320K • 20% below market</div>
+                          <div className="deal-potential">Potential profit: £45K</div>
+                        </div>
+                      </div>
+                      <div className="deal-card">
+                        <div className="deal-header">
+                          <h4>67 Birch Lane</h4>
+                          <div className="deal-status active">Active</div>
+                        </div>
+                        <div className="deal-details">
+                          <div className="deal-price">£280K • 15% below market</div>
+                          <div className="deal-potential">Potential profit: £32K</div>
+                        </div>
+                      </div>
+                      <div className="deal-card">
+                        <div className="deal-header">
+                          <h4>91 Cedar Drive</h4>
+                          <div className="deal-status active">Active</div>
+                        </div>
+                        <div className="deal-details">
+                          <div className="deal-price">£450K • 18% below market</div>
+                          <div className="deal-potential">Potential profit: £68K</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : currentProfile === 'administrator' ? (
+                // Administrator Dashboard - User Management
+                <div className="administrator-dashboard">
+                  <div className="admin-overview-card">
+                    <div className="admin-header">
+                      <h2>System Administration</h2>
+                      <div className="admin-badge">6 Active Users</div>
+                    </div>
+                    <div className="admin-metrics">
+                      <div className="metric">
+                        <div className="metric-value">6</div>
+                        <div className="metric-label">Total Users</div>
+                      </div>
+                      <div className="metric">
+                        <div className="metric-value">5</div>
+                        <div className="metric-label">Active Today</div>
+                      </div>
+                      <div className="metric">
+                        <div className="metric-value">3</div>
+                        <div className="metric-label">User Types</div>
+                      </div>
+                      <div className="metric">
+                        <div className="metric-value">100%</div>
+                        <div className="metric-label">System Health</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="users-management">
+                    <h3>User Management</h3>
+                    <div className="users-grid">
+                      <div className="user-card buyer">
+                        <div className="user-avatar">B</div>
+                        <div className="user-info">
+                          <h4>Sarah Thompson</h4>
+                          <div className="user-role">Property Buyer</div>
+                          <div className="user-access">Dashboard Only</div>
+                          <div className="user-status active">Active</div>
+                        </div>
+                      </div>
+                      <div className="user-card estate-agent">
+                        <div className="user-avatar">E</div>
+                        <div className="user-info">
+                          <h4>James Parker</h4>
+                          <div className="user-role">Estate Agent</div>
+                          <div className="user-access">People, Properties (No Projects)</div>
+                          <div className="user-status active">Active</div>
+                        </div>
+                      </div>
+                      <div className="user-card project-manager">
+                        <div className="user-avatar">P</div>
+                        <div className="user-info">
+                          <h4>Vanessa Chen</h4>
+                          <div className="user-role">Project Manager</div>
+                          <div className="user-access">People, Properties, Projects</div>
+                          <div className="user-status active">Active</div>
+                        </div>
+                      </div>
+                      <div className="user-card property-investor">
+                        <div className="user-avatar">I</div>
+                        <div className="user-info">
+                          <h4>David Kim</h4>
+                          <div className="user-role">Property Investor</div>
+                          <div className="user-access">People, Properties, Projects</div>
+                          <div className="user-status active">Active</div>
+                        </div>
+                      </div>
+                      <div className="user-card sourcer">
+                        <div className="user-avatar">S</div>
+                        <div className="user-info">
+                          <h4>Alex Rodriguez</h4>
+                          <div className="user-role">Property Sourcer</div>
+                          <div className="user-access">People, Properties, Projects</div>
+                          <div className="user-status active">Active</div>
+                        </div>
+                      </div>
+                      <div className="user-card administrator">
+                        <div className="user-avatar">A</div>
+                        <div className="user-info">
+                          <h4>Luna Martinez</h4>
+                          <div className="user-role">Administrator</div>
+                          <div className="user-access">Full System Access</div>
+                          <div className="user-status active">Active</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="system-overview">
+                    <h3>System Overview</h3>
+                    <div className="system-cards">
+                      <div className="system-card">
+                        <div className="system-icon">
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                          </svg>
+                        </div>
+                        <div className="system-content">
+                          <div className="system-title">Security Status</div>
+                          <div className="system-description">All systems secure and up to date</div>
+                        </div>
+                      </div>
+                      <div className="system-card">
+                        <div className="system-icon">
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                            <polyline points="3.27,6.96 12,12.01 20.73,6.96"/>
+                            <line x1="12" y1="22.08" x2="12" y2="12"/>
+                          </svg>
+                        </div>
+                        <div className="system-content">
+                          <div className="system-title">Database Health</div>
+                          <div className="system-description">All data synchronized and backed up</div>
+                        </div>
+                      </div>
+                      <div className="system-card">
+                        <div className="system-icon">
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M9 19c-5 0-7-2-7-5V8a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v6c0 3-2 5-7 5z"/>
+                            <path d="M9 19v-3a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v3"/>
+                            <path d="M9 9h6"/>
+                            <path d="M9 13h4"/>
+                          </svg>
+                        </div>
+                        <div className="system-content">
+                          <div className="system-title">User Activity</div>
+                          <div className="system-description">5 users active in the last hour</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                // Regular Dashboard for other user types
+                <div className="dashboard-grid">
+                  <div className="dashboard-card">
+                    <h3>📊 Quick Stats</h3>
+                    <div className="stats-grid">
                       <div className="stat-item">
-                        <div className="stat-number">{projects.length}</div>
-                        <div className="stat-label">Projects</div>
+                        <div className="stat-number">{people.length}</div>
+                        <div className="stat-label">Contacts</div>
                       </div>
-                    )}
+                      <div className="stat-item">
+                        <div className="stat-number">{properties.length}</div>
+                        <div className="stat-label">Properties</div>
+                      </div>
+                      {currentProfile !== 'estate-agent' && (
+                        <div className="stat-item">
+                          <div className="stat-number">{projects.length}</div>
+                          <div className="stat-label">Projects</div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="dashboard-card">
+                    <h3>👥 Recent Contacts</h3>
+                    <div className="contact-list">
+                      {people.slice(0, 3).map(person => (
+                        <div key={person.id} className="contact-item">
+                          <div className="contact-name">{person.name}</div>
+                          <div className="contact-role">{person.role}</div>
+                        </div>
+                      ))}
+                      {people.length === 0 && (
+                        <p>No contacts yet</p>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="dashboard-card">
+                    <h3>🏠 Properties</h3>
+                    <div className="property-list">
+                      {properties.slice(0, 3).map(property => (
+                        <div key={property.id} className="property-item">
+                          <div className="property-address">{property.address}</div>
+                          <div className="property-status">{property.status}</div>
+                        </div>
+                      ))}
+                      {properties.length === 0 && (
+                        <p>No properties yet</p>
+                      )}
+                    </div>
                   </div>
                 </div>
-                
-                <div className="dashboard-card">
-                  <h3>👥 Recent Contacts</h3>
-                  <div className="contact-list">
-                    {people.slice(0, 3).map(person => (
-                      <div key={person.id} className="contact-item">
-                        <div className="contact-name">{person.name}</div>
-                        <div className="contact-role">{person.role}</div>
-                      </div>
-                    ))}
-                    {people.length === 0 && (
-                      <p>No contacts yet</p>
-                    )}
-                  </div>
-                </div>
-                
-                <div className="dashboard-card">
-                  <h3>🏠 Properties</h3>
-                  <div className="property-list">
-                    {properties.slice(0, 3).map(property => (
-                      <div key={property.id} className="property-item">
-                        <div className="property-address">{property.address}</div>
-                        <div className="property-status">{property.status}</div>
-                      </div>
-                    ))}
-                    {properties.length === 0 && (
-                      <p>No properties yet</p>
-                    )}
-                  </div>
-                </div>
-              </div>
+              )}
             </div>
           )}
           
@@ -1099,7 +1736,7 @@ function App() {
               properties={properties}
               projects={projects}
               setSelectedDetail={setSelectedDetail}
-              setCurrentView={debugSetCurrentView}
+              setCurrentView={setCurrentView}
             />
           )}
           
@@ -1780,12 +2417,12 @@ function TeamView({ parties, setShowAddContactModal, openEditContact, deleteCont
         ) : (
           parties.map(contact => (
             <div key={contact.id} className="person-card">
-              <div className="person-header">
-                <div>
+          <div className="person-header">
+            <div>
                   <div className="person-name">{contact.name}</div>
                   <div className="person-role">{contact.role}</div>
                   <div className="person-company">{contact.company || 'No company'}</div>
-                  <div className="person-contact">
+              <div className="person-contact">
                     {contact.email && (
                       <>
                         <Mail size={14} /> {contact.email}<br/>
@@ -1797,17 +2434,17 @@ function TeamView({ parties, setShowAddContactModal, openEditContact, deleteCont
                       </>
                     )}
                     Last contacted: <span>{formatLastContacted(contact.lastContactedISO)}</span>
-                  </div>
-                </div>
+              </div>
+            </div>
                 <div className="person-status" style={{ background: getStatusColor(contact.status) }}>
                   {contact.status}
                 </div>
-              </div>
-              <div className="person-actions">
+          </div>
+          <div className="person-actions">
                 {contact.phone && (
                   <button className="btn-small" onClick={() => window.open(`tel:${contact.phone}`)}>
                     <Phone size={14} /> Call
-                  </button>
+            </button>
                 )}
                 {contact.email && (
                   <button className="btn-small" onClick={() => window.open(`mailto:${contact.email}`)}>
@@ -1820,8 +2457,8 @@ function TeamView({ parties, setShowAddContactModal, openEditContact, deleteCont
                 <button className="btn-small" onClick={() => deleteContact(contact.id)} style={{ color: '#dc2626' }}>
                   🗑️ Delete
                 </button>
-              </div>
-            </div>
+          </div>
+        </div>
           ))
         )}
       </div>
@@ -1868,7 +2505,7 @@ function AddContactModal({ show, onClose, onAdd }) {
         <div className="modal-header">
           <h3>Add New Contact</h3>
           <button onClick={onClose} className="modal-close">&times;</button>
-        </div>
+              </div>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="name">Name *</label>
@@ -1880,7 +2517,7 @@ function AddContactModal({ show, onClose, onAdd }) {
               onChange={handleChange}
               required
             />
-          </div>
+            </div>
           
           <div className="form-row">
             <div className="form-group">
@@ -1902,7 +2539,7 @@ function AddContactModal({ show, onClose, onAdd }) {
                 <option value="Project Manager">Project Manager</option>
                 <option value="Other">Other</option>
               </select>
-            </div>
+          </div>
             
             <div className="form-group">
               <label htmlFor="company">Company</label>
@@ -1961,7 +2598,7 @@ function AddContactModal({ show, onClose, onAdd }) {
             </button>
           </div>
         </form>
-      </div>
+        </div>
     </div>
   );
 }
@@ -2160,8 +2797,6 @@ function PropertySearchView() {
 
 // People Section Component
 function PeopleSection({ currentView, people, setPeople, properties, projects, setSelectedDetail, setCurrentView }) {
-  console.log('PeopleSection currentView:', currentView); // Debug log
-  
   // Local state for add person view
   const [showAddPerson, setShowAddPerson] = useState(false);
   
@@ -2190,18 +2825,18 @@ function PeopleSection({ currentView, people, setPeople, properties, projects, s
   return (
     <div className="view">
       {!showAddPerson && (
-        <div className="page-header">
+      <div className="page-header">
           <h1 className="page-title">All Contacts</h1>
-          <p className="page-subtitle">Manage your contacts and relationships</p>
-          <div className="header-actions">
+        <p className="page-subtitle">Manage your contacts and relationships</p>
+        <div className="header-actions">
             <button className="btn btn-primary" onClick={() => {
               console.log('Add Contact button clicked!'); // Debug log
               setShowAddPerson(true);
             }}>
-              + Add Contact
-            </button>
-          </div>
+            + Add Contact
+          </button>
         </div>
+      </div>
       )}
       
       {showAddPerson ? (
@@ -2215,8 +2850,6 @@ function PeopleSection({ currentView, people, setPeople, properties, projects, s
 
 // Add Person View Component
 function AddPersonView({ people, setPeople, onClose }) {
-  console.log('AddPersonView rendering...'); // Debug log
-  
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -2278,7 +2911,7 @@ function AddPersonView({ people, setPeople, onClose }) {
         <h1 className="page-title">Add New Contact</h1>
       </div>
 
-      <form onSubmit={handleSubmit} className="person-form">
+        <form onSubmit={handleSubmit} className="person-form">
           <div className="form-row">
             <div className="form-group">
               <label htmlFor="name">Full Name *</label>
