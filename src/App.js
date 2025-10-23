@@ -111,9 +111,192 @@ function App() {
     { id: 1, role: 'Solicitor', name: 'Emma Wilson', company: 'Wilson & Partners', email: 'emma@wilsonpartners.co.uk', phone: '0161 123 4567', lastContactedISO: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), notes: 'Specializes in residential conveyancing' },
     { id: 2, role: 'Estate Agent', name: 'James Parker', company: 'Parker & Co Estate Agents', email: 'james@parkerco.co.uk', phone: '0161 234 5678', lastContactedISO: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), notes: 'Very responsive, good local knowledge' }
   ]);
-  const [people, setPeople] = useLocalStorage('hc.people', []);
-  const [properties, setProperties] = useLocalStorage('hc.properties', []);
-  const [projects, setProjects] = useLocalStorage('hc.projects', []);
+  const [people, setPeople] = useLocalStorage('hc.people', [
+    {
+      id: 1,
+      name: 'Mike H',
+      role: 'Buyer',
+      company: 'Property Investor',
+      email: 'mike@example.com',
+      phone: '07123 456789',
+      location: 'Manchester',
+      source: 'Referral',
+      priority: 'High',
+      stage: 'Active',
+      lastContact: '2024-01-15',
+      nextFollowUp: '2024-01-22',
+      budget: '450000',
+      notes: 'Experienced property investor, currently offering on property and managing rental portfolio'
+    },
+    {
+      id: 2,
+      name: 'You',
+      role: 'Buyer',
+      company: 'First Time Buyer',
+      email: 'you@example.com',
+      phone: '07123 456790',
+      location: 'Manchester',
+      source: 'Direct',
+      priority: 'High',
+      stage: 'Active',
+      lastContact: '2024-01-14',
+      nextFollowUp: '2024-01-21',
+      budget: '280000',
+      notes: 'First time buyer, currently in process of purchasing first property'
+    },
+    {
+      id: 3,
+      name: 'Mari',
+      role: 'Solicitor',
+      company: 'Legal Partners LLP',
+      email: 'mari@legalpartners.co.uk',
+      phone: '0161 234 5678',
+      location: 'Manchester',
+      source: 'Referral',
+      priority: 'Medium',
+      stage: 'Active',
+      lastContact: '2024-01-16',
+      nextFollowUp: '2024-01-23',
+      notes: 'Specializes in residential conveyancing, handling both Mike and your purchases'
+    },
+    {
+      id: 4,
+      name: 'Vanessa',
+      role: 'Project Manager',
+      company: 'Renovation Solutions',
+      email: 'vanessa@renovations.co.uk',
+      phone: '0161 345 6789',
+      location: 'Manchester',
+      source: 'Direct',
+      priority: 'Medium',
+      stage: 'Active',
+      lastContact: '2024-01-13',
+      nextFollowUp: '2024-01-20',
+      notes: 'Managing renovation projects for rental properties'
+    },
+    {
+      id: 5,
+      name: 'Jane',
+      role: 'Lettings Manager',
+      company: 'Property Management Co',
+      email: 'jane@propertymgmt.co.uk',
+      phone: '0161 456 7890',
+      location: 'Manchester',
+      source: 'Referral',
+      priority: 'Medium',
+      stage: 'Active',
+      lastContact: '2024-01-12',
+      nextFollowUp: '2024-01-19',
+      notes: 'Managing rental properties and tenant relationships'
+    },
+    {
+      id: 6,
+      name: 'Bob',
+      role: 'Solicitor',
+      company: 'Bob & Associates',
+      email: 'bob@bobassociates.co.uk',
+      phone: '0161 567 8901',
+      location: 'Manchester',
+      source: 'Direct',
+      priority: 'High',
+      stage: 'Active',
+      lastContact: '2024-01-17',
+      nextFollowUp: '2024-01-24',
+      notes: 'Commercial property specialist, handling complex transactions'
+    }
+  ]);
+  const [properties, setProperties] = useLocalStorage('hc.properties', [
+    {
+      id: 1,
+      address: '45 Oak Avenue, Manchester M1 2AB',
+      type: 'Semi-Detached',
+      status: 'Under Offer',
+      price: '425000',
+      owner: 'Mike H',
+      beds: 3,
+      baths: 2,
+      sqft: '1200',
+      notes: 'Mike\'s current offer - awaiting survey results'
+    },
+    {
+      id: 2,
+      address: '12 Elm Street, Manchester M2 3CD',
+      type: 'Terraced',
+      status: 'Rental',
+      price: '280000',
+      owner: 'Mike H',
+      beds: 2,
+      baths: 1,
+      sqft: '800',
+      notes: 'Mike\'s rental property - currently tenanted'
+    },
+    {
+      id: 3,
+      address: '78 Pine Road, Manchester M3 4EF',
+      type: 'Apartment',
+      status: 'Under Offer',
+      price: '275000',
+      owner: 'You',
+      beds: 2,
+      baths: 1,
+      sqft: '750',
+      notes: 'Your first property purchase - in conveyancing stage'
+    }
+  ]);
+  const [projects, setProjects] = useLocalStorage('hc.projects', [
+    {
+      id: 1,
+      name: 'Oak Avenue Purchase',
+      type: 'Purchase',
+      status: 'Active',
+      phase: 'Conveyancing',
+      property: 1,
+      people: [1, 3, 6],
+      startDate: '2024-01-10',
+      endDate: '2024-03-15',
+      budget: '450000',
+      notes: 'Mike\'s property purchase - survey completed, awaiting legal completion'
+    },
+    {
+      id: 2,
+      name: 'Pine Road Purchase',
+      type: 'Purchase',
+      status: 'Active',
+      phase: 'Survey',
+      property: 3,
+      people: [2, 3],
+      startDate: '2024-01-12',
+      endDate: '2024-02-28',
+      budget: '280000',
+      notes: 'Your first property purchase - survey scheduled for next week'
+    },
+    {
+      id: 3,
+      name: 'Elm Street Renovation',
+      type: 'Renovation',
+      status: 'Active',
+      phase: 'Planning',
+      property: 2,
+      people: [1, 4, 5],
+      startDate: '2024-01-15',
+      endDate: '2024-04-30',
+      budget: '25000',
+      notes: 'Renovation of Mike\'s rental property - planning permissions in progress'
+    },
+    {
+      id: 4,
+      name: 'Rental Management',
+      type: 'Management',
+      status: 'Active',
+      phase: 'Ongoing',
+      property: 2,
+      people: [1, 5],
+      startDate: '2024-01-01',
+      endDate: '2024-12-31',
+      budget: '5000',
+      notes: 'Ongoing management of Mike\'s rental property'
+    }
+  ]);
   const [tasks, setTasks] = useLocalStorage('hc.tasks', [
     { id: 1, title: 'Review contract terms', dueISO: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(), done: false, relatedEventId: null, createdAt: new Date().toISOString() },
     { id: 2, title: 'Submit mortgage documents', dueISO: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(), done: false, relatedEventId: null, createdAt: new Date().toISOString() },
