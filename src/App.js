@@ -108,7 +108,7 @@ function DetailView({ selectedDetail, setSelectedDetail, people, properties, pro
 
   const { type, data } = selectedDetail;
   const [newNote, setNewNote] = useState('');
-  const [notes, setNotes] = useState(data.notes || []);
+  const [notes, setNotes] = useState(Array.isArray(data.notes) ? data.notes : []);
   
   const addNote = () => {
     if (!newNote.trim()) return;
@@ -752,6 +752,7 @@ function App() {
               people={people}
               properties={properties}
               projects={projects}
+              setCurrentView={setCurrentView}
             />
           )}
           
@@ -764,6 +765,7 @@ function App() {
               properties={properties}
               projects={projects}
               setSelectedDetail={setSelectedDetail}
+              setCurrentView={setCurrentView}
             />
           )}
           
@@ -776,6 +778,7 @@ function App() {
               people={people}
               projects={projects}
               setSelectedDetail={setSelectedDetail}
+              setCurrentView={setCurrentView}
             />
           )}
           
@@ -787,6 +790,7 @@ function App() {
               setProjects={setProjects}
               people={people}
               properties={properties}
+              setCurrentView={setCurrentView}
             />
           )}
           
@@ -826,7 +830,7 @@ function App() {
 }
 
 // Dashboard Overview - Three Core Entities
-function DashboardOverview({ people, properties, projects }) {
+function DashboardOverview({ people, properties, projects, setCurrentView }) {
   const totalPeople = people.length;
   const totalProperties = properties.length;
   const activeProjects = projects.filter(p => p.status === 'Active').length;
@@ -1483,7 +1487,7 @@ function PropertySearchView() {
 }
 
 // People Section Component
-function PeopleSection({ currentView, people, setPeople, properties, projects, setSelectedDetail }) {
+function PeopleSection({ currentView, people, setPeople, properties, projects, setSelectedDetail, setCurrentView }) {
   const getFilteredPeople = () => {
     switch (currentView) {
       case 'people-buyers':
@@ -2117,7 +2121,7 @@ function PeopleListView({ people, setPeople, setSelectedDetail }) {
 }
 
 // Properties Section Component
-function PropertiesSection({ currentView, properties, setProperties, people, projects, setSelectedDetail }) {
+function PropertiesSection({ currentView, properties, setProperties, people, projects, setSelectedDetail, setCurrentView }) {
   const getFilteredProperties = () => {
     switch (currentView) {
       case 'properties-for-sale':
@@ -2554,7 +2558,7 @@ function PropertiesListView({ properties, setProperties, people, setSelectedDeta
 }
 
 // Projects Section Component
-function ProjectsSection({ currentView, projects, setProjects, people, properties }) {
+function ProjectsSection({ currentView, projects, setProjects, people, properties, setCurrentView }) {
   const getFilteredProjects = () => {
     switch (currentView) {
       case 'projects-active':
