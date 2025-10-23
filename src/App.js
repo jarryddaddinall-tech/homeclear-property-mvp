@@ -403,6 +403,7 @@ function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [selectedDetail, setSelectedDetail] = useState(null);
   const [currentProfile, setCurrentProfile] = useState('buyer');
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [timelineEvents, setTimelineEvents] = useLocalStorage('hc.timelineEvents', []);
   const [parties, setParties] = useLocalStorage('hc.parties', [
     { id: 1, role: 'Solicitor', name: 'Emma Wilson', company: 'Wilson & Partners', email: 'emma@wilsonpartners.co.uk', phone: '0161 123 4567', lastContactedISO: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), notes: 'Specializes in residential conveyancing' },
@@ -747,39 +748,91 @@ function App() {
           <span>HomeClear</span>
             </div>
         <div className="header-right">
-          <div className="profile-switcher">
-            <select 
-              value={currentProfile} 
-              onChange={(e) => setCurrentProfile(e.target.value)}
-              className="profile-select"
+          <div className="user-profile-dropdown">
+            <div 
+              className="user-profile" 
+              onClick={() => setShowProfileDropdown(!showProfileDropdown)}
             >
-              <option value="buyer">Buyer</option>
-              <option value="estate-agent">Estate Agent</option>
-              <option value="project-manager">Project Manager</option>
-              <option value="sourcer">Sourcer</option>
-            </select>
-          </div>
-          
-          <div className="user-profile">
-            <div className="user-avatar">
-              <div className="avatar-circle">
-                {currentProfile === 'buyer' ? 'B' : 
-                 currentProfile === 'estate-agent' ? 'E' :
-                 currentProfile === 'project-manager' ? 'P' : 'S'}
-          </div>
-            </div>
-            <div className="user-details">
-              <div className="user-name">
-                {currentProfile === 'buyer' ? 'Sarah Thompson' : 
-                 currentProfile === 'estate-agent' ? 'James Parker' :
-                 currentProfile === 'project-manager' ? 'Vanessa Chen' : 'Alex Rodriguez'}
-          </div>
-              <div className="user-role">
-                {currentProfile === 'buyer' ? 'Property Buyer' : 
-                 currentProfile === 'estate-agent' ? 'Estate Agent' :
-                 currentProfile === 'project-manager' ? 'Project Manager' : 'Property Sourcer'}
+              <div className="user-avatar">
+                <div className="avatar-circle">
+                  {currentProfile === 'buyer' ? 'B' : 
+                   currentProfile === 'estate-agent' ? 'E' :
+                   currentProfile === 'project-manager' ? 'P' : 'S'}
+                </div>
+              </div>
+              <div className="user-details">
+                <div className="user-name">
+                  {currentProfile === 'buyer' ? 'Sarah Thompson' : 
+                   currentProfile === 'estate-agent' ? 'James Parker' :
+                   currentProfile === 'project-manager' ? 'Vanessa Chen' : 'Alex Rodriguez'}
+                </div>
+                <div className="user-role">
+                  {currentProfile === 'buyer' ? 'Property Buyer' : 
+                   currentProfile === 'estate-agent' ? 'Estate Agent' :
+                   currentProfile === 'project-manager' ? 'Project Manager' : 'Property Sourcer'}
+                </div>
+              </div>
+              <div className="dropdown-arrow">
+                <ChevronDown size={16} />
               </div>
             </div>
+            
+            {showProfileDropdown && (
+              <div className="profile-dropdown">
+                <div 
+                  className="profile-option"
+                  onClick={() => {
+                    setCurrentProfile('buyer');
+                    setShowProfileDropdown(false);
+                  }}
+                >
+                  <div className="profile-avatar">B</div>
+                  <div className="profile-info">
+                    <div className="profile-name">Sarah Thompson</div>
+                    <div className="profile-role">Property Buyer</div>
+                  </div>
+                </div>
+                <div 
+                  className="profile-option"
+                  onClick={() => {
+                    setCurrentProfile('estate-agent');
+                    setShowProfileDropdown(false);
+                  }}
+                >
+                  <div className="profile-avatar">E</div>
+                  <div className="profile-info">
+                    <div className="profile-name">James Parker</div>
+                    <div className="profile-role">Estate Agent</div>
+                  </div>
+                </div>
+                <div 
+                  className="profile-option"
+                  onClick={() => {
+                    setCurrentProfile('project-manager');
+                    setShowProfileDropdown(false);
+                  }}
+                >
+                  <div className="profile-avatar">P</div>
+                  <div className="profile-info">
+                    <div className="profile-name">Vanessa Chen</div>
+                    <div className="profile-role">Project Manager</div>
+                  </div>
+                </div>
+                <div 
+                  className="profile-option"
+                  onClick={() => {
+                    setCurrentProfile('sourcer');
+                    setShowProfileDropdown(false);
+                  }}
+                >
+                  <div className="profile-avatar">S</div>
+                  <div className="profile-info">
+                    <div className="profile-name">Alex Rodriguez</div>
+                    <div className="profile-role">Property Sourcer</div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </header>
@@ -798,7 +851,6 @@ function App() {
           </div>
           
           <div className="nav-section">
-            <div className="nav-section-title">Main Menu</div>
             {mainNavigation.map(item => (
               <div key={item.id}>
                 <div 
