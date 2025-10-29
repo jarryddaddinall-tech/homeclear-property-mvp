@@ -724,61 +724,67 @@ const HeadlineTimeline = ({ stageIndex, timeline, property, highlightRole }) => 
 const InputPanel = ({ currentRole, onAdd, timeline }) => {
   const [note, setNote] = useState('')
   const [doc, setDoc] = useState('')
+  const initial = (currentRole || 'U').charAt(0)
+
+  const submit = () => {
+    const value = (note || '').trim()
+    if (!value) return
+    onAdd({ note: value, doc })
+    setNote('')
+    setDoc('')
+  }
+
   return (
     <Card sx={{ border: 'none', boxShadow: '0 8px 28px rgba(0,0,0,0.06)', borderRadius: 2 }}>
       <CardContent sx={{ p: 2 }}>
-        <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1.5 }}>Add update as {currentRole}</Typography>
-        <Stack direction="row" spacing={1} alignItems="center">
-          <TextField 
-            fullWidth 
-            size="medium" 
-            placeholder="Add a note or update"
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            InputProps={{
-              sx: {
-                bgcolor: 'background.paper',
-                borderRadius: 2,
-                '& fieldset': { borderColor: 'grey.200' },
-                '&:hover fieldset': { borderColor: 'grey.300' },
-                '&.Mui-focused fieldset': { borderColor: 'primary.main' }
-              }
-            }}
-          />
-          <Button 
-            variant="outlined" 
-            color="inherit"
-            size="medium" 
-            startIcon={<UploadFile />} 
-            onClick={() => setDoc('Doc.pdf')}
-            sx={{ borderColor: 'grey.200', color: 'text.secondary', bgcolor: 'grey.50', '&:hover': { bgcolor: 'grey.100', borderColor: 'grey.300' } }}
-          >
-            Attach
-          </Button>
-          <Button 
-            variant="contained" 
-            size="medium" 
-            startIcon={<Add />}
-            onClick={() => { if (!note) return; onAdd({ note, doc }); setNote(''); setDoc('') }}
-            sx={{ px: 2.5 }}
-          >
-            Add
-          </Button>
-        </Stack>
-        {/* Shared comment history */}
-        <Box sx={{ mt: 1.5, pt: 1, borderTop: '1px solid', borderColor: 'grey.100' }}>
-          <Stack spacing={1}>
+        <Stack spacing={1.25}>
+          {/* Composer */}
+          <Stack direction="row" spacing={1.25} alignItems="flex-start">
+            <Box sx={{ width: 36, height: 36, borderRadius: '50%', bgcolor: 'primary.main', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700 }}>{initial}</Box>
+            <Box sx={{ flex: 1 }}>
+              <TextField 
+                fullWidth 
+                placeholder={`Write an update as ${currentRole}…`}
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                multiline
+                minRows={2}
+                onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submit() }}}
+                InputProps={{
+                  sx: {
+                    bgcolor: 'background.paper',
+                    borderRadius: 2,
+                    '& fieldset': { borderColor: 'grey.200' },
+                    '&:hover fieldset': { borderColor: 'grey.300' },
+                    '&.Mui-focused fieldset': { borderColor: 'primary.main' }
+                  }
+                }}
+              />
+              <Stack direction="row" spacing={1} justifyContent="flex-end" sx={{ mt: 0.75 }}>
+                <Button variant="outlined" size="small" startIcon={<UploadFile />} onClick={() => setDoc('Doc.pdf')} sx={{ borderColor: 'grey.200', color: 'text.secondary' }}>Attach</Button>
+                <Button variant="contained" size="small" onClick={submit}>Post</Button>
+              </Stack>
+            </Box>
+          </Stack>
+
+          {/* Comments */}
+          <Stack spacing={1} sx={{ pt: 1, borderTop: '1px solid', borderColor: 'grey.100' }}>
             {timeline.filter(t => t.note).slice().reverse().map(item => (
-              <Box key={item.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                <Box sx={{ mr: 2 }}>
-                  <Typography variant="body2" sx={{ fontWeight: 600 }}>{item.by}</Typography>
-                  <Typography variant="body2" color="text.secondary">{item.note}</Typography>
+              <Stack key={item.id} direction="row" spacing={1.25} alignItems="flex-start">
+                <Box sx={{ width: 32, height: 32, borderRadius: '50%', bgcolor: 'grey.200', color: 'text.primary', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700 }}>
+                  {String(item.by).charAt(0)}
                 </Box>
-                <Typography variant="caption" color="text.secondary">{new Date(item.ts).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })}</Typography>
-              </Box>
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <Stack direction="row" justifyContent="space-between" alignItems="baseline">
+                    <Typography variant="body2" sx={{ fontWeight: 600 }}>{item.by}</Typography>
+                    <Typography variant="caption" color="text.secondary">{new Date(item.ts).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })}</Typography>
+                  </Stack>
+                  <Typography variant="body2" color="text.secondary" sx={{ mt: 0.25, whiteSpace: 'pre-wrap' }}>{item.note}</Typography>
+                </Box>
+              </Stack>
             ))}
           </Stack>
-        </Box>
+        </Stack>
       </CardContent>
     </Card>
   )
