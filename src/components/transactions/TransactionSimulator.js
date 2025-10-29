@@ -569,11 +569,11 @@ const StageStepIcon = (props) => {
   }
   if (isNext) {
     return (
-      <Box sx={{ ...styles, bgcolor: '#fff', color: 'warning.main', border: '2px solid', borderColor: 'warning.main', boxShadow: '0 0 0 4px rgba(245,158,11,0.12)' }} onClick={() => onSelect && onSelect(position)}>○</Box>
+      <Box sx={{ ...styles, bgcolor: '#fff', color: 'warning.main', border: '2px solid', borderColor: 'warning.main', boxShadow: '0 0 0 4px rgba(245,158,11,0.12)' }} onClick={() => onSelect && onSelect(position)} />
     )
   }
   return (
-    <Box sx={{ ...styles, bgcolor: 'white', color: 'text.secondary', border: '1px solid', borderColor: 'grey.300' }} onClick={() => onSelect && onSelect(position)}>○</Box>
+    <Box sx={{ ...styles, bgcolor: 'white', color: 'text.secondary', border: '1px solid', borderColor: 'grey.300' }} onClick={() => onSelect && onSelect(position)} />
   )
 }
 
