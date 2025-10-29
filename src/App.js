@@ -128,7 +128,7 @@ function AppContent() {
   }
 
   const handleUserChange = (userId) => {
-    const selectedUser = users.find(u => u.id === userId)
+    const selectedUser = allUsers.find(u => u.id === userId)
     if (selectedUser) {
       console.log('Switching to preset user:', selectedUser)
       setCurrentUser(selectedUser)
