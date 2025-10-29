@@ -23,10 +23,10 @@ import {
   Logout
 } from '@mui/icons-material'
 import { properties as seedProperties } from '../../data/sampleData'
-import { useAuth } from '../../contexts/AuthContext'
+import * as AuthCtx from '../../contexts/AuthContext'
 
 const Header = ({ user, users, onUserChange, isCollapsed, ...props }) => {
-  const { signOut } = useAuth()
+  const { signOut } = (AuthCtx && typeof AuthCtx.useAuth === 'function') ? AuthCtx.useAuth() : { signOut: async () => {} }
   const [anchorEl, setAnchorEl] = React.useState(null)
   const open = Boolean(anchorEl)
 

@@ -12,7 +12,7 @@ import {
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore'
 import { auth, googleProvider, db } from '../firebase/config'
 
-const AuthContext = createContext()
+export const AuthContext = createContext()
 
 export const useAuth = () => {
   const context = useContext(AuthContext)
