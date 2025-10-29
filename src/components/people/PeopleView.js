@@ -54,19 +54,6 @@ const PersonCard = ({ person, role }) => (
                 boxShadow: 'inset 0 0 0 0 rgba(0,0,0,0)'
               }}
             />
-            <Chip 
-              label={role} 
-              size="small"
-              variant="filled"
-              sx={{
-                bgcolor: 'grey.100',
-                color: 'text.primary',
-                borderRadius: 1.5,
-                height: 24,
-                fontSize: '0.75rem',
-                boxShadow: 'inset 0 0 0 0 rgba(0,0,0,0)'
-              }}
-            />
           </Stack>
           
           <Stack spacing={1}>
@@ -99,12 +86,7 @@ const RoleSection = ({ title, people, icon: Icon, color = 'primary' }) => (
       <Typography variant="h5" sx={{ fontWeight: 700 }}>
         {title}
       </Typography>
-      <Chip 
-        label={`${people.length} people`} 
-        size="small"
-        variant="outlined"
-        sx={{ borderColor: 'grey.300', color: 'text.secondary', borderRadius: 1.5, height: 22 }}
-      />
+      {/* count chip removed per request */}
     </Stack>
     
     <Grid container spacing={2}>
