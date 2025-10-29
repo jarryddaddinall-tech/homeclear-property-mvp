@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app'
-import { getAuth, GoogleAuthProvider } from 'firebase/auth'
+import { getAuth, GoogleAuthProvider, setPersistence, browserLocalPersistence } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
 
 // Your Firebase config
@@ -18,6 +18,10 @@ const app = initializeApp(firebaseConfig)
 
 // Initialize Firebase Authentication and get a reference to the service
 export const auth = getAuth(app)
+// Ensure auth persists across mobile redirects (iOS/Safari friendly)
+setPersistence(auth, browserLocalPersistence).catch(() => {
+  // Non-fatal: fall back to default persistence if setting fails
+})
 
 // Initialize Cloud Firestore and get a reference to the service
 export const db = getFirestore(app)

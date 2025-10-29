@@ -62,6 +62,17 @@ export const AuthProvider = ({ children }) => {
         const result = await getRedirectResult(auth)
         if (result) {
           console.log('Redirect result received:', result.user)
+          // Persist minimal user in localStorage so role selection can proceed offline
+          const uid = result.user.uid
+          const cached = localStorage.getItem(`user_${uid}`)
+          if (!cached) {
+            localStorage.setItem(`user_${uid}`, JSON.stringify({
+              displayName: result.user.displayName || 'User',
+              email: result.user.email || '',
+              photoURL: result.user.photoURL || '',
+              role: null
+            }))
+          }
         }
       } catch (error) {
         console.error('Error handling redirect result:', error)
