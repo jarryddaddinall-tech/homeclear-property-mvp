@@ -1,6 +1,15 @@
 import { createTheme } from '@mui/material/styles'
 
 const theme = createTheme({
+  breakpoints: {
+    values: {
+      xs: 0,
+      sm: 600,
+      md: 900,
+      lg: 1200,
+      xl: 1536,
+    },
+  },
   palette: {
     primary: {
       main: '#7F56D9', // Purple accent
@@ -56,37 +65,37 @@ const theme = createTheme({
   typography: {
     fontFamily: '"Inter", "SF Pro Display", "Roboto", "Helvetica", "Arial", sans-serif',
     h1: {
-      fontSize: '2.25rem',
+      fontSize: { xs: '1.875rem', sm: '2.25rem' },
       fontWeight: 700,
       letterSpacing: '-0.025em',
       color: '#1E293B',
     },
     h2: {
-      fontSize: '1.875rem',
+      fontSize: { xs: '1.5rem', sm: '1.875rem' },
       fontWeight: 600,
       letterSpacing: '-0.025em',
       color: '#1E293B',
     },
     h3: {
-      fontSize: '1.5rem',
+      fontSize: { xs: '1.25rem', sm: '1.5rem' },
       fontWeight: 600,
       letterSpacing: '-0.02em',
       color: '#1E293B',
     },
     h4: {
-      fontSize: '1.25rem',
+      fontSize: { xs: '1.125rem', sm: '1.25rem' },
       fontWeight: 600,
       letterSpacing: '-0.02em',
       color: '#1E293B',
     },
     h5: {
-      fontSize: '1.125rem',
+      fontSize: { xs: '1rem', sm: '1.125rem' },
       fontWeight: 600,
       letterSpacing: '-0.01em',
       color: '#1E293B',
     },
     h6: {
-      fontSize: '1rem',
+      fontSize: { xs: '0.875rem', sm: '1rem' },
       fontWeight: 600,
       letterSpacing: '0em',
       color: '#1E293B',

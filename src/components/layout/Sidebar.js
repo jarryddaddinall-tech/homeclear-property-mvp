@@ -92,16 +92,16 @@ const Sidebar = ({
       sx={{
         position: 'fixed',
         left: 0,
-        top: 0,
-        height: '100vh',
-        width: isCollapsed ? '64px' : '240px',
+        top: '120px',
+        height: 'calc(100vh - 120px)',
+        width: { xs: 0, sm: isCollapsed ? '64px' : '240px' },
         bgcolor: 'background.paper',
         borderRight: '1px solid',
         borderColor: 'grey.200',
         boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.05)',
         transition: 'width 0.3s ease',
-        zIndex: 1000,
-        display: 'flex',
+        zIndex: 998,
+        display: { xs: 'none', sm: 'flex' },
         flexDirection: 'column'
       }}
       {...props}
@@ -109,38 +109,21 @@ const Sidebar = ({
       {/* Header */}
       <Box
         sx={{
-          p: 3,
+          py: 1.25,
+          px: 1.25,
           borderBottom: '1px solid',
           borderColor: 'grey.200',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between'
+          justifyContent: 'center'
         }}
       >
-        {!isCollapsed && (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <Box sx={{ 
-              width: 32, 
-              height: 32, 
-              borderRadius: '8px', 
-              bgcolor: 'error.main',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              <Star sx={{ color: 'white', fontSize: 18 }} />
-            </Box>
-            <Typography variant="h6" sx={{ fontWeight: 700, color: 'text.primary', fontSize: '1.125rem' }}>
-              HomeClear
-            </Typography>
-          </Box>
-        )}
-        
         <IconButton
           onClick={onToggle}
           size="small"
           sx={{
             color: 'text.secondary',
+            p: 0.5,
             '&:hover': {
               bgcolor: 'grey.100',
               color: 'text.primary'
@@ -153,7 +136,7 @@ const Sidebar = ({
       </Box>
 
       {/* Navigation */}
-      <List sx={{ flexGrow: 1, p: 2 }}>
+      <List sx={{ flexGrow: 1, py: 1.25, px: isCollapsed ? 1 : 1.5, gap: 0.5 }}>
         {menuItems.map((item) => {
           const IconComponent = item.icon
           return (
@@ -165,8 +148,8 @@ const Sidebar = ({
                   minHeight: 44,
                   borderRadius: 12,
                   justifyContent: isCollapsed ? 'center' : 'flex-start',
-                  px: isCollapsed ? 1.5 : 2,
-                  py: 1,
+                  px: isCollapsed ? 1.25 : 1.75,
+                  py: 0.75,
                   transition: 'all 0.2s ease-in-out',
                   '&.Mui-selected': {
                     bgcolor: 'primary.main',

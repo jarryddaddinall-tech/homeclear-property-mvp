@@ -44,9 +44,12 @@ const DashboardLayout = ({
         <Box 
           sx={{ 
             flexGrow: 1,
-            p: 4,
+            p: { xs: 2, sm: 3, md: 4 },
             mt: '120px', // Account for taller AppBar height
-            ml: isCollapsed ? '64px' : '240px',
+            ml: { 
+              xs: 0, 
+              sm: isCollapsed ? '64px' : '240px' 
+            },
             transition: 'margin-left 0.3s ease'
           }}
           {...props}

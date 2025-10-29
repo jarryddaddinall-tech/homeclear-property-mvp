@@ -70,17 +70,22 @@ const TransactionCard = ({ property, status = 'Offer Accepted', currentStage = 0
           <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
             Progress: {completedSteps}/{totalSteps} stages
           </Typography>
-          <Stepper activeStep={completedSteps} alternativeLabel size="small">
+          <Stepper 
+            activeStep={completedSteps} 
+            alternativeLabel 
+            size="small"
+            sx={{
+              '& .MuiStepLabel-root': {
+                '& .MuiStepLabel-label': { 
+                  fontSize: { xs: '0.6rem', sm: '0.7rem' },
+                  fontWeight: index <= completedSteps ? 600 : 400
+                }
+              }
+            }}
+          >
             {UK_STAGES.slice(0, 4).map((stage, index) => (
               <Step key={stage}>
-                <StepLabel 
-                  sx={{ 
-                    '& .MuiStepLabel-label': { 
-                      fontSize: '0.7rem',
-                      fontWeight: index <= completedSteps ? 600 : 400
-                    }
-                  }}
-                >
+                <StepLabel>
                   {stage}
                 </StepLabel>
               </Step>
@@ -181,7 +186,10 @@ const TransactionsDashboard = ({ onOpenTransaction, currentUser, showTeam = true
   
   return (
     <Box>
-      <Box sx={{ maxWidth: 560 }}>
+      <Box sx={{ 
+        maxWidth: { xs: '100%', sm: 560 },
+        width: '100%'
+      }}>
         {displayProperties.map((property, index) => (
           <Box key={property.id} sx={{ mb: 2 }}>
             <TransactionCard 

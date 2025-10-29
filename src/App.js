@@ -1,6 +1,9 @@
 import React, { useState } from 'react'
 import { ThemeProvider, CssBaseline, Box, Typography } from '@mui/material'
 import theme from './theme'
+import { AuthProvider, useAuth } from './contexts/AuthContext'
+import LoginButton from './components/auth/LoginButton'
+import RoleSelection from './components/auth/RoleSelection'
 import DashboardLayout from './components/layout/DashboardLayout'
 import ProjectGrid from './components/projects/ProjectGrid'
 import ProjectDetail from './components/projects/ProjectDetail'
@@ -18,18 +21,24 @@ import ServicesView from './components/services/ServicesView'
 import DocumentsView from './components/documents/DocumentsView'
 import PeopleView from './components/people/PeopleView'
 
-function App() {
+// Main app content component
+function AppContent() {
+  const { user, loading, needsRoleSelection } = useAuth()
   const [currentView, setCurrentView] = useState('transaction-dashboard')
   const [selectedProject, setSelectedProject] = useState(null)
   const [selectedProperty, setSelectedProperty] = useState(null)
   const [allProjects, setAllProjects] = useState(projects)
   const [allProperties, setAllProperties] = useState(properties)
   const [isCollapsed, setIsCollapsed] = useState(false)
-  const [currentUser, setCurrentUser] = useState(users[0]) // Default to Vanessa
+  const [currentUser, setCurrentUser] = useState(users[0]) // Fallback user
+
+  // Combine Firebase user with sample users for the dropdown
+  const allUsers = user ? [user, ...users] : users
+  const activeUser = user || currentUser
 
   // Filter data by current user
-  const userProjects = allProjects.filter(p => p.ownerId === currentUser.id)
-  const userProperties = allProperties.filter(p => p.ownerId === currentUser.id)
+  const userProjects = allProjects.filter(p => p.ownerId === activeUser.id)
+  const userProperties = allProperties.filter(p => p.ownerId === activeUser.id)
 
   const handleNavigate = (view) => {
     setCurrentView(view)
@@ -105,12 +114,55 @@ function App() {
     setCurrentUser(updatedUser)
   }
 
+  // Debug logging
+  console.log('App state:', { user, loading, needsRoleSelection })
+
+  // Show loading spinner while checking auth
+  if (loading) {
+    return (
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+          <Typography>Loading...</Typography>
+        </Box>
+      </ThemeProvider>
+    )
+  }
+
+  // Show login screen if not authenticated
+  if (!user) {
+    console.log('No user - showing login')
+    return (
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <LoginButton />
+      </ThemeProvider>
+    )
+  }
+
+  // Show role selection if user needs to select a role
+  if (needsRoleSelection) {
+    console.log('User needs role selection')
+    return (
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <RoleSelection 
+          user={user}
+          onRoleSelected={(updatedUser) => {
+            // The AuthContext will handle updating the user state
+            window.location.reload() // Simple refresh to reload with new role
+          }}
+        />
+      </ThemeProvider>
+    )
+  }
+
   const renderContent = () => {
     if (currentView === 'transaction-dashboard') {
       return (
         <TransactionsDashboard 
           onOpenTransaction={() => setCurrentView('transaction-detail')} 
-          currentUser={currentUser}
+          currentUser={activeUser}
         />
       )
     }
@@ -121,7 +173,7 @@ function App() {
       return (
         <TransactionsDashboard 
           onOpenTransaction={() => setCurrentView('transaction-detail')} 
-          currentUser={currentUser}
+          currentUser={activeUser}
           showTeam={false}
         />
       )
@@ -135,14 +187,14 @@ function App() {
     if (currentView === 'profile') {
       return (
         <ProfileView 
-          user={currentUser}
+          user={activeUser}
           onSave={handleProfileSave}
         />
       )
     }
     return (
       <TransactionSimulator
-        role={currentUser.role}
+        role={activeUser.role}
         onRoleChange={(r) => {
           const target = users.find(u => u.role === r)
           if (target) handleUserChange(target.id)
@@ -157,8 +209,8 @@ function App() {
       <DashboardLayout
         currentView={currentView}
         onNavigate={handleNavigate}
-        user={currentUser}
-        users={users}
+        user={activeUser}
+        users={allUsers}
         onUserChange={handleUserChange}
         isCollapsed={isCollapsed}
         onToggleSidebar={() => setIsCollapsed(!isCollapsed)}
@@ -166,6 +218,15 @@ function App() {
         {renderContent()}
       </DashboardLayout>
     </ThemeProvider>
+  )
+}
+
+// Main App component with AuthProvider
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   )
 }
 

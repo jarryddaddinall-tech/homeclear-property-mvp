@@ -18,11 +18,15 @@ import {
 import { 
   Notifications, 
   ArrowDropDown, 
-  CalendarToday
+  CalendarToday,
+  Business,
+  Logout
 } from '@mui/icons-material'
 import { properties as seedProperties } from '../../data/sampleData'
+import { useAuth } from '../../contexts/AuthContext'
 
 const Header = ({ user, users, onUserChange, isCollapsed, ...props }) => {
+  const { signOut } = useAuth()
   const [anchorEl, setAnchorEl] = React.useState(null)
   const open = Boolean(anchorEl)
 
@@ -39,27 +43,53 @@ const Header = ({ user, users, onUserChange, isCollapsed, ...props }) => {
     handleClose()
   }
 
+  const handleSignOut = async () => {
+    try {
+      await signOut()
+      handleClose()
+    } catch (error) {
+      console.error('Error signing out:', error)
+    }
+  }
+
   
   return (
     <AppBar
       position="fixed"
       sx={{
-        left: isCollapsed ? '64px' : '240px',
+        left: 0,
         right: 0,
         width: 'auto',
         transition: 'left 0.3s ease',
         zIndex: 999,
         bgcolor: 'background.paper',
         color: 'text.primary',
-        boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.1), 0px 1px 2px rgba(0, 0, 0, 0.06)',
-        borderBottom: '1px solid',
-        borderColor: 'grey.200'
+        boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.08)'
       }}
       {...props}
     >
       <Toolbar sx={{ px: 3, py: 2, flexDirection: 'column', alignItems: 'stretch' }}>
-        {/* Top Row - Controls only */}
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', mb: 2 }}>
+        {/* Top Row - Logo and Controls */}
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+          {/* Logo and Brand */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <Box sx={{ 
+              width: 32, 
+              height: 32, 
+              borderRadius: '8px', 
+              bgcolor: 'primary.main',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <Business sx={{ color: 'white', fontSize: 18 }} />
+            </Box>
+            <Typography variant="h6" sx={{ fontWeight: 700, color: 'text.primary', fontSize: '1.125rem' }}>
+              HomeClear
+            </Typography>
+          </Box>
+          
+          {/* User Controls */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             {/* User switcher trigger */}
             <Box 
@@ -126,6 +156,7 @@ const Header = ({ user, users, onUserChange, isCollapsed, ...props }) => {
           >
             <ListItemIcon sx={{ minWidth: 40 }}>
               <Avatar 
+                src={userOption.photoURL}
                 sx={{ 
                   width: 32, 
                   height: 32, 
@@ -149,6 +180,30 @@ const Header = ({ user, users, onUserChange, isCollapsed, ...props }) => {
             />
           </MenuItem>
         ))}
+        
+        {/* Sign Out Option */}
+        <MenuItem 
+          onClick={handleSignOut}
+          sx={{
+            py: 1.5,
+            px: 2,
+            borderTop: '1px solid',
+            borderColor: 'grey.200',
+            mt: 1
+          }}
+        >
+          <ListItemIcon sx={{ minWidth: 40 }}>
+            <Logout sx={{ color: 'text.secondary', fontSize: 20 }} />
+          </ListItemIcon>
+          <ListItemText
+            primary="Sign Out"
+            primaryTypographyProps={{
+              fontSize: '0.875rem',
+              fontWeight: 500,
+              color: 'text.secondary'
+            }}
+          />
+        </MenuItem>
       </Menu>
     </AppBar>
   )
