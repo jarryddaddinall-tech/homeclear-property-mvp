@@ -875,16 +875,26 @@ const TransactionSimulator = ({ role: controlledRole, onRoleChange }) => {
   }
 
   const ContextBar = () => (
-    <Box sx={{ position: 'sticky', top: 0, zIndex: 1, backdropFilter: 'blur(6px)', bgcolor: 'rgba(255,255,255,0.72)', py: 1.5, px: 1, mb: 2, boxShadow: '0 6px 24px rgba(0,0,0,0.06)', borderRadius: 2 }}>
-      <Stack direction="row" alignItems="center" justifyContent="space-between">
-        <Stack>
-          <Typography variant="h6" sx={{ fontWeight: 700 }}>{property.address}</Typography>
-          <ConfidenceRow />
-          <BlockersRow />
+    <Card sx={{ position: 'sticky', top: 0, zIndex: 1, mb: 2, border: 'none', boxShadow: '0 8px 28px rgba(0,0,0,0.06)' }}>
+      <CardContent sx={{ p: 2 }}>
+        <Stack direction="row" alignItems="center" spacing={2}>
+          <Box sx={{ width: 72, height: 72, borderRadius: 2, overflow: 'hidden', flexShrink: 0, bgcolor: 'grey.100' }}>
+            <Box
+              component="img"
+              src={property.image || 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=400&auto=format&fit=crop'}
+              alt={property.address}
+              sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+          </Box>
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <Typography variant="h6" sx={{ fontWeight: 700 }} noWrap>{property.address}</Typography>
+            <ConfidenceRow />
+            <BlockersRow />
+          </Box>
+          <Chip label={stage} size="small" sx={{ bgcolor: 'primary.main', color: '#fff', borderRadius: 1, px: 1, height: 26 }} />
         </Stack>
-        <Chip label={stage} size="small" sx={{ bgcolor: 'primary.main', color: '#fff', borderRadius: 1, px: 1, height: 26 }} />
-      </Stack>
-    </Box>
+      </CardContent>
+    </Card>
   )
 
   return (
