@@ -69,30 +69,7 @@ const RoleSelection = ({ user, onRoleSelected }) => {
     try {
       setLoading(true)
       
-      // Save user profile to Firestore
-      const userRef = doc(db, 'users', user.uid)
-      await setDoc(userRef, {
-        uid: user.uid,
-        email: user.email || '',
-        displayName: user.displayName || user.name || 'User',
-        photoURL: user.photoURL || '',
-        role: selectedRole,
-        createdAt: new Date(),
-        bankingDetails: {
-          accountName: user.displayName || user.name || 'User',
-          sortCode: '',
-          accountNumber: '',
-          bankName: ''
-        },
-        address: {
-          street: '',
-          city: '',
-          postcode: '',
-          country: 'UK'
-        }
-      }, { merge: true })
-
-      // Also save to localStorage as backup
+      // Save to localStorage (primary storage for now)
       localStorage.setItem(`user_${user.uid}`, JSON.stringify({
         role: selectedRole,
         displayName: user.displayName || user.name || 'User',
@@ -109,24 +86,6 @@ const RoleSelection = ({ user, onRoleSelected }) => {
       onRoleSelected(updatedUser)
     } catch (error) {
       console.error('Error saving user role:', error)
-      // Fallback to localStorage if Firestore fails
-      try {
-        localStorage.setItem(`user_${user.uid}`, JSON.stringify({
-          role: selectedRole,
-          displayName: user.displayName || user.name || 'User',
-          email: user.email || '',
-          photoURL: user.photoURL || ''
-        }))
-        
-        const updatedUser = {
-          ...user,
-          role: selectedRole
-        }
-        
-        onRoleSelected(updatedUser)
-      } catch (localError) {
-        console.error('Error saving to localStorage:', localError)
-      }
     } finally {
       setLoading(false)
     }

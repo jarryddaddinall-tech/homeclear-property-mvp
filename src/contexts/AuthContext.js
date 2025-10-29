@@ -154,12 +154,33 @@ export const AuthProvider = ({ children }) => {
     return () => unsubscribe()
   }, [])
 
+  // Function to update user role
+  const updateUserRole = (role) => {
+    if (user) {
+      const updatedUser = {
+        ...user,
+        role: role
+      }
+      setUser(updatedUser)
+      setNeedsRoleSelection(false)
+      
+      // Save to localStorage
+      localStorage.setItem(`user_${user.uid}`, JSON.stringify({
+        role: role,
+        displayName: user.displayName || user.name || 'User',
+        email: user.email || '',
+        photoURL: user.photoURL || ''
+      }))
+    }
+  }
+
   const value = {
     user,
     loading,
     needsRoleSelection,
     signInWithGoogle,
-    signOut: signOutUser
+    signOut: signOutUser,
+    updateUserRole
   }
 
   return (

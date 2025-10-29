@@ -23,7 +23,7 @@ import PeopleView from './components/people/PeopleView'
 
 // Main app content component
 function AppContent() {
-  const { user, loading, needsRoleSelection } = useAuth()
+  const { user, loading, needsRoleSelection, updateUserRole } = useAuth()
   const [currentView, setCurrentView] = useState('transaction-dashboard')
   const [selectedProject, setSelectedProject] = useState(null)
   const [selectedProperty, setSelectedProperty] = useState(null)
@@ -149,8 +149,8 @@ function AppContent() {
         <RoleSelection 
           user={user}
           onRoleSelected={(updatedUser) => {
-            // The AuthContext will handle updating the user state
-            window.location.reload() // Simple refresh to reload with new role
+            // Update the user role in the auth context
+            updateUserRole(updatedUser.role)
           }}
         />
       </ThemeProvider>
