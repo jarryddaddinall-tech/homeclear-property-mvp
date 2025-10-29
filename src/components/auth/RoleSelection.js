@@ -70,7 +70,31 @@ const RoleSelection = ({ user, onRoleSelected }) => {
       setLoading(true)
       console.log('Saving role:', selectedRole, 'for user:', user.uid)
       
-      // Save to localStorage (primary storage for now)
+      // Save to Firestore
+      const userRef = doc(db, 'users', user.uid)
+      await setDoc(userRef, {
+        uid: user.uid,
+        email: user.email || '',
+        displayName: user.displayName || user.name || 'User',
+        photoURL: user.photoURL || '',
+        role: selectedRole,
+        createdAt: new Date(),
+        bankingDetails: {
+          accountName: user.displayName || user.name || 'User',
+          sortCode: '',
+          accountNumber: '',
+          bankName: ''
+        },
+        address: {
+          street: '',
+          city: '',
+          postcode: '',
+          country: 'UK'
+        }
+      }, { merge: true })
+      console.log('Saved to Firestore successfully')
+
+      // Also save to localStorage as backup
       const userData = {
         role: selectedRole,
         displayName: user.displayName || user.name || 'User',
@@ -78,7 +102,7 @@ const RoleSelection = ({ user, onRoleSelected }) => {
         photoURL: user.photoURL || ''
       }
       localStorage.setItem(`user_${user.uid}`, JSON.stringify(userData))
-      console.log('Saved to localStorage:', userData)
+      console.log('Saved to localStorage as backup:', userData)
 
       // Update the user object with the selected role
       const updatedUser = {
@@ -89,7 +113,27 @@ const RoleSelection = ({ user, onRoleSelected }) => {
       console.log('Calling onRoleSelected with:', updatedUser)
       onRoleSelected(updatedUser)
     } catch (error) {
-      console.error('Error saving user role:', error)
+      console.error('Error saving user role to Firestore:', error)
+      
+      // Fallback to localStorage only if Firestore fails
+      try {
+        const userData = {
+          role: selectedRole,
+          displayName: user.displayName || user.name || 'User',
+          email: user.email || '',
+          photoURL: user.photoURL || ''
+        }
+        localStorage.setItem(`user_${user.uid}`, JSON.stringify(userData))
+        console.log('Fallback: Saved to localStorage only:', userData)
+        
+        const updatedUser = {
+          ...user,
+          role: selectedRole
+        }
+        onRoleSelected(updatedUser)
+      } catch (localError) {
+        console.error('Error saving to localStorage:', localError)
+      }
     } finally {
       setLoading(false)
     }

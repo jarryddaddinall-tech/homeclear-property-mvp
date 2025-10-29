@@ -77,15 +77,20 @@ const TransactionCard = ({ property, status = 'Offer Accepted', currentStage = 0
             sx={{
               '& .MuiStepLabel-root': {
                 '& .MuiStepLabel-label': { 
-                  fontSize: { xs: '0.6rem', sm: '0.7rem' },
-                  fontWeight: index <= completedSteps ? 600 : 400
+                  fontSize: { xs: '0.6rem', sm: '0.7rem' }
                 }
               }
             }}
           >
             {UK_STAGES.slice(0, 4).map((stage, index) => (
               <Step key={stage}>
-                <StepLabel>
+                <StepLabel 
+                  sx={{
+                    '& .MuiStepLabel-label': {
+                      fontWeight: index <= completedSteps ? 600 : 400
+                    }
+                  }}
+                >
                   {stage}
                 </StepLabel>
               </Step>
