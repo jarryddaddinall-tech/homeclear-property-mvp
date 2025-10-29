@@ -31,14 +31,17 @@ const Header = ({ user, users, onUserChange, isCollapsed, ...props }) => {
   const open = Boolean(anchorEl)
 
   const handleClick = (event) => {
+    console.log('Avatar clicked, opening dropdown')
     setAnchorEl(event.currentTarget)
   }
 
   const handleClose = () => {
+    console.log('Closing dropdown')
     setAnchorEl(null)
   }
 
   const handleUserSelect = (userId) => {
+    console.log('User selected from dropdown:', userId)
     onUserChange(userId)
     handleClose()
   }
