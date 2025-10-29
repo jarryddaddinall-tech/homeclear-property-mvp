@@ -777,6 +777,8 @@ const InputPanel = ({ currentRole, onAdd, timeline }) => {
   )
 }
 
+import { useToast } from '../shared/ToastProvider'
+
 const TransactionSimulator = ({ role: controlledRole, onRoleChange }) => {
   const [role, setRole] = useState(controlledRole || 'Buyer')
   const [stageIndex, setStageIndex] = useState(3)
@@ -793,11 +795,14 @@ const TransactionSimulator = ({ role: controlledRole, onRoleChange }) => {
 
   const stage = UK_STAGES[stageIndex]
 
+  const { show } = useToast()
+
   const addUpdate = ({ note, doc }) => {
     setTimeline(prev => [
       ...prev,
       { id: Date.now(), stage, by: role, note: note + (doc ? ` (attached: ${doc})` : ''), ts: new Date().toISOString() }
     ])
+    show('Update added')
   }
 
   const proceed = () => {
@@ -805,18 +810,10 @@ const TransactionSimulator = ({ role: controlledRole, onRoleChange }) => {
   }
 
   const updatesForRole = timeline.filter(t => t.by === role)
-  const toggleBuyerChecklist = (id) => {
-    setBuyerChecklist(prev => ({ ...prev, [id]: !prev[id] }))
-  }
-  const toggleAgentChecklist = (id) => {
-    setAgentChecklist(prev => ({ ...prev, [id]: !prev[id] }))
-  }
-  const toggleSolicitorChecklist = (id) => {
-    setSolicitorChecklist(prev => ({ ...prev, [id]: !prev[id] }))
-  }
-  const toggleSellerChecklist = (id) => {
-    setSellerChecklist(prev => ({ ...prev, [id]: !prev[id] }))
-  }
+  const toggleBuyerChecklist = (id) => { setBuyerChecklist(prev => ({ ...prev, [id]: !prev[id] })); show('Updated') }
+  const toggleAgentChecklist = (id) => { setAgentChecklist(prev => ({ ...prev, [id]: !prev[id] })); show('Updated') }
+  const toggleSolicitorChecklist = (id) => { setSolicitorChecklist(prev => ({ ...prev, [id]: !prev[id] })); show('Updated') }
+  const toggleSellerChecklist = (id) => { setSellerChecklist(prev => ({ ...prev, [id]: !prev[id] })); show('Updated') }
 
   const roles = ['Buyer','Seller','Agent','Solicitor']
 
@@ -844,8 +841,29 @@ const TransactionSimulator = ({ role: controlledRole, onRoleChange }) => {
 
   const blocking = blockers()
 
+  const ConfidenceRow = () => (
+    <Stack direction="row" spacing={2} sx={{ mt: 1 }}>
+      {['AML checks','Funds verified','Searches'].map((label, i) => (
+        <Chip key={label} label={`${label}`} size="small" sx={{ bgcolor: 'grey.100', height: 24, borderRadius: 1.5 }} />
+      ))}
+    </Stack>
+  )
+
+  const ContextBar = () => (
+    <Box sx={{ position: 'sticky', top: 0, zIndex: 1, bgcolor: 'background.default', py: 1.5, mb: 2, boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+      <Stack direction="row" alignItems="center" justifyContent="space-between">
+        <Stack>
+          <Typography variant="h6" sx={{ fontWeight: 700 }}>{property.address}</Typography>
+          <ConfidenceRow />
+        </Stack>
+        <Chip label={stage} sx={{ bgcolor: 'primary.main', color: '#fff', borderRadius: 1 }} />
+      </Stack>
+    </Box>
+  )
+
   return (
     <Box>
+      <ContextBar />
       <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
         {/* User chips removed; use avatar dropdown in header to switch roles */}
       </Box>

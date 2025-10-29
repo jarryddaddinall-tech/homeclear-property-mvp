@@ -24,6 +24,7 @@ import ServicesView from './components/services/ServicesView'
 import DocumentsView from './components/documents/DocumentsView'
 import PeopleView from './components/people/PeopleView'
 import SettingsView from './components/settings/SettingsView'
+import { ToastProvider } from './components/shared/ToastProvider'
 
 // Main app content component
 function AppContent() {
@@ -273,7 +274,9 @@ function AppContent() {
 function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <ToastProvider>
+        <AppContent />
+      </ToastProvider>
     </AuthProvider>
   )
 }

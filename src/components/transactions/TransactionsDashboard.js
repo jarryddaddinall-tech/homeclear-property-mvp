@@ -1,5 +1,6 @@
 import React from 'react'
-import { Box, Card, CardContent, Typography, Stack, Chip, Stepper, Step, StepLabel, Avatar, Divider } from '@mui/material'
+import { Box, Card, CardContent, Typography, Stack, Chip, Stepper, Step, StepLabel, Avatar, Divider, Button } from '@mui/material'
+import { TransactionCardSkeleton } from '../shared/Skeletons'
 import { properties as seedProperties } from '../../data/sampleData'
 
 const UK_STAGES = [
@@ -172,7 +173,23 @@ const TeamCard = () => {
   )
 }
 
-const TransactionsDashboard = ({ onOpenTransaction, currentUser, showTeam = true }) => {
+const WhatNext = ({ role = 'Buyer' }) => {
+  const items = role === 'Agent' ? ['Share sale details', 'Confirm viewing feedback'] : role.includes('Solicitor') ? ['Send draft pack', 'Confirm ID checks'] : ['Provide proof of funds', 'Complete ID/AML']
+  return (
+    <Card sx={{ mb: 2 }}>
+      <CardContent sx={{ p: 2 }}>
+        <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>What’s next for you</Typography>
+        <Stack direction="row" spacing={1}>
+          {items.slice(0,2).map((t) => (
+            <Chip key={t} label={t} size="small" sx={{ bgcolor: 'grey.100', height: 24, borderRadius: 1.5 }} />
+          ))}
+        </Stack>
+      </CardContent>
+    </Card>
+  )
+}
+
+const TransactionsDashboard = ({ onOpenTransaction, currentUser, showTeam = true, loading = false }) => {
   // Sample properties for different roles
   const properties = [
     {
@@ -198,10 +215,12 @@ const TransactionsDashboard = ({ onOpenTransaction, currentUser, showTeam = true
   
   return (
     <Box>
+      <WhatNext role={currentUser?.role} />
       <Box sx={{ 
         maxWidth: { xs: '100%', sm: 560 },
         width: '100%'
       }}>
+        {loading && <TransactionCardSkeleton />}
         {displayProperties.map((property, index) => (
           <Box key={property.id} sx={{ mb: 2 }}>
             <TransactionCard 

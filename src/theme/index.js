@@ -65,19 +65,19 @@ const theme = createTheme({
   typography: {
     fontFamily: '"Inter", "SF Pro Display", "Roboto", "Helvetica", "Arial", sans-serif',
     h1: {
-      fontSize: { xs: '1.875rem', sm: '2.25rem' },
+      fontSize: { xs: '2rem', sm: '2.5rem' },
       fontWeight: 700,
       letterSpacing: '-0.025em',
       color: '#1E293B',
     },
     h2: {
-      fontSize: { xs: '1.5rem', sm: '1.875rem' },
+      fontSize: { xs: '1.625rem', sm: '2rem' },
       fontWeight: 600,
       letterSpacing: '-0.025em',
       color: '#1E293B',
     },
     h3: {
-      fontSize: { xs: '1.25rem', sm: '1.5rem' },
+      fontSize: { xs: '1.375rem', sm: '1.625rem' },
       fontWeight: 600,
       letterSpacing: '-0.02em',
       color: '#1E293B',
@@ -89,25 +89,25 @@ const theme = createTheme({
       color: '#1E293B',
     },
     h5: {
-      fontSize: { xs: '1rem', sm: '1.125rem' },
+      fontSize: { xs: '0.95rem', sm: '1.05rem' },
       fontWeight: 600,
       letterSpacing: '-0.01em',
       color: '#1E293B',
     },
     h6: {
-      fontSize: { xs: '0.875rem', sm: '1rem' },
+      fontSize: { xs: '0.875rem', sm: '0.95rem' },
       fontWeight: 600,
       letterSpacing: '0em',
       color: '#1E293B',
     },
     body1: {
-      fontSize: '0.875rem',
+      fontSize: '0.84rem',
       fontWeight: 400,
       lineHeight: 1.6,
       color: '#64748B',
     },
     body2: {
-      fontSize: '0.8125rem',
+      fontSize: '0.79rem',
       fontWeight: 400,
       lineHeight: 1.5,
       color: '#64748B',
