@@ -43,10 +43,15 @@ function AppContent() {
   const allUsers = user ? [user, ...firestoreUsers] : firestoreUsers
   const activeUser = currentUser || user
 
-  // Set initial currentUser when Firestore users load
+  // Set initial currentUser when Firestore users load (restore persisted selection)
   useEffect(() => {
-    if (firestoreUsers.length > 0 && !currentUser) {
-      setCurrentUser(firestoreUsers[0])
+    if (firestoreUsers.length > 0) {
+      const savedId = localStorage.getItem('selected_user_id')
+      const fallback = firestoreUsers[0]
+      const restored = savedId ? firestoreUsers.find(u => u.id === savedId) : null
+      if (!currentUser) {
+        setCurrentUser(restored || fallback)
+      }
     }
   }, [firestoreUsers, currentUser])
 
@@ -133,6 +138,7 @@ function AppContent() {
     if (selectedUser) {
       console.log('Switching to user:', selectedUser)
       setCurrentUser(selectedUser)
+      try { localStorage.setItem('selected_user_id', selectedUser.id) } catch {}
       setCurrentView('transaction-dashboard')
       setSelectedProject(null)
       setSelectedProperty(null)
