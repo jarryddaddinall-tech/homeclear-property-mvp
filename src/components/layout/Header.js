@@ -141,11 +141,15 @@ const Header = ({ user, users, onUserChange, isCollapsed, ...props }) => {
           }
         }}
       >
-        {users.map((userOption) => (
+        {(users || []).filter(Boolean).map((userOption) => {
+          const displayName = userOption?.name || userOption?.displayName || userOption?.email || 'User'
+          const roleLabel = userOption?.role || 'User'
+          const initial = String(displayName).charAt(0).toUpperCase()
+          return (
           <MenuItem 
-            key={userOption.id}
-            onClick={() => handleUserSelect(userOption.id)}
-            selected={userOption.id === user?.id}
+            key={userOption?.id || displayName}
+            onClick={() => handleUserSelect(userOption?.id)}
+            selected={userOption?.id === user?.id}
             sx={{
               py: 1.5,
               px: 2,
@@ -159,7 +163,7 @@ const Header = ({ user, users, onUserChange, isCollapsed, ...props }) => {
           >
             <ListItemIcon sx={{ minWidth: 40 }}>
               <Avatar 
-                src={userOption.photoURL}
+                src={userOption?.photoURL}
                 sx={{ 
                   width: 32, 
                   height: 32, 
@@ -167,12 +171,12 @@ const Header = ({ user, users, onUserChange, isCollapsed, ...props }) => {
                   fontSize: '0.75rem'
                 }}
               >
-                {userOption.name.charAt(0)}
+                {initial}
               </Avatar>
             </ListItemIcon>
             <ListItemText
-              primary={userOption.name}
-              secondary={userOption.role}
+              primary={displayName}
+              secondary={roleLabel}
               primaryTypographyProps={{
                 fontSize: '0.875rem',
                 fontWeight: 500
@@ -182,7 +186,7 @@ const Header = ({ user, users, onUserChange, isCollapsed, ...props }) => {
               }}
             />
           </MenuItem>
-        ))}
+        )})}
         
         {/* Sign Out Option */}
         <MenuItem 
