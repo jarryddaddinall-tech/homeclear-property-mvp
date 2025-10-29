@@ -9,7 +9,7 @@ import {
   signInWithEmailAndPassword,
   updateProfile
 } from 'firebase/auth'
-import { doc, getDoc } from 'firebase/firestore'
+import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore'
 import { auth, googleProvider, db } from '../firebase/config'
 
 const AuthContext = createContext()
@@ -144,8 +144,65 @@ export const AuthProvider = ({ children }) => {
           }
         }
         
-        // No localStorage data - new user needs role selection
-        console.log('No localStorage data - new user needs role selection')
+        // No local data - try Firestore by UID first
+        try {
+          const uidDoc = await getDoc(doc(db, 'users', firebaseUser.uid))
+          if (uidDoc.exists()) {
+            const userData = uidDoc.data()
+            setUser({
+              id: firebaseUser.uid,
+              uid: firebaseUser.uid,
+              name: userData.displayName || firebaseUser.displayName || 'User',
+              email: firebaseUser.email,
+              avatar: (userData.displayName || firebaseUser.displayName || 'U').charAt(0).toUpperCase(),
+              photoURL: userData.photoURL || firebaseUser.photoURL,
+              role: userData.role,
+              phone: firebaseUser.phoneNumber || ''
+            })
+            localStorage.setItem(`user_${firebaseUser.uid}`, JSON.stringify({
+              role: userData.role || null,
+              displayName: userData.displayName || firebaseUser.displayName || 'User',
+              email: firebaseUser.email || '',
+              photoURL: userData.photoURL || firebaseUser.photoURL || ''
+            }))
+            setNeedsRoleSelection(false)
+            setLoading(false)
+            return
+          }
+        } catch {}
+
+        // Try Firestore by email to avoid duplicates and link legacy records
+        try {
+          if (firebaseUser.email) {
+            const q = query(collection(db, 'users'), where('email', '==', firebaseUser.email))
+            const snap = await getDocs(q)
+            if (!snap.empty) {
+              const first = snap.docs[0].data()
+              setUser({
+                id: firebaseUser.uid,
+                uid: firebaseUser.uid,
+                name: first.displayName || firebaseUser.displayName || 'User',
+                email: firebaseUser.email,
+                avatar: (first.displayName || firebaseUser.displayName || 'U').charAt(0).toUpperCase(),
+                photoURL: first.photoURL || firebaseUser.photoURL,
+                role: first.role,
+                phone: firebaseUser.phoneNumber || ''
+              })
+              localStorage.setItem(`user_${firebaseUser.uid}`, JSON.stringify({
+                role: first.role || null,
+                displayName: first.displayName || firebaseUser.displayName || 'User',
+                email: firebaseUser.email || '',
+                photoURL: first.photoURL || firebaseUser.photoURL || ''
+              }))
+              setNeedsRoleSelection(false)
+              setLoading(false)
+              return
+            }
+          }
+        } catch {}
+
+        // Fallback: new user needs role selection
+        console.log('No local/remote profile found - needs role selection')
         setUser({
           id: firebaseUser.uid,
           uid: firebaseUser.uid,

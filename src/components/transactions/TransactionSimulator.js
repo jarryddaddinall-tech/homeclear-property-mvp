@@ -721,10 +721,10 @@ const HeadlineTimeline = ({ stageIndex, timeline, property, highlightRole }) => 
   </Card>
 )}
 
-const InputPanel = ({ currentRole, onAdd, timeline }) => {
+const InputPanel = ({ currentUserName, onAdd, timeline }) => {
   const [note, setNote] = useState('')
   const [doc, setDoc] = useState('')
-  const initial = (currentRole || 'U').charAt(0)
+  const initial = (currentUserName || 'U').charAt(0).toUpperCase()
 
   const submit = () => {
     const value = (note || '').trim()
@@ -744,7 +744,7 @@ const InputPanel = ({ currentRole, onAdd, timeline }) => {
             <Box sx={{ flex: 1 }}>
               <TextField 
                 fullWidth 
-                placeholder={`Write an update as ${currentRole}…`}
+                placeholder={`Write an update…`}
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 multiline
@@ -761,8 +761,8 @@ const InputPanel = ({ currentRole, onAdd, timeline }) => {
                 }}
               />
               <Stack direction="row" spacing={1} justifyContent="flex-end" sx={{ mt: 0.75 }}>
-                <Button variant="outlined" size="small" startIcon={<UploadFile />} onClick={() => setDoc('Doc.pdf')} sx={{ borderColor: 'grey.200', color: 'text.secondary' }}>Attach</Button>
-                <Button variant="contained" size="small" onClick={submit}>Post</Button>
+                <Button variant="outlined" size="small" startIcon={<UploadFile />} onClick={() => setDoc('Doc.pdf')} sx={{ borderColor: 'grey.200', color: 'text.secondary', px: 1, minHeight: 28, fontSize: '0.75rem' }}>Attach</Button>
+                <Button variant="contained" size="small" onClick={submit} sx={{ px: 1.25, minHeight: 28, fontSize: '0.75rem' }}>Post</Button>
               </Stack>
             </Box>
           </Stack>
@@ -791,6 +791,7 @@ const InputPanel = ({ currentRole, onAdd, timeline }) => {
 }
 
 import { useToast } from '../shared/ToastProvider'
+import { useAuth } from '../../contexts/AuthContext'
 
 const TransactionSimulator = ({ role: controlledRole, onRoleChange }) => {
   const [role, setRole] = useState(controlledRole || 'Buyer')
@@ -809,12 +810,14 @@ const TransactionSimulator = ({ role: controlledRole, onRoleChange }) => {
   const stage = UK_STAGES[stageIndex]
 
   const { show } = useToast()
+  const { user: authUser } = useAuth()
+  const authorName = authUser?.name || authUser?.displayName || authUser?.email || role
   const [highlightRole, setHighlightRole] = useState(null)
 
   const addUpdate = ({ note, doc }) => {
     setTimeline(prev => [
       ...prev,
-      { id: Date.now(), stage, by: role, note: note + (doc ? ` (attached: ${doc})` : ''), ts: new Date().toISOString() }
+      { id: Date.now(), stage, by: authorName, note: note + (doc ? ` (attached: ${doc})` : ''), ts: new Date().toISOString() }
     ])
     show('Update added')
   }
@@ -944,7 +947,7 @@ const TransactionSimulator = ({ role: controlledRole, onRoleChange }) => {
         </Grid>
         {/* Chat/input moved to bottom full-width */}
         <Grid size={{ xs: 12 }}>
-          <InputPanel currentRole={role} onAdd={addUpdate} timeline={timeline} />
+          <InputPanel currentUserName={authorName} onAdd={addUpdate} timeline={timeline} />
         </Grid>
       </Grid>
     </Box>
