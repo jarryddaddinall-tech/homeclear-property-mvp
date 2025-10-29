@@ -142,7 +142,7 @@ const Header = ({ user, users, onUserChange, isCollapsed, ...props }) => {
           <MenuItem 
             key={userOption.id}
             onClick={() => handleUserSelect(userOption.id)}
-            selected={userOption.id === user.id}
+            selected={userOption.id === user?.id}
             sx={{
               py: 1.5,
               px: 2,

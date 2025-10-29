@@ -101,9 +101,10 @@ function AppContent() {
   }
 
   const handleUserChange = (userId) => {
-    const user = users.find(u => u.id === userId)
-    if (user) {
-      setCurrentUser(user)
+    const selectedUser = users.find(u => u.id === userId)
+    if (selectedUser) {
+      console.log('Switching to preset user:', selectedUser)
+      setCurrentUser(selectedUser)
       setCurrentView('transaction-dashboard')
       setSelectedProject(null)
       setSelectedProperty(null)
