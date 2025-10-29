@@ -889,13 +889,15 @@ const TransactionSimulator = ({ role: controlledRole, onRoleChange }) => {
           </Box>
           {/* Right content with padding */}
           <Box sx={{ flex: 1, minWidth: 0, p: 2 }}>
-            <Typography variant="h6" sx={{ fontWeight: 700 }} noWrap>{property.address}</Typography>
+            <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: '-0.01em' }} noWrap>{property.address}</Typography>
             <ConfidenceRow />
             <BlockersRow />
           </Box>
-          <Stack direction="row" spacing={1} sx={{ pr: 2 }}>
-            <Button variant="outlined" size="small" onClick={() => { try { navigator.clipboard.writeText(window.location.origin + '/#/live') } catch {} }}>Share live link</Button>
-            <Chip label={stage} size="small" sx={{ bgcolor: 'primary.main', color: '#fff', borderRadius: 1, px: 1, height: 26 }} />
+          <Stack direction="row" spacing={1.25} sx={{ pr: 2 }}>
+            <IconButton aria-label="Share live link" onClick={() => { try { navigator.clipboard.writeText(window.location.origin + '/#/live') } catch {} }} sx={{ color: 'text.secondary' }}>
+              <ShareIcon />
+            </IconButton>
+            <Chip label={stage} size="small" sx={{ bgcolor: 'grey.100', color: 'text.primary', borderRadius: 1.5, px: 1, height: 24 }} />
           </Stack>
         </Stack>
       </CardContent>
