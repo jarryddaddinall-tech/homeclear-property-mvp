@@ -4,7 +4,10 @@ import {
   signInWithRedirect,
   getRedirectResult,
   signOut, 
-  onAuthStateChanged 
+  onAuthStateChanged,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  updateProfile
 } from 'firebase/auth'
 import { doc, getDoc } from 'firebase/firestore'
 import { auth, googleProvider, db } from '../firebase/config'
@@ -43,6 +46,21 @@ export const AuthProvider = ({ children }) => {
       console.error('Error signing in with Google:', error)
       throw error
     }
+  }
+
+  // Email/password: Sign up
+  const signUpWithEmail = async (email, password, displayName = 'User') => {
+    const cred = await createUserWithEmailAndPassword(auth, email, password)
+    if (displayName) {
+      try { await updateProfile(cred.user, { displayName }) } catch {}
+    }
+    return cred.user
+  }
+
+  // Email/password: Sign in
+  const signInWithEmail = async (email, password) => {
+    const cred = await signInWithEmailAndPassword(auth, email, password)
+    return cred.user
   }
 
   // Sign out
@@ -180,6 +198,8 @@ export const AuthProvider = ({ children }) => {
     loading,
     needsRoleSelection,
     signInWithGoogle,
+    signInWithEmail,
+    signUpWithEmail,
     signOut: signOutUser,
     updateUserRole
   }

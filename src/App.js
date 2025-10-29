@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { ThemeProvider, CssBaseline, Box, Typography } from '@mui/material'
 import theme from './theme'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
-import LoginButton from './components/auth/LoginButton'
+import AuthPage from './components/auth/AuthPage'
 import RoleSelection from './components/auth/RoleSelection'
 import DashboardLayout from './components/layout/DashboardLayout'
 import ProjectGrid from './components/projects/ProjectGrid'
@@ -176,7 +176,7 @@ function AppContent() {
     return (
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <LoginButton />
+        <AuthPage />
       </ThemeProvider>
     )
   }
