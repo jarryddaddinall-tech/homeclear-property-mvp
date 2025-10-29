@@ -45,6 +45,29 @@ function AppContent() {
   const allUsers = user ? [user, ...firestoreUsers] : firestoreUsers
   const activeUser = currentUser || user
 
+  // Simple hash-based navigation so shared links can deep-link to views (e.g. #/live)
+  useEffect(() => {
+    const applyHashRoute = () => {
+      const hash = (window.location.hash || '').replace('#/', '')
+      if (!hash) return
+      if (['transaction-dashboard','transaction-detail','people','properties','services','documents','profile','settings','live'].includes(hash)) {
+        setCurrentView(hash)
+      }
+    }
+    applyHashRoute()
+    window.addEventListener('hashchange', applyHashRoute)
+    return () => window.removeEventListener('hashchange', applyHashRoute)
+  }, [])
+
+  // Keep hash in sync when navigating inside the app
+  useEffect(() => {
+    if (!currentView) return
+    const target = `#/` + currentView
+    if (window.location.hash !== target) {
+      window.location.hash = target
+    }
+  }, [currentView])
+
   // Set initial currentUser when Firestore users load (restore persisted selection)
   useEffect(() => {
     if (firestoreUsers.length > 0) {
