@@ -44,26 +44,27 @@ const PersonCard = ({ person, role }) => (
             <Chip 
               label={person.role} 
               size="small"
-              variant="outlined"
+              variant="filled"
               sx={{
-                borderColor: 'grey.300',
+                bgcolor: 'grey.50',
                 color: 'text.secondary',
                 borderRadius: 1.5,
                 height: 24,
                 fontSize: '0.75rem',
+                boxShadow: 'inset 0 0 0 0 rgba(0,0,0,0)'
               }}
             />
             <Chip 
               label={role} 
               size="small"
-              variant="outlined"
+              variant="filled"
               sx={{
-                bgcolor: 'grey.50',
-                borderColor: 'grey.300',
+                bgcolor: 'grey.100',
                 color: 'text.primary',
                 borderRadius: 1.5,
                 height: 24,
-                fontSize: '0.75rem'
+                fontSize: '0.75rem',
+                boxShadow: 'inset 0 0 0 0 rgba(0,0,0,0)'
               }}
             />
           </Stack>
