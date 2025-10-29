@@ -43,15 +43,28 @@ const PersonCard = ({ person, role }) => (
           <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
             <Chip 
               label={person.role} 
-              size="small" 
-              color="primary" 
+              size="small"
               variant="outlined"
+              sx={{
+                borderColor: 'grey.300',
+                color: 'text.secondary',
+                borderRadius: 1.5,
+                height: 24,
+                fontSize: '0.75rem',
+              }}
             />
             <Chip 
               label={role} 
-              size="small" 
-              color="success" 
-              variant="filled"
+              size="small"
+              variant="outlined"
+              sx={{
+                bgcolor: 'grey.50',
+                borderColor: 'grey.300',
+                color: 'text.primary',
+                borderRadius: 1.5,
+                height: 24,
+                fontSize: '0.75rem'
+              }}
             />
           </Stack>
           
@@ -87,9 +100,9 @@ const RoleSection = ({ title, people, icon: Icon, color = 'primary' }) => (
       </Typography>
       <Chip 
         label={`${people.length} people`} 
-        size="small" 
-        color={color}
+        size="small"
         variant="outlined"
+        sx={{ borderColor: 'grey.300', color: 'text.secondary', borderRadius: 1.5, height: 22 }}
       />
     </Stack>
     
