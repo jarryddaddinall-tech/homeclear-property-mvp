@@ -677,10 +677,11 @@ const HeadlineTimeline = ({ stageIndex, timeline, property }) => {
                 {getStageInfo(expandedStage).subtasks.map((task) => {
                   const stageName = UK_STAGES[expandedStage]
                   const done = isSubtaskDone(stageName, task.id)
+                  const isRoleHighlighted = highlightRole && (RESPONSIBLE_MAP[task.who] === highlightRole)
                   return (
                     <Box 
                       key={task.id} 
-                      sx={{ display: 'flex', alignItems: 'center', gap: 1, cursor: 'pointer' }}
+                      sx={{ display: 'flex', alignItems: 'center', gap: 1, cursor: 'pointer', bgcolor: isRoleHighlighted ? 'grey.50' : 'transparent', borderRadius: 1 }}
                       onClick={() => toggleSubtask(stageName, task.id)}
                     >
                       <Box 
@@ -798,6 +799,7 @@ const TransactionSimulator = ({ role: controlledRole, onRoleChange }) => {
   const stage = UK_STAGES[stageIndex]
 
   const { show } = useToast()
+  const [highlightRole, setHighlightRole] = useState(null)
 
   const addUpdate = ({ note, doc }) => {
     setTimeline(prev => [
@@ -851,12 +853,30 @@ const TransactionSimulator = ({ role: controlledRole, onRoleChange }) => {
     </Stack>
   )
 
+  const BlockersRow = () => {
+    if (!blocking?.length) return null
+    return (
+      <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+        {blocking.map(b => (
+          <Chip
+            key={b.role}
+            label={`${b.role} (${b.pending.length})`}
+            size="small"
+            onClick={() => { setHighlightRole(b.role); }}
+            sx={{ bgcolor: 'grey.100', height: 22, borderRadius: 1.5, cursor: 'pointer' }}
+          />
+        ))}
+      </Stack>
+    )
+  }
+
   const ContextBar = () => (
     <Box sx={{ position: 'sticky', top: 0, zIndex: 1, backdropFilter: 'blur(6px)', bgcolor: 'rgba(255,255,255,0.72)', py: 1.5, px: 1, mb: 2, boxShadow: '0 6px 24px rgba(0,0,0,0.06)', borderRadius: 2 }}>
       <Stack direction="row" alignItems="center" justifyContent="space-between">
         <Stack>
           <Typography variant="h6" sx={{ fontWeight: 700 }}>{property.address}</Typography>
           <ConfidenceRow />
+          <BlockersRow />
         </Stack>
         <Chip label={stage} sx={{ bgcolor: 'primary.main', color: '#fff', borderRadius: 1, boxShadow: '0 0 0 3px rgba(79,70,229,0.15)' }} />
       </Stack>
