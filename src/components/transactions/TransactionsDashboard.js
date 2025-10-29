@@ -20,6 +20,7 @@ const UK_STAGES = [
 const TransactionCard = ({ property, status = 'Offer Accepted', currentStage = 0, onOpen }) => {
   const completedSteps = currentStage
   const totalSteps = UK_STAGES.length
+  const progress = Math.min(100, Math.round(((completedSteps) / totalSteps) * 100))
   
   return (
     <Card 
@@ -33,6 +34,10 @@ const TransactionCard = ({ property, status = 'Offer Accepted', currentStage = 0
       }} 
       onClick={onOpen}
     >
+      {/* Top progress accent */}
+      <Box sx={{ height: 3, bgcolor: 'grey.100', position: 'relative' }}>
+        <Box sx={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: `${progress}%`, bgcolor: 'primary.main', transition: 'width .3s ease' }} />
+      </Box>
       {/* Image header */}
       <Box
         component="img"
@@ -57,10 +62,12 @@ const TransactionCard = ({ property, status = 'Offer Accepted', currentStage = 0
             label={status}
             size="small"
             sx={{ 
-              bgcolor: 'success.main', 
-              color: '#FFFFFF', 
+              bgcolor: 'success.light', 
+              color: 'success.darker', 
               fontWeight: 600, 
-              borderRadius: 0
+              borderRadius: 1,
+              px: 1,
+              height: 26
             }}
           />
         </Stack>

@@ -12,9 +12,9 @@ const theme = createTheme({
   },
   palette: {
     primary: {
-      main: '#7F56D9', // Purple accent
-      light: '#B794F6',
-      dark: '#553C9A',
+      main: '#4F46E5', // Indigo 600 - professional but friendly
+      light: '#818CF8',
+      dark: '#3730A3',
     },
     secondary: {
       main: '#10B981', // Green for success/completed
