@@ -577,7 +577,7 @@ const StageStepIcon = (props) => {
   )
 }
 
-const HeadlineTimeline = ({ stageIndex, timeline, property }) => {
+const HeadlineTimeline = ({ stageIndex, timeline, property, highlightRole }) => {
   const [expandedStage, setExpandedStage] = React.useState(null)
   const [subtaskCompleted, setSubtaskCompleted] = React.useState({})
   const stageFor = (i) => UK_STAGES[i]
@@ -899,7 +899,7 @@ const TransactionSimulator = ({ role: controlledRole, onRoleChange }) => {
       <Grid container spacing={3}>
         {/* Headline full-width timeline */}
         <Grid size={{ xs: 12 }}>
-          <HeadlineTimeline stageIndex={stageIndex} timeline={timeline} property={property} />
+          <HeadlineTimeline stageIndex={stageIndex} timeline={timeline} property={property} highlightRole={highlightRole} />
         </Grid>
 
         {/* Role view below timeline */}
