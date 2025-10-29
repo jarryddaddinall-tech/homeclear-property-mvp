@@ -16,7 +16,8 @@ import PropertiesView from './components/properties/PropertiesView'
 import TransactionSimulator from './components/transactions/TransactionSimulator'
 import TransactionsDashboard from './components/transactions/TransactionsDashboard'
 import ProfileView from './components/profile/ProfileView'
-import { projects, properties, users } from './data/sampleData'
+import { projects, properties } from './data/sampleData'
+import { useFirestoreUsers } from './hooks/useFirestoreUsers'
 import ServicesView from './components/services/ServicesView'
 import DocumentsView from './components/documents/DocumentsView'
 import PeopleView from './components/people/PeopleView'
@@ -24,17 +25,25 @@ import PeopleView from './components/people/PeopleView'
 // Main app content component
 function AppContent() {
   const { user, loading, needsRoleSelection, updateUserRole } = useAuth()
+  const { users: firestoreUsers, loading: usersLoading } = useFirestoreUsers()
   const [currentView, setCurrentView] = useState('transaction-dashboard')
   const [selectedProject, setSelectedProject] = useState(null)
   const [selectedProperty, setSelectedProperty] = useState(null)
   const [allProjects, setAllProjects] = useState(projects)
   const [allProperties, setAllProperties] = useState(properties)
   const [isCollapsed, setIsCollapsed] = useState(false)
-  const [currentUser, setCurrentUser] = useState(users[0]) // Fallback user
+  const [currentUser, setCurrentUser] = useState(null) // Will be set from Firestore users
 
-  // Combine Firebase user with sample users for the dropdown
-  const allUsers = user ? [user, ...users] : users
+  // Combine Firebase user with Firestore users for the dropdown
+  const allUsers = user ? [user, ...firestoreUsers] : firestoreUsers
   const activeUser = user || currentUser
+
+  // Set initial currentUser when Firestore users load
+  useEffect(() => {
+    if (firestoreUsers.length > 0 && !currentUser) {
+      setCurrentUser(firestoreUsers[0])
+    }
+  }, [firestoreUsers, currentUser])
 
   // Filter data by current user
   const userProjects = allProjects.filter(p => p.ownerId === activeUser.id)
@@ -118,8 +127,8 @@ function AppContent() {
   // Debug logging
   console.log('App state:', { user, loading, needsRoleSelection })
 
-  // Show loading spinner while checking auth
-  if (loading) {
+  // Show loading spinner while checking auth or loading users
+  if (loading || usersLoading) {
     return (
       <ThemeProvider theme={theme}>
         <CssBaseline />
