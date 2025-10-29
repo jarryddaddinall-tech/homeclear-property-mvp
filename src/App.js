@@ -40,7 +40,7 @@ function AppContent() {
 
   // Combine Firebase user with Firestore users for the dropdown
   const allUsers = user ? [user, ...firestoreUsers] : firestoreUsers
-  const activeUser = user || currentUser
+  const activeUser = currentUser || user
 
   // Set initial currentUser when Firestore users load
   useEffect(() => {
@@ -130,7 +130,7 @@ function AppContent() {
   const handleUserChange = (userId) => {
     const selectedUser = allUsers.find(u => u.id === userId)
     if (selectedUser) {
-      console.log('Switching to preset user:', selectedUser)
+      console.log('Switching to user:', selectedUser)
       setCurrentUser(selectedUser)
       setCurrentView('transaction-dashboard')
       setSelectedProject(null)
@@ -143,7 +143,13 @@ function AppContent() {
   }
 
   // Debug logging
-  console.log('App state:', { user, loading, needsRoleSelection })
+  console.log('App state:', { 
+    user: user?.name, 
+    currentUser: currentUser?.name, 
+    activeUser: activeUser?.name,
+    loading, 
+    needsRoleSelection 
+  })
 
   // Show loading spinner while checking auth or loading data
   if (loading || usersLoading || propertiesLoading || projectsLoading || transactionsLoading || !activeUser) {
