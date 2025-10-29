@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect } from 'react'
 import { Box, Grid, Card, CardContent, Typography, Button, Stack, TextField, Chip, IconButton, Stepper, Step, StepLabel, Divider, Checkbox, List, ListItem, ListItemIcon, ListItemText } from '@mui/material'
 import { properties as seedProperties } from '../../data/sampleData'
-import { ArrowForward, Add, UploadFile, MoreVert } from '@mui/icons-material'
+import { ArrowForward, Add, UploadFile, MoreVert, Share as ShareIcon } from '@mui/icons-material'
 
 const UK_STAGES = [
   'Offer Accepted',
