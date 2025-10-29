@@ -56,12 +56,6 @@ const Sidebar = ({
       active: currentView === 'people'
     },
     {
-      id: 'customers',
-      label: 'Customers',
-      icon: Assignment,
-      active: currentView === 'customers'
-    },
-    {
       id: 'properties',
       label: 'Properties',
       icon: HomeWork,

@@ -541,12 +541,11 @@ const RoleSummary = ({ stage, role, updatesForRole, buyerChecklist, onToggleBuye
 }
 
 const StageStepIcon = (props) => {
-  const { active, completed, icon, onSelect } = props
+  const { active, completed, icon, onSelect, stageIndex, completedStageIndex, nextStageIndex } = props
   // icon is 1-based index string from MUI
   const position = Number(icon) - 1
-  const current = props.stageIndex
-  const isCompleted = position <= current
-  const isNext = position === current + 1
+  const isCompleted = position <= completedStageIndex
+  const isNext = position === nextStageIndex
   const size = 24
   const styles = {
     width: size,
@@ -566,11 +565,11 @@ const StageStepIcon = (props) => {
   }
   if (isNext) {
     return (
-      <Box sx={{ ...styles, bgcolor: 'warning.main', color: 'white' }} onClick={() => onSelect && onSelect(position)}>{icon}</Box>
+      <Box sx={{ ...styles, bgcolor: 'warning.main', color: 'white' }} onClick={() => onSelect && onSelect(position)}>○</Box>
     )
   }
   return (
-    <Box sx={{ ...styles, bgcolor: 'grey.200', color: 'text.secondary' }} onClick={() => onSelect && onSelect(position)}>{icon}</Box>
+    <Box sx={{ ...styles, bgcolor: 'white', color: 'text.secondary', border: '2px solid', borderColor: 'grey.300' }} onClick={() => onSelect && onSelect(position)}>○</Box>
   )
 }
 
@@ -626,7 +625,7 @@ const HeadlineTimeline = ({ stageIndex, timeline, property }) => {
   <Card>
     <CardContent sx={{ py: 3 }}>
       <Box sx={{ mb: 3 }}>
-        <Stepper activeStep={nextStageIndex} alternativeLabel>
+        <Stepper activeStep={completedStageIndex + 1} alternativeLabel>
           {UK_STAGES.map((s, i) => (
             <Step key={s}>
               <StepLabel 

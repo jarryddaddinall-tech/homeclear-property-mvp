@@ -117,6 +117,15 @@ function App() {
     if (currentView === 'people') {
       return (<PeopleView />)
     }
+    if (currentView === 'properties') {
+      return (
+        <TransactionsDashboard 
+          onOpenTransaction={() => setCurrentView('transaction-detail')} 
+          currentUser={currentUser}
+          showTeam={false}
+        />
+      )
+    }
     if (currentView === 'services') {
       return (<ServicesView />)
     }

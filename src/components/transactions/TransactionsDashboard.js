@@ -155,7 +155,7 @@ const TeamCard = () => {
   )
 }
 
-const TransactionsDashboard = ({ onOpenTransaction, currentUser }) => {
+const TransactionsDashboard = ({ onOpenTransaction, currentUser, showTeam = true }) => {
   // Sample properties for different roles
   const properties = [
     {
@@ -190,7 +190,7 @@ const TransactionsDashboard = ({ onOpenTransaction, currentUser }) => {
               status={property.status}
               onOpen={onOpenTransaction} 
             />
-            {index === 0 && currentUser?.role !== 'Agent' && <TeamCard />}
+                {index === 0 && currentUser?.role !== 'Agent' && showTeam && <TeamCard />}
           </Box>
         ))}
       </Box>
