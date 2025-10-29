@@ -31,7 +31,8 @@ import {
   Camera,
   Key,
   PieChart,
-  Description
+  Description,
+  Person
 } from '@mui/icons-material'
 
 const Sidebar = ({ 
@@ -49,10 +50,10 @@ const Sidebar = ({
       active: currentView === 'transaction-dashboard'
     },
     {
-      id: 'applicants',
-      label: 'Applicants',
+      id: 'people',
+      label: 'People',
       icon: People,
-      active: currentView === 'applicants'
+      active: currentView === 'people'
     },
     {
       id: 'customers',
@@ -73,16 +74,16 @@ const Sidebar = ({
       active: currentView === 'services'
     },
     {
-      id: 'contracts',
-      label: 'Contracts',
+      id: 'documents',
+      label: 'Documents',
       icon: Description,
-      active: currentView === 'contracts'
+      active: currentView === 'documents'
     },
     {
-      id: 'analytics',
-      label: 'Analytics',
-      icon: Analytics,
-      active: currentView === 'analytics'
+      id: 'profile',
+      label: 'Profile',
+      icon: Person,
+      active: currentView === 'profile'
     },
     {
       id: 'settings',

@@ -4,7 +4,7 @@ import { properties as seedProperties } from '../../data/sampleData'
 
 const UK_STAGES = [
   'Offer Accepted',
-  'Memorandum of Sale',
+  'Sale details shared',
   'Solicitors Instructed & AML/ID',
   'Draft Contract Pack Issued',
   'Mortgage Application & Valuation',
@@ -155,19 +155,44 @@ const TeamCard = () => {
   )
 }
 
-const TransactionsDashboard = ({ onOpenTransaction }) => {
-  const property = seedProperties?.[0] || { address: '123 Example Street, London', purchasePrice: 500000 }
-  const currentStage = 1 // Example: currently on stage 1 (Memorandum of Sale)
+const TransactionsDashboard = ({ onOpenTransaction, currentUser }) => {
+  // Sample properties for different roles
+  const properties = [
+    {
+      id: 1,
+      address: '123 Maple Street, London, SW1A 1AA',
+      purchasePrice: 350000,
+      currentStage: 1,
+      status: 'Offer Accepted',
+      image: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=1200&auto=format&fit=crop'
+    },
+    {
+      id: 2,
+      address: '45 Modern Terrace, Manchester, M1 2AB',
+      purchasePrice: 425000,
+      currentStage: 3,
+      status: 'Solicitors Instructed',
+      image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=1200&auto=format&fit=crop'
+    }
+  ]
+
+  // Show multiple properties for Agent, single property for others
+  const displayProperties = currentUser?.role === 'Agent' ? properties : [properties[0]]
   
   return (
     <Box>
       <Box sx={{ maxWidth: 560 }}>
-        <TransactionCard 
-          property={property} 
-          currentStage={currentStage}
-          onOpen={onOpenTransaction} 
-        />
-        <TeamCard />
+        {displayProperties.map((property, index) => (
+          <Box key={property.id} sx={{ mb: 2 }}>
+            <TransactionCard 
+              property={property} 
+              currentStage={property.currentStage}
+              status={property.status}
+              onOpen={onOpenTransaction} 
+            />
+            {index === 0 && currentUser?.role !== 'Agent' && <TeamCard />}
+          </Box>
+        ))}
       </Box>
     </Box>
   )

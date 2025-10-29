@@ -12,7 +12,11 @@ import PropertyDetail from './components/properties/PropertyDetail'
 import PropertiesView from './components/properties/PropertiesView'
 import TransactionSimulator from './components/transactions/TransactionSimulator'
 import TransactionsDashboard from './components/transactions/TransactionsDashboard'
+import ProfileView from './components/profile/ProfileView'
 import { projects, properties, users } from './data/sampleData'
+import ServicesView from './components/services/ServicesView'
+import DocumentsView from './components/documents/DocumentsView'
+import PeopleView from './components/people/PeopleView'
 
 function App() {
   const [currentView, setCurrentView] = useState('transaction-dashboard')
@@ -91,16 +95,40 @@ function App() {
     const user = users.find(u => u.id === userId)
     if (user) {
       setCurrentUser(user)
-      setCurrentView('dashboard')
+      setCurrentView('transaction-dashboard')
       setSelectedProject(null)
       setSelectedProperty(null)
     }
   }
 
+  const handleProfileSave = (updatedUser) => {
+    setCurrentUser(updatedUser)
+  }
+
   const renderContent = () => {
     if (currentView === 'transaction-dashboard') {
       return (
-        <TransactionsDashboard onOpenTransaction={() => setCurrentView('transaction-detail')} />
+        <TransactionsDashboard 
+          onOpenTransaction={() => setCurrentView('transaction-detail')} 
+          currentUser={currentUser}
+        />
+      )
+    }
+    if (currentView === 'people') {
+      return (<PeopleView />)
+    }
+    if (currentView === 'services') {
+      return (<ServicesView />)
+    }
+    if (currentView === 'documents') {
+      return (<DocumentsView />)
+    }
+    if (currentView === 'profile') {
+      return (
+        <ProfileView 
+          user={currentUser}
+          onSave={handleProfileSave}
+        />
       )
     }
     return (

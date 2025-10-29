@@ -97,10 +97,70 @@ export const projects = [
 export const sampleProjects = projects
 
 export const users = [
-  { id: 1, name: "Buyer", role: "Buyer", avatar: "B", email: "buyer@example.com" },
-  { id: 2, name: "Seller", role: "Seller", avatar: "S", email: "seller@example.com" },
-  { id: 3, name: "Agent", role: "Agent", avatar: "A", email: "agent@example.com" },
-  { id: 4, name: "Solicitor", role: "Solicitor", avatar: "L", email: "solicitor@example.com" },
+  { 
+    id: 1, 
+    name: "Sarah Johnson", 
+    role: "Buyer", 
+    avatar: "S", 
+    email: "sarah.johnson@email.com",
+    phone: "+44 7700 900123",
+    bankingDetails: {
+      accountName: "Sarah Johnson",
+      sortCode: "12-34-56",
+      accountNumber: "12345678",
+      bankName: "HSBC"
+    },
+    address: {
+      street: "45 Oak Avenue",
+      city: "London",
+      postcode: "SW1A 1AA",
+      country: "UK"
+    }
+  },
+  { 
+    id: 2, 
+    name: "Michael Chen", 
+    role: "Seller", 
+    avatar: "M", 
+    email: "michael.chen@email.com",
+    phone: "+44 7700 900456",
+    bankingDetails: {
+      accountName: "Michael Chen",
+      sortCode: "98-76-54",
+      accountNumber: "87654321",
+      bankName: "Barclays"
+    },
+    address: {
+      street: "123 Maple Street",
+      city: "London",
+      postcode: "SW1A 1AA",
+      country: "UK"
+    }
+  },
+  { 
+    id: 3, 
+    name: "Emma Williams", 
+    role: "Agent", 
+    avatar: "E", 
+    email: "emma.williams@estateagents.com",
+    phone: "+44 7700 900789"
+  },
+  { 
+    id: 4, 
+    name: "David Thompson", 
+    role: "Buyer's Solicitor", 
+    avatar: "D", 
+    email: "david.thompson@lawfirm.co.uk",
+    phone: "+44 7700 900012"
+  },
+  { 
+    id: 5, 
+    name: "Sarah Mitchell", 
+    role: "Seller's Solicitor", 
+    avatar: "S", 
+    email: "sarah.mitchell@conveyancing.co.uk",
+    phone: "+44 7700 900345"
+  },
 ]
 
 export const currentUser = users[0]

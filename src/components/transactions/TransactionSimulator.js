@@ -5,21 +5,137 @@ import { ArrowForward, Add, UploadFile, MoreVert } from '@mui/icons-material'
 
 const UK_STAGES = [
   'Offer Accepted',
-  'Memorandum of Sale',
-  'Solicitors Instructed & AML/ID',
+  'Sale Details Shared',
+  'Solicitors Instructed & Compliance',
   'Draft Contract Pack Issued',
   'Mortgage Application & Valuation',
-  'Searches Ordered (LA/Drainage/Env)',
+  'Searches Ordered',
   'Enquiries Raised & Responded',
   'Mortgage Offer Issued',
   'Report on Title & Signatures',
   'Exchange of Contracts',
   'Completion',
-  'Post-Completion (SDLT/Land Registry)'
+  'Post-Completion'
 ]
 
+// Stage information with subtasks and plain language descriptions
+const STAGE_INFO = {
+  'Offer Accepted': {
+    description: "Your offer has been accepted! The property is now 'under offer' and the legal process begins.",
+    subtasks: [
+      { id: 'oa-1', label: 'Buyer and seller agree on price', who: 'B' },
+      { id: 'oa-2', label: 'Estate agent confirms acceptance', who: 'A' },
+    ],
+    roles: ['Buyer', 'Seller', 'Agent']
+  },
+  'Sale Details Shared': {
+    description: "Everyone gets a document confirming the agreed price and who's involved.",
+    subtasks: [
+      { id: 'sds-1', label: 'Agent sends Memorandum of Sale to all parties', who: 'A' },
+      { id: 'sds-2', label: 'Confirms buyer, seller, property details', who: 'A' },
+    ],
+    roles: ['Agent']
+  },
+  'Solicitors Instructed & Compliance': {
+    description: "Both sides choose their solicitors. You'll also need to prove your identity and source of funds for legal checks.",
+    subtasks: [
+      { id: 'sol-1', label: 'Buyer appoints solicitor', who: 'B' },
+      { id: 'sol-2', label: 'Seller appoints solicitor', who: 'S' },
+      { id: 'sol-3', label: 'Buyer completes AML and ID checks', who: 'B' },
+      { id: 'sol-4', label: 'Seller completes ID verification', who: 'S' },
+    ],
+    roles: ['Buyer', 'Seller', 'Solicitors']
+  },
+  'Draft Contract Pack Issued': {
+    description: "The seller's solicitor sends the first set of legal papers about the property.",
+    subtasks: [
+      { id: 'pack-1', label: 'Seller\'s solicitor sends draft contract and title documents', who: 'SL' },
+      { id: 'pack-2', label: 'Includes property info forms and EPC', who: 'SL' },
+    ],
+    roles: ['Seller\'s Solicitor']
+  },
+  'Mortgage Application & Valuation': {
+    description: "You apply for your mortgage and the bank checks the property's value.",
+    subtasks: [
+      { id: 'mort-1', label: 'Buyer applies for mortgage', who: 'B' },
+      { id: 'mort-2', label: 'Lender arranges valuation', who: 'L' },
+    ],
+    roles: ['Buyer', 'Lender']
+  },
+  'Searches Ordered': {
+    description: "Your solicitor checks for issues like planning restrictions or flood risk.",
+    subtasks: [
+      { id: 'search-1', label: 'Local authority, drainage, environmental searches ordered', who: 'BL' },
+      { id: 'search-2', label: 'Results sent to buyer\'s solicitor', who: 'BL' },
+    ],
+    roles: ['Buyer\'s Solicitor']
+  },
+  'Enquiries Raised & Responded': {
+    description: "Your solicitor asks questions about the property and gets answers.",
+    subtasks: [
+      { id: 'enq-1', label: 'Buyer\'s solicitor asks questions about the property', who: 'BL' },
+      { id: 'enq-2', label: 'Seller\'s solicitor responds', who: 'SL' },
+    ],
+    roles: ['Buyer\'s Solicitor', 'Seller\'s Solicitor']
+  },
+  'Mortgage Offer Issued': {
+    description: "Your mortgage is officially approved and ready.",
+    subtasks: [
+      { id: 'mo-1', label: 'Lender approves mortgage', who: 'L' },
+      { id: 'mo-2', label: 'Offer sent to buyer and solicitor', who: 'L' },
+    ],
+    roles: ['Buyer', 'Lender']
+  },
+  'Report on Title & Signatures': {
+    description: "Your solicitor checks everything is safe and you sign the paperwork.",
+    subtasks: [
+      { id: 'rot-1', label: 'Buyer\'s solicitor explains legal findings', who: 'BL' },
+      { id: 'rot-2', label: 'Buyer signs contract and transfer deed', who: 'B' },
+    ],
+    roles: ['Buyer', 'Buyer\'s Solicitor']
+  },
+  'Exchange of Contracts': {
+    description: "The deal is now legally binding. You pay your deposit and arrange insurance.",
+    subtasks: [
+      { id: 'x-1', label: 'Contracts swapped between solicitors', who: 'BL' },
+      { id: 'x-2', label: 'Buyer pays deposit', who: 'B' },
+      { id: 'x-3', label: 'Buyer arranges buildings insurance', who: 'B' },
+    ],
+    roles: ['Buyer', 'Seller', 'Solicitors']
+  },
+  'Completion': {
+    description: "You pay the balance and get the keys to your new home!",
+    subtasks: [
+      { id: 'c-1', label: 'Buyer\'s solicitor sends remaining funds', who: 'BL' },
+      { id: 'c-2', label: 'Seller hands over keys', who: 'S' },
+      { id: 'c-3', label: 'Buyer collects keys', who: 'B' },
+    ],
+    roles: ['Buyer', 'Seller', 'Solicitors', 'Agent']
+  },
+  'Post-Completion': {
+    description: "Your solicitor registers you as the new owner and pays any taxes.",
+    subtasks: [
+      { id: 'pc-1', label: 'Pay Stamp Duty (SDLT)', who: 'BL' },
+      { id: 'pc-2', label: 'Register property with Land Registry', who: 'BL' },
+    ],
+    roles: ['Buyer\'s Solicitor']
+  },
+}
+
+// Responsible party display map for inline tagging
+const RESPONSIBLE_MAP = {
+  B: 'Buyer',
+  S: 'Seller',
+  A: 'Agent',
+  BL: "Buyer's Solicitor",
+  SL: "Seller's Solicitor",
+  L: 'Lender'
+}
+
 const defaultTimeline = [
-  { id: 1, stage: 'Offer Accepted', by: 'Agent', note: 'Offer agreed subject to contract', ts: new Date().toISOString() },
+  { id: 1, stage: 'Offer Accepted', by: 'Agent', note: 'Offer agreed subject to contract', ts: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString() },
+  { id: 2, stage: 'Sale Details Shared', by: 'Agent', note: 'Memorandum of Sale sent to all parties', ts: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString() },
+  { id: 3, stage: 'Solicitors Instructed & Compliance', by: 'Buyer', note: 'Solicitor instructed and AML completed', ts: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString() },
 ]
 
 function roleView(stage, role) {
@@ -34,7 +150,7 @@ function roleView(stage, role) {
     case 'Buyer':
       if (s === 'Offer Accepted') return {
         ...base,
-        summary: 'Offer accepted. Await memorandum of sale and instruct your solicitor.',
+        summary: 'Offer accepted. Await sale details and instruct your solicitor.',
         responsibilities: ['Choose and instruct solicitor', 'Provide ID/AML docs', 'Submit mortgage application'],
         nextActions: ['Upload proof of ID/address', 'Share solicitor details with agent']
       }
@@ -60,9 +176,9 @@ function roleView(stage, role) {
     case 'Agent':
       if (s === 'Offer Accepted') return {
         ...base,
-        summary: 'Offer agreed; prepare and issue memorandum of sale.',
-        responsibilities: ['Issue memorandum of sale to both solicitors', 'Chase buyer/seller for solicitor details'],
-        nextActions: ['Upload memorandum of sale']
+        summary: 'Offer agreed; prepare and send sale details to both solicitors.',
+        responsibilities: ['Send sale details to both solicitors', 'Chase buyer/seller for solicitor details'],
+        nextActions: ['Upload sale details']
       }
       if (s === 'Exchange of Contracts') return {
         ...base,
@@ -77,13 +193,70 @@ function roleView(stage, role) {
         nextActions: ['Mark transaction as completed']
       }
       return base
-    case 'Solicitor':
+    case 'Buyer\'s Solicitor':
       if (s === 'Solicitors Instructed & AML/ID') return {
         ...base,
-        summary: 'Engaged and performing client onboarding and AML checks.',
+        summary: 'Engaged and performing buyer onboarding and AML checks.',
         responsibilities: ['Issue client care letter', 'Complete AML/ID', 'Request contract pack from seller side'],
         nextActions: ['Log AML completed']
       }
+      if (s === 'Searches Ordered (LA/Drainage/Env)') return {
+        ...base,
+        summary: 'Order searches and raise initial enquiries on draft pack.',
+        responsibilities: ['Order local authority, drainage/water, environmental searches', 'Raise enquiries'],
+        nextActions: ['Upload enquiries list']
+      }
+      if (s === 'Report on Title & Signatures') return {
+        ...base,
+        summary: 'Prepare report on title for buyer and obtain signed documents.',
+        responsibilities: ['Send report on title', 'Obtain signed contract and TR1', 'Collect deposit'],
+        nextActions: ['Confirm readiness to exchange']
+      }
+      if (s === 'Post-Completion (SDLT/Land Registry)') return {
+        ...base,
+        summary: 'File SDLT and register title at HM Land Registry.',
+        responsibilities: ['Submit SDLT return and payment', 'Register title with HMLR'],
+        nextActions: ['Upload submission receipts']
+      }
+      return base
+    case 'Seller\'s Solicitor':
+      if (s === 'Solicitors Instructed & AML/ID') return {
+        ...base,
+        summary: 'Engaged and performing seller onboarding and AML checks.',
+        responsibilities: ['Issue client care letter', 'Complete AML/ID', 'Prepare contract pack'],
+        nextActions: ['Log AML completed']
+      }
+      if (s === 'Draft Contract Pack Issued') return {
+        ...base,
+        summary: 'Prepare and issue contract pack to buyer\'s solicitor.',
+        responsibilities: ['Collate title documents', 'Complete TA forms', 'Issue contract pack'],
+        nextActions: ['Upload contract pack']
+      }
+      if (s === 'Enquiries Raised & Responded') return {
+        ...base,
+        summary: 'Respond to buyer\'s solicitor enquiries.',
+        responsibilities: ['Review enquiries', 'Gather required information', 'Provide responses'],
+        nextActions: ['Upload enquiry responses']
+      }
+      if (s === 'Report on Title & Signatures') return {
+        ...base,
+        summary: 'Obtain signed documents from seller.',
+        responsibilities: ['Obtain signed contract and TR1 from seller', 'Prepare for exchange'],
+        nextActions: ['Confirm seller documents ready']
+      }
+      if (s === 'Exchange of Contracts') return {
+        ...base,
+        summary: 'Exchange contracts and confirm completion.',
+        responsibilities: ['Exchange contracts', 'Confirm completion date'],
+        nextActions: ['Confirm exchange completed']
+      }
+      if (s === 'Completion') return {
+        ...base,
+        summary: 'Complete transaction and transfer ownership.',
+        responsibilities: ['Receive completion funds', 'Transfer title', 'Discharge mortgage'],
+        nextActions: ['Confirm completion']
+      }
+      return base
       if (s === 'Searches Ordered (LA/Drainage/Env)') return {
         ...base,
         summary: 'Order searches and raise initial enquiries on draft pack.',
@@ -117,7 +290,7 @@ const buyerRequirementsForStage = (stage) => {
         { id: 'buyer-proof-deposit', label: 'Provide proof of deposit / source of funds' },
         { id: 'buyer-id', label: 'Provide ID and proof of address (AML)' },
       ]
-    case 'Memorandum of Sale':
+    case 'Sale details shared':
       return [
         { id: 'buyer-share-solicitor', label: 'Share solicitor details with agent' },
         { id: 'buyer-share-aip', label: 'Share AIP with agent (optional)' },
@@ -174,7 +347,7 @@ const agentRequirementsForStage = (stage) => {
         { id: 'agent-mos', label: 'Prepare and issue Memorandum of Sale' },
         { id: 'agent-collect-details', label: 'Collect both parties\' solicitor details' },
       ]
-    case 'Memorandum of Sale':
+    case 'Sale details shared':
       return [
         { id: 'agent-send-pack', label: 'Send property info to buyer & solicitors' },
       ]
@@ -253,19 +426,52 @@ const sellerRequirementsForStage = (stage) => {
     case 'Offer Accepted':
       return [
         { id: 'seller-instruct-solicitor', label: 'Instruct your solicitor' },
+        { id: 'seller-provide-details', label: 'Provide property details to agent' },
+      ]
+    case 'Sale details shared':
+      return [
+        { id: 'seller-confirm-details', label: 'Confirm sale details are correct' },
+      ]
+    case 'Solicitors Instructed & AML/ID':
+      return [
+        { id: 'seller-provide-id', label: 'Provide ID and proof of address (AML)' },
       ]
     case 'Draft Contract Pack Issued':
       return [
-        { id: 'seller-complete-forms', label: 'Complete property information forms (TA6, TA10, TA7 as applicable)' },
+        { id: 'seller-complete-forms', label: 'Complete property information forms (TA6, TA10, TA7)' },
         { id: 'seller-provide-docs', label: 'Provide warranties, planning/building regs docs' },
+        { id: 'seller-review-contract', label: 'Review draft contract with solicitor' },
+      ]
+    case 'Mortgage Application & Valuation':
+      return [
+        { id: 'seller-allow-access', label: 'Allow buyer access for valuation/survey' },
+      ]
+    case 'Searches Ordered (LA/Drainage/Env)':
+      return [
+        { id: 'seller-cooperate-searches', label: 'Cooperate with any required searches' },
       ]
     case 'Enquiries Raised & Responded':
       return [
         { id: 'seller-answer-enquiries', label: 'Answer solicitor enquiries promptly' },
+        { id: 'seller-provide-additional-info', label: 'Provide any additional information requested' },
+      ]
+    case 'Mortgage Offer Issued':
+      return [
+        { id: 'seller-await-mortgage', label: 'Await confirmation buyer has mortgage offer' },
       ]
     case 'Report on Title & Signatures':
       return [
         { id: 'seller-sign-contract', label: 'Sign contract and TR1 (seller parts)' },
+        { id: 'seller-arrange-move', label: 'Arrange moving out by completion date' },
+      ]
+    case 'Exchange of Contracts':
+      return [
+        { id: 'seller-confirm-completion', label: 'Confirm agreed completion date' },
+      ]
+    case 'Completion':
+      return [
+        { id: 'seller-handover-keys', label: 'Hand over keys to agent' },
+        { id: 'seller-vacate-property', label: 'Ensure property is vacant and clean' },
       ]
     default:
       return []
@@ -370,37 +576,138 @@ const StageStepIcon = (props) => {
 
 const HeadlineTimeline = ({ stageIndex, timeline, property }) => {
   const [expandedStage, setExpandedStage] = React.useState(null)
+  const [subtaskCompleted, setSubtaskCompleted] = React.useState({})
   const stageFor = (i) => UK_STAGES[i]
-  const details = expandedStage == null ? [] : timeline.filter(t => t.stage === stageFor(expandedStage))
+  
+  // Get completion date for each stage
+  const getStageCompletionDate = (stageIndex) => {
+    const stageName = UK_STAGES[stageIndex]
+    const stageEntry = timeline.find(t => t.stage === stageName)
+    return stageEntry ? new Date(stageEntry.ts).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' }) : null
+  }
+  
+  // Get stage info for expanded view
+  const getStageInfo = (stageIndex) => {
+    const stageName = UK_STAGES[stageIndex]
+    return STAGE_INFO[stageName] || { description: '', subtasks: [], roles: [] }
+  }
+
+  const isSubtaskDone = (stageName, subtaskId) => Boolean(subtaskCompleted?.[stageName]?.[subtaskId])
+  
+  // Check if all subtasks for a stage are completed
+  const isStageCompleted = (stageIndex) => {
+    const stageName = UK_STAGES[stageIndex]
+    const stageInfo = getStageInfo(stageIndex)
+    if (!stageInfo.subtasks || stageInfo.subtasks.length === 0) return false
+    return stageInfo.subtasks.every(task => isSubtaskDone(stageName, task.id))
+  }
+  
+  // Get the highest completed stage index
+  const getCompletedStageIndex = () => {
+    for (let i = 0; i < UK_STAGES.length; i++) {
+      if (!isStageCompleted(i)) {
+        return i - 1
+      }
+    }
+    return UK_STAGES.length - 1
+  }
+  
+  const completedStageIndex = getCompletedStageIndex()
+  const nextStageIndex = completedStageIndex + 1
+  
+  const toggleSubtask = (stageName, subtaskId) => {
+    setSubtaskCompleted(prev => ({
+      ...prev,
+      [stageName]: { ...prev[stageName], [subtaskId]: !Boolean(prev?.[stageName]?.[subtaskId]) }
+    }))
+  }
+  
   return (
   <Card>
-    <CardContent>
-      {/* Address/price removed – shown in header */}
-      <Box sx={{ mb: 2 }}>
-        <Stepper activeStep={stageIndex} alternativeLabel>
+    <CardContent sx={{ py: 3 }}>
+      <Box sx={{ mb: 3 }}>
+        <Stepper activeStep={nextStageIndex} alternativeLabel>
           {UK_STAGES.map((s, i) => (
             <Step key={s}>
-              <StepLabel StepIconComponent={(p) => <StageStepIcon {...p} stageIndex={stageIndex} onSelect={(idx) => setExpandedStage(expandedStage===idx?null:idx)} />}>{s}</StepLabel>
+              <StepLabel 
+                StepIconComponent={(p) => <StageStepIcon {...p} stageIndex={i} completedStageIndex={completedStageIndex} nextStageIndex={nextStageIndex} onSelect={(idx) => setExpandedStage(expandedStage===idx?null:idx)} />}
+                sx={{
+                  '& .MuiStepLabel-label': {
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: 0.5
+                  }
+                }}
+              >
+                <Box sx={{ textAlign: 'center' }}>
+                  <Typography variant="caption" sx={{ fontWeight: 600 }}>
+                    {s}
+                  </Typography>
+                  {i <= completedStageIndex && (
+                    <Typography variant="caption" color="success.main" sx={{ display: 'block', fontSize: '0.65rem' }}>
+                      {getStageCompletionDate(i)}
+                    </Typography>
+                  )}
+                </Box>
+              </StepLabel>
             </Step>
           ))}
         </Stepper>
       </Box>
+      
       {expandedStage != null && (
         <>
           <Divider sx={{ my: 2 }} />
-          <Box sx={{ display: 'flex', gap: 2, overflowX: 'auto', pb: 1 }}>
-            {details.map(item => (
-              <Card key={item.id} sx={{ minWidth: 260, flex: '0 0 auto', border: 'none' }}>
-                <CardContent sx={{ p: 2 }}>
-                  <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
-                    <Chip label={item.stage} size="small" />
-                    <Typography variant="caption" color="text.secondary">{new Date(item.ts).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })}</Typography>
-                  </Stack>
-                  <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5 }}>{item.by}</Typography>
-                  <Typography variant="body2" color="text.secondary">{item.note}</Typography>
-                </CardContent>
-              </Card>
-            ))}
+          <Box sx={{ p: 2, bgcolor: 'grey.50', borderRadius: 2 }}>
+            <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
+              {UK_STAGES[expandedStage]}
+            </Typography>
+            <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
+              {getStageInfo(expandedStage).description}
+            </Typography>
+            
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
+                Subtasks:
+              </Typography>
+              <Stack spacing={0.5}>
+                {getStageInfo(expandedStage).subtasks.map((task) => {
+                  const stageName = UK_STAGES[expandedStage]
+                  const done = isSubtaskDone(stageName, task.id)
+                  return (
+                    <Box 
+                      key={task.id} 
+                      sx={{ display: 'flex', alignItems: 'center', gap: 1, cursor: 'pointer' }}
+                      onClick={() => toggleSubtask(stageName, task.id)}
+                    >
+                      <Box 
+                        sx={{ 
+                          width: 14, height: 14, borderRadius: '50%',
+                          border: done ? 'none' : '2px solid',
+                          borderColor: done ? 'success.main' : 'grey.400',
+                          bgcolor: done ? 'success.main' : 'transparent',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          color: 'white', fontSize: 10, lineHeight: 1
+                        }}
+                      >
+                        {done ? '✓' : ''}
+                      </Box>
+                      <Typography variant="body2" sx={{ flex: 1, mr: 1 }}>
+                        {task.label}
+                      </Typography>
+                      <Chip 
+                        label={RESPONSIBLE_MAP[task.who] || task.who} 
+                        size="small" 
+                        variant="outlined"
+                        sx={{ fontSize: '0.65rem', height: 20 }}
+                      />
+                    </Box>
+                  )
+                })}
+              </Stack>
+            </Box>
+
           </Box>
         </>
       )}
@@ -441,7 +748,7 @@ const InputPanel = ({ currentRole, onAdd, timeline }) => {
 
 const TransactionSimulator = ({ role: controlledRole, onRoleChange }) => {
   const [role, setRole] = useState(controlledRole || 'Buyer')
-  const [stageIndex, setStageIndex] = useState(0)
+  const [stageIndex, setStageIndex] = useState(3)
   const [timeline, setTimeline] = useState(defaultTimeline)
   const [property] = useState(() => seedProperties?.[0] || { address: '123 Example Street, London', purchasePrice: 500000 })
   const [buyerChecklist, setBuyerChecklist] = useState({})
