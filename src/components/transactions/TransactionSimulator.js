@@ -893,9 +893,10 @@ const TransactionSimulator = ({ role: controlledRole, onRoleChange }) => {
             <ConfidenceRow />
             <BlockersRow />
           </Box>
-          <Box sx={{ pr: 2 }}>
+          <Stack direction="row" spacing={1} sx={{ pr: 2 }}>
+            <Button variant="outlined" size="small" onClick={() => { try { navigator.clipboard.writeText(window.location.origin + '#/live') } catch {} }}>Share live link</Button>
             <Chip label={stage} size="small" sx={{ bgcolor: 'primary.main', color: '#fff', borderRadius: 1, px: 1, height: 26 }} />
-          </Box>
+          </Stack>
         </Stack>
       </CardContent>
     </Card>

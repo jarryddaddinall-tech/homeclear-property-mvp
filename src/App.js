@@ -25,6 +25,7 @@ import DocumentsView from './components/documents/DocumentsView'
 import PeopleView from './components/people/PeopleView'
 import SettingsView from './components/settings/SettingsView'
 import { ToastProvider } from './components/shared/ToastProvider'
+import LiveDealView from './components/live/LiveDealView'
 
 // Main app content component
 function AppContent() {
@@ -207,6 +208,9 @@ function AppContent() {
           currentUser={activeUser}
         />
       )
+    }
+    if (currentView === 'live') {
+      return (<LiveDealView />)
     }
     if (currentView === 'people') {
       return (<PeopleView />)
