@@ -1,0 +1,39 @@
+/* Custom styles for elements that can't be handled by Chakra UI */
+
+/* Smooth transitions for sidebar */
+.sidebar-transition {
+  transition: width 0.3s ease;
+}
+
+/* Custom scrollbar for better aesthetics */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Ensure proper font loading */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* Focus styles for accessibility */
+*:focus {
+  outline: 2px solid #7F56D9;
+  outline-offset: 2px;
+}
+
+/* Smooth animations */
+* {
+  transition: all 0.2s ease;
+}
