@@ -16,8 +16,10 @@ import PropertiesView from './components/properties/PropertiesView'
 import TransactionSimulator from './components/transactions/TransactionSimulator'
 import TransactionsDashboard from './components/transactions/TransactionsDashboard'
 import ProfileView from './components/profile/ProfileView'
-import { projects, properties } from './data/sampleData'
 import { useFirestoreUsers } from './hooks/useFirestoreUsers'
+import { useFirestoreProperties } from './hooks/useFirestoreProperties'
+import { useFirestoreProjects } from './hooks/useFirestoreProjects'
+import { useFirestoreTransactions } from './hooks/useFirestoreTransactions'
 import ServicesView from './components/services/ServicesView'
 import DocumentsView from './components/documents/DocumentsView'
 import PeopleView from './components/people/PeopleView'
@@ -26,11 +28,13 @@ import PeopleView from './components/people/PeopleView'
 function AppContent() {
   const { user, loading, needsRoleSelection, updateUserRole } = useAuth()
   const { users: firestoreUsers, loading: usersLoading } = useFirestoreUsers()
+  const { properties: allProperties, loading: propertiesLoading, addProperty, updateProperty, deleteProperty } = useFirestoreProperties()
+  const { projects: allProjects, loading: projectsLoading, addProject, updateProject, deleteProject } = useFirestoreProjects()
+  const { transactions, loading: transactionsLoading } = useFirestoreTransactions()
+  
   const [currentView, setCurrentView] = useState('transaction-dashboard')
   const [selectedProject, setSelectedProject] = useState(null)
   const [selectedProperty, setSelectedProperty] = useState(null)
-  const [allProjects, setAllProjects] = useState(projects)
-  const [allProperties, setAllProperties] = useState(properties)
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [currentUser, setCurrentUser] = useState(null) // Will be set from Firestore users
 
@@ -71,11 +75,21 @@ function AppContent() {
     setSelectedProperty(null)
   }
 
-  const handleSaveProject = (updatedProject) => {
-    setAllProjects(allProjects.map(p => 
-      p.id === updatedProject.id ? updatedProject : p
-    ))
-    setSelectedProject(updatedProject)
+  const handleSaveProject = async (updatedProject) => {
+    try {
+      if (updatedProject.id) {
+        await updateProject(updatedProject.id, updatedProject)
+      } else {
+        const newId = await addProject({
+          ...updatedProject,
+          ownerId: activeUser.id
+        })
+        updatedProject.id = newId
+      }
+      setSelectedProject(updatedProject)
+    } catch (error) {
+      console.error('Error saving project:', error)
+    }
   }
 
   const handleAddProject = () => {
@@ -83,30 +97,34 @@ function AppContent() {
     console.log('Add new project clicked')
   }
 
-  const handleAddProperty = (newProperty) => {
-    console.log('handleAddProperty called with:', newProperty)
-    // Add the new property to the user's properties
-    const propertyWithOwner = {
-      ...newProperty,
-      id: Date.now(), // Simple ID generation
-      ownerId: currentUser.id
+  const handleAddProperty = async (newProperty) => {
+    try {
+      console.log('handleAddProperty called with:', newProperty)
+      const propertyWithOwner = {
+        ...newProperty,
+        ownerId: activeUser.id
+      }
+      console.log('Adding property with owner:', propertyWithOwner)
+      await addProperty(propertyWithOwner)
+    } catch (error) {
+      console.error('Error adding property:', error)
     }
-    console.log('Adding property with owner:', propertyWithOwner)
-    setAllProperties(prev => [...prev, propertyWithOwner])
   }
 
-  const handleEditProperty = (propertyId, updatedProperty) => {
-    setAllProperties(prev => 
-      prev.map(property => 
-        property.id === propertyId 
-          ? { ...property, ...updatedProperty }
-          : property
-      )
-    )
+  const handleEditProperty = async (propertyId, updatedProperty) => {
+    try {
+      await updateProperty(propertyId, updatedProperty)
+    } catch (error) {
+      console.error('Error updating property:', error)
+    }
   }
 
-  const handleDeleteProperty = (propertyId) => {
-    setAllProperties(prev => prev.filter(property => property.id !== propertyId))
+  const handleDeleteProperty = async (propertyId) => {
+    try {
+      await deleteProperty(propertyId)
+    } catch (error) {
+      console.error('Error deleting property:', error)
+    }
   }
 
   const handleUserChange = (userId) => {
@@ -127,8 +145,8 @@ function AppContent() {
   // Debug logging
   console.log('App state:', { user, loading, needsRoleSelection })
 
-  // Show loading spinner while checking auth or loading users
-  if (loading || usersLoading || !activeUser) {
+  // Show loading spinner while checking auth or loading data
+  if (loading || usersLoading || propertiesLoading || projectsLoading || transactionsLoading || !activeUser) {
     return (
       <ThemeProvider theme={theme}>
         <CssBaseline />
