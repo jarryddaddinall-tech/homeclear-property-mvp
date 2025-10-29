@@ -546,7 +546,7 @@ const StageStepIcon = (props) => {
   const position = Number(icon) - 1
   const isCompleted = position <= completedStageIndex
   const isNext = position === nextStageIndex
-  const size = 24
+  const size = 22
   const styles = {
     width: size,
     height: size,
@@ -554,22 +554,22 @@ const StageStepIcon = (props) => {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: 700,
     cursor: 'pointer'
   }
   if (isCompleted) {
     return (
-      <Box sx={{ ...styles, bgcolor: 'success.main', color: 'white' }} onClick={() => onSelect && onSelect(position)}>✓</Box>
+      <Box sx={{ ...styles, bgcolor: 'primary.main', color: 'white', boxShadow: '0 0 0 4px rgba(79,70,229,0.12)' }} onClick={() => onSelect && onSelect(position)}>✓</Box>
     )
   }
   if (isNext) {
     return (
-      <Box sx={{ ...styles, bgcolor: 'warning.main', color: 'white' }} onClick={() => onSelect && onSelect(position)}>○</Box>
+      <Box sx={{ ...styles, bgcolor: '#fff', color: 'warning.main', border: '2px solid', borderColor: 'warning.main', boxShadow: '0 0 0 4px rgba(245,158,11,0.12)' }} onClick={() => onSelect && onSelect(position)}>○</Box>
     )
   }
   return (
-    <Box sx={{ ...styles, bgcolor: 'white', color: 'text.secondary', border: '2px solid', borderColor: 'grey.300' }} onClick={() => onSelect && onSelect(position)}>○</Box>
+    <Box sx={{ ...styles, bgcolor: 'white', color: 'text.secondary', border: '1px solid', borderColor: 'grey.300' }} onClick={() => onSelect && onSelect(position)}>○</Box>
   )
 }
 
@@ -625,7 +625,10 @@ const HeadlineTimeline = ({ stageIndex, timeline, property }) => {
   <Card>
     <CardContent sx={{ py: 3 }}>
       <Box sx={{ mb: 3 }}>
-        <Stepper activeStep={completedStageIndex + 1} alternativeLabel>
+        <Stepper activeStep={completedStageIndex + 1} alternativeLabel sx={{
+          '& .MuiStepConnector-line': { borderColor: 'grey.200', borderTopWidth: 2 },
+          '& .MuiStep-root': { px: { xs: 0.5, sm: 1 } }
+        }}>
           {UK_STAGES.map((s, i) => (
             <Step key={s}>
               <StepLabel 
@@ -698,8 +701,7 @@ const HeadlineTimeline = ({ stageIndex, timeline, property }) => {
                       <Chip 
                         label={RESPONSIBLE_MAP[task.who] || task.who} 
                         size="small" 
-                        variant="outlined"
-                        sx={{ fontSize: '0.65rem', height: 20 }}
+                        sx={{ fontSize: '0.65rem', height: 20, bgcolor: 'grey.100', borderRadius: 1.5 }}
                       />
                     </Box>
                   )
@@ -850,13 +852,13 @@ const TransactionSimulator = ({ role: controlledRole, onRoleChange }) => {
   )
 
   const ContextBar = () => (
-    <Box sx={{ position: 'sticky', top: 0, zIndex: 1, bgcolor: 'background.default', py: 1.5, mb: 2, boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+    <Box sx={{ position: 'sticky', top: 0, zIndex: 1, backdropFilter: 'blur(6px)', bgcolor: 'rgba(255,255,255,0.72)', py: 1.5, px: 1, mb: 2, boxShadow: '0 6px 24px rgba(0,0,0,0.06)', borderRadius: 2 }}>
       <Stack direction="row" alignItems="center" justifyContent="space-between">
         <Stack>
           <Typography variant="h6" sx={{ fontWeight: 700 }}>{property.address}</Typography>
           <ConfidenceRow />
         </Stack>
-        <Chip label={stage} sx={{ bgcolor: 'primary.main', color: '#fff', borderRadius: 1 }} />
+        <Chip label={stage} sx={{ bgcolor: 'primary.main', color: '#fff', borderRadius: 1, boxShadow: '0 0 0 3px rgba(79,70,229,0.15)' }} />
       </Stack>
     </Box>
   )
