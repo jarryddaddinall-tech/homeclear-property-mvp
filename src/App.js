@@ -46,8 +46,8 @@ function AppContent() {
   }, [firestoreUsers, currentUser])
 
   // Filter data by current user
-  const userProjects = allProjects.filter(p => p.ownerId === activeUser.id)
-  const userProperties = allProperties.filter(p => p.ownerId === activeUser.id)
+  const userProjects = activeUser ? allProjects.filter(p => p.ownerId === activeUser.id) : []
+  const userProperties = activeUser ? allProperties.filter(p => p.ownerId === activeUser.id) : []
 
   const handleNavigate = (view) => {
     setCurrentView(view)
@@ -128,7 +128,7 @@ function AppContent() {
   console.log('App state:', { user, loading, needsRoleSelection })
 
   // Show loading spinner while checking auth or loading users
-  if (loading || usersLoading) {
+  if (loading || usersLoading || !activeUser) {
     return (
       <ThemeProvider theme={theme}>
         <CssBaseline />
