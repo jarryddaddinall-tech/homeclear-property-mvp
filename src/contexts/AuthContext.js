@@ -45,17 +45,18 @@ export const AuthProvider = ({ children }) => {
 
   // Listen for auth state changes
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      console.log('Auth state changed:', firebaseUser ? 'User logged in' : 'User logged out')
+      
       if (firebaseUser) {
-        // Simplified approach - check localStorage first, then Firestore
-        console.log('Checking user data for:', firebaseUser.uid)
+        console.log('Checking localStorage for user:', firebaseUser.uid)
         
-        // First check localStorage
+        // Check localStorage first
         const localUserData = localStorage.getItem(`user_${firebaseUser.uid}`)
         if (localUserData) {
           try {
             const userData = JSON.parse(localUserData)
-            console.log('Using localStorage data:', userData)
+            console.log('Found localStorage data:', userData)
             setUser({
               id: firebaseUser.uid,
               uid: firebaseUser.uid,
@@ -79,76 +80,31 @@ export const AuthProvider = ({ children }) => {
               }
             })
             setNeedsRoleSelection(false)
+            setLoading(false)
             return
           } catch (localError) {
             console.error('Error parsing localStorage data:', localError)
           }
         }
         
-        // If no localStorage data, try Firestore
-        try {
-          const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid))
-          
-          if (userDoc.exists()) {
-            const userData = userDoc.data()
-            console.log('User data found in Firestore:', userData)
-            setUser({
-              id: firebaseUser.uid,
-              uid: firebaseUser.uid,
-              name: userData.displayName || firebaseUser.displayName || 'User',
-              email: firebaseUser.email,
-              avatar: userData.displayName ? userData.displayName.charAt(0).toUpperCase() : 'U',
-              photoURL: firebaseUser.photoURL,
-              role: userData.role,
-              phone: userData.phone || firebaseUser.phoneNumber || '',
-              bankingDetails: userData.bankingDetails || {
-                accountName: userData.displayName || firebaseUser.displayName || 'User',
-                sortCode: '',
-                accountNumber: '',
-                bankName: ''
-              },
-              address: userData.address || {
-                street: '',
-                city: '',
-                postcode: '',
-                country: 'UK'
-              }
-            })
-            setNeedsRoleSelection(false)
-          } else {
-            // New user - needs role selection
-            console.log('New user - needs role selection')
-            setUser({
-              id: firebaseUser.uid,
-              uid: firebaseUser.uid,
-              name: firebaseUser.displayName || 'User',
-              email: firebaseUser.email,
-              avatar: firebaseUser.displayName ? firebaseUser.displayName.charAt(0).toUpperCase() : 'U',
-              photoURL: firebaseUser.photoURL,
-              phone: firebaseUser.phoneNumber || '',
-            })
-            setNeedsRoleSelection(true)
-          }
-        } catch (error) {
-          console.error('Error fetching user data from Firestore:', error)
-          // Fallback - new user needs role selection
-          console.log('Firestore error - new user needs role selection')
-          setUser({
-            id: firebaseUser.uid,
-            uid: firebaseUser.uid,
-            name: firebaseUser.displayName || 'User',
-            email: firebaseUser.email,
-            avatar: firebaseUser.displayName ? firebaseUser.displayName.charAt(0).toUpperCase() : 'U',
-            photoURL: firebaseUser.photoURL,
-            phone: firebaseUser.phoneNumber || '',
-          })
-          setNeedsRoleSelection(true)
-        }
+        // No localStorage data - new user needs role selection
+        console.log('No localStorage data - new user needs role selection')
+        setUser({
+          id: firebaseUser.uid,
+          uid: firebaseUser.uid,
+          name: firebaseUser.displayName || 'User',
+          email: firebaseUser.email,
+          avatar: firebaseUser.displayName ? firebaseUser.displayName.charAt(0).toUpperCase() : 'U',
+          photoURL: firebaseUser.photoURL,
+          phone: firebaseUser.phoneNumber || '',
+        })
+        setNeedsRoleSelection(true)
+        setLoading(false)
       } else {
         setUser(null)
         setNeedsRoleSelection(false)
+        setLoading(false)
       }
-      setLoading(false)
     })
 
     return () => unsubscribe()
@@ -157,20 +113,26 @@ export const AuthProvider = ({ children }) => {
   // Function to update user role
   const updateUserRole = (role) => {
     if (user) {
+      console.log('Updating user role to:', role)
+      
+      // Save to localStorage first
+      const userData = {
+        role: role,
+        displayName: user.displayName || user.name || 'User',
+        email: user.email || '',
+        photoURL: user.photoURL || ''
+      }
+      localStorage.setItem(`user_${user.uid}`, JSON.stringify(userData))
+      console.log('Saved to localStorage:', userData)
+      
+      // Update the user state
       const updatedUser = {
         ...user,
         role: role
       }
       setUser(updatedUser)
       setNeedsRoleSelection(false)
-      
-      // Save to localStorage
-      localStorage.setItem(`user_${user.uid}`, JSON.stringify({
-        role: role,
-        displayName: user.displayName || user.name || 'User',
-        email: user.email || '',
-        photoURL: user.photoURL || ''
-      }))
+      console.log('Updated user state:', updatedUser)
     }
   }
 

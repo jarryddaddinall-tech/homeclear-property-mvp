@@ -68,14 +68,17 @@ const RoleSelection = ({ user, onRoleSelected }) => {
 
     try {
       setLoading(true)
+      console.log('Saving role:', selectedRole, 'for user:', user.uid)
       
       // Save to localStorage (primary storage for now)
-      localStorage.setItem(`user_${user.uid}`, JSON.stringify({
+      const userData = {
         role: selectedRole,
         displayName: user.displayName || user.name || 'User',
         email: user.email || '',
         photoURL: user.photoURL || ''
-      }))
+      }
+      localStorage.setItem(`user_${user.uid}`, JSON.stringify(userData))
+      console.log('Saved to localStorage:', userData)
 
       // Update the user object with the selected role
       const updatedUser = {
@@ -83,6 +86,7 @@ const RoleSelection = ({ user, onRoleSelected }) => {
         role: selectedRole
       }
       
+      console.log('Calling onRoleSelected with:', updatedUser)
       onRoleSelected(updatedUser)
     } catch (error) {
       console.error('Error saving user role:', error)
