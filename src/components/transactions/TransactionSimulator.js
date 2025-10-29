@@ -626,9 +626,9 @@ const HeadlineTimeline = ({ stageIndex, timeline, property, highlightRole }) => 
   }
   
   return (
-  <Card>
-    <CardContent sx={{ py: 3 }}>
-      <Box sx={{ mb: 3 }}>
+  <Card sx={{ border: 'none', boxShadow: '0 8px 28px rgba(0,0,0,0.06)', borderRadius: 2 }}>
+    <CardContent sx={{ py: 2.5, px: 2 }}>
+      <Box sx={{ mb: 1.5 }}>
         <Stepper activeStep={completedStageIndex + 1} alternativeLabel sx={{
           '& .MuiStepConnector-line': { borderColor: 'grey.200', borderTopWidth: 2 },
           '& .MuiStep-root': { px: { xs: 0.5, sm: 1 } }
@@ -647,11 +647,11 @@ const HeadlineTimeline = ({ stageIndex, timeline, property, highlightRole }) => 
                 }}
               >
                 <Box sx={{ textAlign: 'center' }}>
-                  <Typography variant="caption" sx={{ fontWeight: 600 }}>
+                  <Typography variant="caption" sx={{ fontWeight: 600, color: 'text.primary' }}>
                     {s}
                   </Typography>
                   {i <= completedStageIndex && (
-                    <Typography variant="caption" color="success.main" sx={{ display: 'block', fontSize: '0.65rem' }}>
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontSize: '0.7rem' }}>
                       {getStageCompletionDate(i)}
                     </Typography>
                   )}
@@ -725,8 +725,8 @@ const InputPanel = ({ currentRole, onAdd, timeline }) => {
   const [note, setNote] = useState('')
   const [doc, setDoc] = useState('')
   return (
-    <Card sx={{ border: 'none', boxShadow: '0px 8px 28px rgba(0,0,0,0.06)', borderRadius: 3 }}>
-      <CardContent sx={{ p: 2.5 }}>
+    <Card sx={{ border: 'none', boxShadow: '0 8px 28px rgba(0,0,0,0.06)', borderRadius: 2 }}>
+      <CardContent sx={{ p: 2 }}>
         <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1.5 }}>Add update as {currentRole}</Typography>
         <Stack direction="row" spacing={1} alignItems="center">
           <TextField 
@@ -766,8 +766,8 @@ const InputPanel = ({ currentRole, onAdd, timeline }) => {
           </Button>
         </Stack>
         {/* Shared comment history */}
-        <Box sx={{ mt: 2, pt: 1, borderTop: '1px solid', borderColor: 'grey.100' }}>
-          <Stack spacing={1.25}>
+        <Box sx={{ mt: 1.5, pt: 1, borderTop: '1px solid', borderColor: 'grey.100' }}>
+          <Stack spacing={1}>
             {timeline.filter(t => t.note).slice().reverse().map(item => (
               <Box key={item.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                 <Box sx={{ mr: 2 }}>
@@ -903,15 +903,16 @@ const TransactionSimulator = ({ role: controlledRole, onRoleChange }) => {
   )
 
   return (
-    <Box>
+    <Box sx={{ px: { xs: 1.5, sm: 2 }, pb: 3 }}>
       <ContextBar />
-      <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+      <Box sx={{ mb: 1 }} />
+      <Box sx={{ mb: 2.5, display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
         {/* User chips removed; use avatar dropdown in header to switch roles */}
       </Box>
 
       {/* Removed 'Waiting on' box per request; timeline and checklists indicate status */}
 
-      <Grid container spacing={3}>
+      <Grid container spacing={2.5}>
         {/* Headline full-width timeline */}
         <Grid size={{ xs: 12 }}>
           <HeadlineTimeline stageIndex={stageIndex} timeline={timeline} property={property} highlightRole={highlightRole} />
