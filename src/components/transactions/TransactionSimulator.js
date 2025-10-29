@@ -718,16 +718,48 @@ const InputPanel = ({ currentRole, onAdd, timeline }) => {
   const [note, setNote] = useState('')
   const [doc, setDoc] = useState('')
   return (
-    <Card sx={{ border: 'none', boxShadow: '0px 6px 20px rgba(0,0,0,0.06)' }}>
-      <CardContent>
-        <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>Add update as {currentRole}</Typography>
-        <Stack direction="row" spacing={1}>
-          <TextField fullWidth size="small" placeholder="Add a note or update" value={note} onChange={(e) => setNote(e.target.value)} />
-          <Button variant="outlined" size="small" startIcon={<UploadFile />} onClick={() => setDoc('Doc.pdf')}>Attach</Button>
-          <Button variant="contained" size="small" startIcon={<Add />} onClick={() => { if (!note) return; onAdd({ note, doc }); setNote(''); setDoc('') }}>Add</Button>
+    <Card sx={{ border: 'none', boxShadow: '0px 8px 28px rgba(0,0,0,0.06)', borderRadius: 3 }}>
+      <CardContent sx={{ p: 2.5 }}>
+        <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1.5 }}>Add update as {currentRole}</Typography>
+        <Stack direction="row" spacing={1} alignItems="center">
+          <TextField 
+            fullWidth 
+            size="medium" 
+            placeholder="Add a note or update"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            InputProps={{
+              sx: {
+                bgcolor: 'background.paper',
+                borderRadius: 2,
+                '& fieldset': { borderColor: 'grey.200' },
+                '&:hover fieldset': { borderColor: 'grey.300' },
+                '&.Mui-focused fieldset': { borderColor: 'primary.main' }
+              }
+            }}
+          />
+          <Button 
+            variant="outlined" 
+            color="inherit"
+            size="medium" 
+            startIcon={<UploadFile />} 
+            onClick={() => setDoc('Doc.pdf')}
+            sx={{ borderColor: 'grey.200', color: 'text.secondary', bgcolor: 'grey.50', '&:hover': { bgcolor: 'grey.100', borderColor: 'grey.300' } }}
+          >
+            Attach
+          </Button>
+          <Button 
+            variant="contained" 
+            size="medium" 
+            startIcon={<Add />}
+            onClick={() => { if (!note) return; onAdd({ note, doc }); setNote(''); setDoc('') }}
+            sx={{ px: 2.5 }}
+          >
+            Add
+          </Button>
         </Stack>
         {/* Shared comment history */}
-        <Box sx={{ mt: 2, pt: 1, borderTop: '1px solid', borderColor: 'grey.200' }}>
+        <Box sx={{ mt: 2, pt: 1, borderTop: '1px solid', borderColor: 'grey.100' }}>
           <Stack spacing={1.25}>
             {timeline.filter(t => t.note).slice().reverse().map(item => (
               <Box key={item.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
