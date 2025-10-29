@@ -504,15 +504,21 @@ const StageChecklist = ({ title = 'What you need to do next', items, checklist, 
 
 const RoleSummary = ({ stage, role, updatesForRole, buyerChecklist, onToggleBuyerChecklist, agentChecklist, onToggleAgentChecklist, solicitorChecklist, onToggleSolicitorChecklist }) => {
   const v = useMemo(() => roleView(stage, role), [stage, role])
+  const buyerItems = role === 'Buyer' ? buyerRequirementsForStage(stage) : []
+  const agentItems = role === 'Agent' ? agentRequirementsForStage(stage) : []
+  const solicitorItems = role === 'Solicitor' ? solicitorRequirementsForStage(stage) : []
+  const hasContent = Boolean(v.summary) || (buyerItems?.length || agentItems?.length || solicitorItems?.length)
+  if (!hasContent) return null
   return (
     <Card>
       <CardContent>
-        {/* Removed role heading label per request */}
-        <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>{v.summary}</Typography>
+        {v.summary && (
+          <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>{v.summary}</Typography>
+        )}
         {role === 'Buyer' && (
           <StageChecklist 
             title="What you need to do next"
-            items={buyerRequirementsForStage(stage)} 
+            items={buyerItems} 
             checklist={buyerChecklist} 
             onToggle={onToggleBuyerChecklist} 
           />
@@ -520,7 +526,7 @@ const RoleSummary = ({ stage, role, updatesForRole, buyerChecklist, onToggleBuye
         {role === 'Agent' && (
           <StageChecklist 
             title="Agent tasks for this stage"
-            items={agentRequirementsForStage(stage)} 
+            items={agentItems} 
             checklist={agentChecklist} 
             onToggle={onToggleAgentChecklist} 
           />
@@ -528,13 +534,11 @@ const RoleSummary = ({ stage, role, updatesForRole, buyerChecklist, onToggleBuye
         {role === 'Solicitor' && (
           <StageChecklist 
             title="Solicitor tasks for this stage"
-            items={solicitorRequirementsForStage(stage)} 
+            items={solicitorItems} 
             checklist={solicitorChecklist} 
             onToggle={onToggleSolicitorChecklist} 
           />
         )}
-        {/* Responsibilities and updates removed per request; To-Do list will drive tasks */}
-        {/* Suggested next actions removed per request; checklist and responsibilities suffice */}
       </CardContent>
     </Card>
   )
@@ -878,7 +882,7 @@ const TransactionSimulator = ({ role: controlledRole, onRoleChange }) => {
           <ConfidenceRow />
           <BlockersRow />
         </Stack>
-        <Chip label={stage} sx={{ bgcolor: 'primary.main', color: '#fff', borderRadius: 1, boxShadow: '0 0 0 3px rgba(79,70,229,0.15)' }} />
+        <Chip label={stage} size="small" sx={{ bgcolor: 'primary.main', color: '#fff', borderRadius: 1, px: 1, height: 26 }} />
       </Stack>
     </Box>
   )
