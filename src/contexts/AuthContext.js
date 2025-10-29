@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import { 
   signInWithPopup, 
+  signInWithRedirect,
+  getRedirectResult,
   signOut, 
   onAuthStateChanged 
 } from 'firebase/auth'
@@ -22,11 +24,21 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true)
   const [needsRoleSelection, setNeedsRoleSelection] = useState(false)
 
-  // Sign in with Google
+  // Sign in with Google (mobile-friendly)
   const signInWithGoogle = async () => {
     try {
-      const result = await signInWithPopup(auth, googleProvider)
-      return result.user
+      // Check if we're on mobile or if popup is blocked
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+      
+      if (isMobile) {
+        // Use redirect for mobile devices
+        await signInWithRedirect(auth, googleProvider)
+        return null // Will be handled by getRedirectResult
+      } else {
+        // Use popup for desktop
+        const result = await signInWithPopup(auth, googleProvider)
+        return result.user
+      }
     } catch (error) {
       console.error('Error signing in with Google:', error)
       throw error
@@ -43,6 +55,22 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
+  // Handle redirect result for mobile
+  useEffect(() => {
+    const handleRedirectResult = async () => {
+      try {
+        const result = await getRedirectResult(auth)
+        if (result) {
+          console.log('Redirect result received:', result.user)
+        }
+      } catch (error) {
+        console.error('Error handling redirect result:', error)
+      }
+    }
+    
+    handleRedirectResult()
+  }, [])
+
   // Listen for auth state changes
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
@@ -51,7 +79,7 @@ export const AuthProvider = ({ children }) => {
       if (firebaseUser) {
         console.log('Checking localStorage for user:', firebaseUser.uid)
         
-        // Check localStorage first
+        // Check localStorage first (mobile-friendly)
         const localUserData = localStorage.getItem(`user_${firebaseUser.uid}`)
         if (localUserData) {
           try {

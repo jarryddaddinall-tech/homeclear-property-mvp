@@ -23,6 +23,7 @@ import { useFirestoreTransactions } from './hooks/useFirestoreTransactions'
 import ServicesView from './components/services/ServicesView'
 import DocumentsView from './components/documents/DocumentsView'
 import PeopleView from './components/people/PeopleView'
+import SettingsView from './components/settings/SettingsView'
 
 // Main app content component
 function AppContent() {
@@ -223,6 +224,13 @@ function AppContent() {
         <ProfileView 
           user={activeUser}
           onSave={handleProfileSave}
+        />
+      )
+    }
+    if (currentView === 'settings') {
+      return (
+        <SettingsView 
+          currentUser={activeUser}
         />
       )
     }
