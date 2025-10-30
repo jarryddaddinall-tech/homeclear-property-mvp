@@ -884,7 +884,7 @@ const TransactionSimulator = ({ role: controlledRole, onRoleChange }) => {
   }
 
   const ContextBar = () => (
-    <Card sx={{ position: 'sticky', top: 120, zIndex: 1, mb: 2, border: 'none', boxShadow: '0 8px 28px rgba(0,0,0,0.06)' }}>
+    <Card sx={{ position: 'relative', zIndex: 1, mb: 2, border: 'none', boxShadow: '0 8px 28px rgba(0,0,0,0.06)' }}>
       <CardContent sx={{ p: 0 }}>
         <Stack direction="row" alignItems="center" spacing={2} sx={{ minHeight: 76 }}>
           {/* Left image flush to top/bottom/left */}
