@@ -48,7 +48,8 @@ function AppContent() {
   // Simple hash-based navigation so shared links can deep-link to views (e.g. #/live)
   useEffect(() => {
     const applyHashRoute = () => {
-      const hash = (window.location.hash || '').replace('#/', '')
+      const raw = (window.location.hash || '').replace('#/', '')
+      const hash = raw.split('?')[0] // support params like live?t=token
       if (!hash) return
       if (['transaction-dashboard','transaction-detail','people','properties','services','documents','profile','settings','live'].includes(hash)) {
         setCurrentView(hash)
@@ -196,7 +197,7 @@ function AppContent() {
 
   // Show live view read-only even if not authenticated
   const hashRoute = (typeof window !== 'undefined' && window.location.hash) ? window.location.hash.replace('#/', '') : ''
-  if (!user && hashRoute === 'live') {
+  if (!user && hashRoute.split('?')[0] === 'live') {
     return (
       <ThemeProvider theme={theme}>
         <CssBaseline />
