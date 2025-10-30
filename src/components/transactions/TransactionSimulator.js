@@ -903,7 +903,7 @@ const TransactionSimulator = ({ role: controlledRole, onRoleChange }) => {
             <BlockersRow />
           </Box>
           <Stack direction="row" spacing={1.25} sx={{ pr: 2 }}>
-            <IconButton aria-label="Share live link" onClick={() => { try { navigator.clipboard.writeText(window.location.origin + '/#/live') } catch {} }} sx={{ color: 'text.secondary' }}>
+            <IconButton aria-label="Open live link" onClick={() => { try { const t = (localStorage.getItem('live_token')) || (function(){ const x=Math.random().toString(36).slice(2,10); localStorage.setItem('live_token', x); return x })(); const url = window.location.origin + '/#/live?t=' + t; window.open(url, '_blank', 'noopener'); } catch {} }} sx={{ color: 'text.secondary' }}>
               <ShareIcon />
             </IconButton>
             <Chip label={stage} size="small" sx={{ bgcolor: 'grey.100', color: 'text.primary', borderRadius: 1.5, px: 1, height: 24 }} />
