@@ -59,12 +59,11 @@ function AppContent() {
     return () => window.removeEventListener('hashchange', applyHashRoute)
   }, [])
 
-  // Keep hash in sync when navigating inside the app
+  // Keep hash in sync when navigating inside the app, but don't override existing deep links
   useEffect(() => {
     if (!currentView) return
-    const target = `#/` + currentView
-    if (window.location.hash !== target) {
-      window.location.hash = target
+    if (!window.location.hash) {
+      window.location.hash = `#/` + currentView
     }
   }, [currentView])
 
@@ -191,6 +190,17 @@ function AppContent() {
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
           <Typography>Loading...</Typography>
         </Box>
+      </ThemeProvider>
+    )
+  }
+
+  // Show live view read-only even if not authenticated
+  const hashRoute = (typeof window !== 'undefined' && window.location.hash) ? window.location.hash.replace('#/', '') : ''
+  if (!user && hashRoute === 'live') {
+    return (
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <LiveDealView />
       </ThemeProvider>
     )
   }
