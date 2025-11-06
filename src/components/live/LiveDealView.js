@@ -44,6 +44,16 @@ const LiveDealView = () => {
     } catch {}
   }
 
+  // Auto-print if hash has print=1
+  React.useEffect(() => {
+    try {
+      const hash = window.location.hash || ''
+      if (hash.includes('print=1')) {
+        setTimeout(() => window.print(), 300)
+      }
+    } catch {}
+  }, [])
+
   return (
     <Box sx={{ p: { xs: 2, sm: 4 } }}>
       {/* Print styles */}
@@ -55,6 +65,7 @@ const LiveDealView = () => {
           .print-footer { bottom: 0; padding: 8px 24px; border-top: 1px solid #EEF2F7; font-size: 12px; }
           .print-page { padding-top: 60px; padding-bottom: 48px; }
           .MuiCard-root { box-shadow: none !important; }
+          * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         }
       `}</style>
 
@@ -67,22 +78,27 @@ const LiveDealView = () => {
       </Box>
 
       <Box className="print-page">
-        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
-          <Box>
-            <Typography variant="h5" sx={{ fontWeight: 700 }}>{address}</Typography>
-            <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-              <Chip label="AML checks" size="small" sx={{ bgcolor: 'grey.100', height: 22, borderRadius: 1.5 }} />
-              <Chip label="Funds verified" size="small" sx={{ bgcolor: 'grey.100', height: 22, borderRadius: 1.5 }} />
-              <Chip label="Searches" size="small" sx={{ bgcolor: 'grey.100', height: 22, borderRadius: 1.5 }} />
+        {/* Cohesive header + timeline card stack */}
+        <Card sx={{ borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }}>
+          <CardContent>
+            <Stack direction="row" alignItems="center" justifyContent="space-between">
+              <Box>
+                <Typography variant="h5" sx={{ fontWeight: 700 }}>{address}</Typography>
+                <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+                  <Chip label="AML checks" size="small" sx={{ bgcolor: 'grey.100', height: 22, borderRadius: 1.5 }} />
+                  <Chip label="Funds verified" size="small" sx={{ bgcolor: 'grey.100', height: 22, borderRadius: 1.5 }} />
+                  <Chip label="Searches" size="small" sx={{ bgcolor: 'grey.100', height: 22, borderRadius: 1.5 }} />
+                </Stack>
+              </Box>
+              <Stack direction="row" spacing={1} className="no-print">
+                <Button variant="outlined" onClick={handleCopy}>Copy link</Button>
+                <Button variant="contained" onClick={handlePrint}>Download deal pack</Button>
+              </Stack>
             </Stack>
-          </Box>
-          <Stack direction="row" spacing={1} className="no-print">
-            <Button variant="outlined" onClick={handleCopy}>Copy link</Button>
-            <Button variant="contained" onClick={handlePrint}>Download deal pack</Button>
-          </Stack>
-        </Stack>
+          </CardContent>
+        </Card>
 
-        <Card sx={{ mb: 2 }}>
+        <Card sx={{ borderTopLeftRadius: 0, borderTopRightRadius: 0, borderTop: '1px solid', borderColor: 'grey.200', mb: 2 }}>
           <CardContent>
             <Stepper activeStep={currentStageIdx + 1} alternativeLabel sx={{ '& .MuiStepConnector-line': { borderColor: 'grey.200', borderTopWidth: 2 } }}>
               {UK_STAGES.map((s) => (

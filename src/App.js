@@ -50,35 +50,64 @@ function AppContent() {
     const applyHashRoute = () => {
       const raw = (window.location.hash || '').replace('#/', '')
       const hash = raw.split('?')[0] // support params like live?t=token
-      if (!hash) return
+      if (!hash) {
+        // If no hash and user is authenticated, default to transaction-dashboard
+        if (user && !needsRoleSelection) {
+          setCurrentView('transaction-dashboard')
+          window.location.hash = '#/transaction-dashboard'
+        }
+        return
+      }
       if (['transaction-dashboard','transaction-detail','people','properties','services','documents','profile','settings','live'].includes(hash)) {
         setCurrentView(hash)
+      } else if (user && !needsRoleSelection) {
+        // If hash is invalid but user is authenticated, go to dashboard
+        setCurrentView('transaction-dashboard')
+        window.location.hash = '#/transaction-dashboard'
       }
     }
     applyHashRoute()
     window.addEventListener('hashchange', applyHashRoute)
     return () => window.removeEventListener('hashchange', applyHashRoute)
-  }, [])
+  }, [user, needsRoleSelection])
 
   // Keep hash in sync when navigating inside the app, but don't override existing deep links
+  // Also ensure dashboard is set after successful login
   useEffect(() => {
     if (!currentView) return
-    if (!window.location.hash) {
+    
+    // After successful authentication, ensure we navigate to dashboard
+    if (user && !needsRoleSelection && !window.location.hash) {
+      window.location.hash = `#/transaction-dashboard`
+      setCurrentView('transaction-dashboard')
+      return
+    }
+    
+    // Don't override if hash already exists and is valid
+    const currentHash = (window.location.hash || '').replace('#/', '').split('?')[0]
+    const validRoutes = ['transaction-dashboard','transaction-detail','people','properties','services','documents','profile','settings','live']
+    
+    if (!currentHash || !validRoutes.includes(currentHash)) {
       window.location.hash = `#/` + currentView
     }
-  }, [currentView])
+  }, [currentView, user, needsRoleSelection])
 
   // Set initial currentUser when Firestore users load (restore persisted selection)
+  // Also set currentUser to user if no Firestore users yet (for new users)
   useEffect(() => {
-    if (firestoreUsers.length > 0) {
-      const savedId = localStorage.getItem('selected_user_id')
-      const fallback = firestoreUsers[0]
-      const restored = savedId ? firestoreUsers.find(u => u.id === savedId) : null
-      if (!currentUser) {
+    if (user && !currentUser) {
+      // First, try to use user directly if Firestore users haven't loaded yet
+      if (firestoreUsers.length === 0 && !usersLoading) {
+        // No Firestore users, use Firebase user
+        setCurrentUser(user)
+      } else if (firestoreUsers.length > 0) {
+        const savedId = localStorage.getItem('selected_user_id')
+        const fallback = firestoreUsers[0]
+        const restored = savedId ? firestoreUsers.find(u => u.id === savedId) : null
         setCurrentUser(restored || fallback)
       }
     }
-  }, [firestoreUsers, currentUser])
+  }, [firestoreUsers, currentUser, user, usersLoading])
 
   // Filter data by current user
   const userProjects = activeUser ? allProjects.filter(p => p.ownerId === activeUser.id) : []
@@ -183,8 +212,9 @@ function AppContent() {
     needsRoleSelection 
   })
 
-  // Show loading spinner while checking auth or loading data
-  if (loading || usersLoading || propertiesLoading || projectsLoading || transactionsLoading || !activeUser) {
+  // Show loading spinner while checking auth or loading critical data
+  // Don't block on activeUser if user exists (activeUser can be set later)
+  if (loading || (user && !activeUser && usersLoading)) {
     return (
       <ThemeProvider theme={theme}>
         <CssBaseline />
@@ -194,6 +224,9 @@ function AppContent() {
       </ThemeProvider>
     )
   }
+  
+  // If user exists but activeUser is not set yet, use user as fallback
+  const displayUser = activeUser || user
 
   // Show live view read-only even if not authenticated
   const hashRoute = (typeof window !== 'undefined' && window.location.hash) ? window.location.hash.replace('#/', '') : ''
@@ -239,7 +272,7 @@ function AppContent() {
       return (
         <TransactionsDashboard 
           onOpenTransaction={() => setCurrentView('transaction-detail')} 
-          currentUser={activeUser}
+          currentUser={displayUser}
         />
       )
     }
@@ -253,7 +286,7 @@ function AppContent() {
       return (
         <TransactionsDashboard 
           onOpenTransaction={() => setCurrentView('transaction-detail')} 
-          currentUser={activeUser}
+          currentUser={displayUser}
           showTeam={false}
         />
       )
@@ -267,7 +300,7 @@ function AppContent() {
     if (currentView === 'profile') {
       return (
         <ProfileView 
-          user={activeUser}
+          user={displayUser}
           onSave={handleProfileSave}
         />
       )
@@ -275,15 +308,15 @@ function AppContent() {
     if (currentView === 'settings') {
       return (
         <SettingsView 
-          currentUser={activeUser}
+          currentUser={displayUser}
         />
       )
     }
     return (
       <TransactionSimulator
-        role={activeUser.role}
+        role={displayUser?.role}
         onRoleChange={(r) => {
-          const target = users.find(u => u.role === r)
+          const target = allUsers.find(u => u.role === r)
           if (target) handleUserChange(target.id)
         }}
       />
@@ -296,7 +329,7 @@ function AppContent() {
       <DashboardLayout
         currentView={currentView}
         onNavigate={handleNavigate}
-        user={activeUser}
+        user={displayUser}
         users={allUsers}
         onUserChange={handleUserChange}
         isCollapsed={isCollapsed}

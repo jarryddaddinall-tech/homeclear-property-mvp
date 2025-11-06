@@ -89,29 +89,30 @@ const PropertyCard = ({ property, onClick, ...props }) => {
 
   return (
     <Card
+      elevation={3}
       sx={{
         cursor: 'pointer',
-        transition: 'all 0.2s ease-in-out',
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         '&:hover': {
-          boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.08), 0px 2px 4px rgba(0, 0, 0, 0.06)',
-          transform: 'translateY(-2px)',
+          boxShadow: '0px 16px 48px rgba(0, 0, 0, 0.12), 0px 4px 12px rgba(0, 0, 0, 0.08)',
+          transform: 'translateY(-6px)',
         },
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        border: '1px solid #F0F0F0'
+        border: 'none',
       }}
       onClick={onClick}
       {...props}
     >
-      <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', p: 3 }}>
+      <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', p: 4 }}>
         {/* Header */}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
           <Box sx={{ flexGrow: 1, mr: 2 }}>
-            <Typography variant="h6" sx={{ fontSize: '1.125rem', fontWeight: 500, mb: 0.5, lineHeight: 1.3, color: 'text.primary' }}>
+            <Typography variant="h6" sx={{ fontSize: '1.25rem', fontWeight: 600, mb: 0.75, lineHeight: 1.3, color: 'text.primary', letterSpacing: '-0.01em' }}>
               {property.address}
             </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8125rem' }}>
+            <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem', lineHeight: 1.6 }}>
               {property.type === 'primary-residence' ? 'Primary Residence' : 
                property.type === 'rental' ? 'Rental Property' : 'Investment Property'}
             </Typography>
@@ -121,13 +122,13 @@ const PropertyCard = ({ property, onClick, ...props }) => {
             label={property.status.replace('-', ' ')}
             size="small"
             sx={{ 
-              fontSize: '0.7rem',
-              fontWeight: 500,
-              borderRadius: 4,
+              fontSize: '0.75rem',
+              fontWeight: 600,
+              borderRadius: 3,
               textTransform: 'capitalize',
-              height: 20,
+              height: 24,
               '& .MuiChip-label': {
-                px: 1
+                px: 1.5
               },
               ...getStatusColor(property.status)
             }}

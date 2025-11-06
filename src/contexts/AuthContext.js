@@ -91,6 +91,17 @@ export const AuthProvider = ({ children }) => {
               role: null
             }))
           }
+          
+          // Clear any redirect parameters from URL and navigate to dashboard
+          if (window.location.hash) {
+            // Keep only the hash route, remove query params
+            const hash = window.location.hash.split('?')[0]
+            if (hash === '#/' || hash === '') {
+              window.location.hash = '#/transaction-dashboard'
+            }
+          } else {
+            window.location.hash = '#/transaction-dashboard'
+          }
         }
       } catch (error) {
         console.error('Error handling redirect result:', error)

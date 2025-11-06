@@ -20,54 +20,54 @@ import {
 } from '@mui/icons-material'
 
 const PersonCard = ({ person, role }) => (
-  <Card sx={{ height: '100%' }}>
-    <CardContent sx={{ p: 3 }}>
+  <Card sx={{ height: '100%', borderRadius: 2 }} elevation={3}>
+    <CardContent sx={{ p: 4 }}>
       <Stack direction="row" spacing={2} alignItems="flex-start">
         <Avatar 
           sx={{ 
             width: 48, 
             height: 48, 
             bgcolor: 'primary.main',
-            fontSize: '1.25rem',
-            fontWeight: 600
+            fontSize: '0.9375rem',
+            fontWeight: 600,
+            boxShadow: '0px 4px 12px rgba(127, 86, 217, 0.25)',
           }}
         >
           {person.name.split(' ').map(n => n[0]).join('')}
         </Avatar>
         
         <Box sx={{ flex: 1 }}>
-          <Typography variant="h6" sx={{ fontWeight: 600, mb: 0.5 }}>
+          <Typography variant="h6" sx={{ fontWeight: 600, mb: 1, color: 'text.primary', letterSpacing: '-0.01em' }}>
             {person.name}
           </Typography>
           
-          <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
+          <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
             <Chip 
               label={person.role} 
               size="small"
-              variant="filled"
               sx={{
-                bgcolor: 'grey.50',
+                bgcolor: 'grey.100',
                 color: 'text.secondary',
-                borderRadius: 1.5,
+                borderRadius: 2,
                 height: 24,
                 fontSize: '0.75rem',
-                boxShadow: 'inset 0 0 0 0 rgba(0,0,0,0)'
+                fontWeight: 500,
               }}
             />
           </Stack>
           
-          <Stack spacing={1}>
-            <Stack direction="row" alignItems="center" spacing={1}>
-              <Email sx={{ fontSize: 16, color: 'text.secondary' }} />
-              <Typography variant="body2" color="text.secondary">
+          <Stack spacing={1.5}>
+            <Stack direction="row" alignItems="center" spacing={1.5}>
+              <Email sx={{ fontSize: 18, color: 'text.secondary' }} />
+              <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem', lineHeight: 1.5 }}>
                 {person.email}
               </Typography>
             </Stack>
             
             {person.phone && (
-              <Stack direction="row" alignItems="center" spacing={1}>
-                <Phone sx={{ fontSize: 16, color: 'text.secondary' }} />
-                <Typography variant="body2" color="text.secondary">
+              <Stack direction="row" alignItems="center" spacing={1.5}>
+                <Phone sx={{ fontSize: 18, color: 'text.secondary' }} />
+                <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem', lineHeight: 1.5 }}>
                   {person.phone}
                 </Typography>
               </Stack>
@@ -81,15 +81,14 @@ const PersonCard = ({ person, role }) => (
 
 const RoleSection = ({ title, people, icon: Icon, color = 'primary' }) => (
   <Box>
-    <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
-      <Icon sx={{ color: `${color}.main` }} />
-      <Typography variant="h5" sx={{ fontWeight: 700 }}>
+    <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 3 }}>
+      <Icon sx={{ color: `${color}.main`, fontSize: 28 }} />
+      <Typography variant="h5" sx={{ fontWeight: 700, color: 'text.primary', letterSpacing: '-0.01em' }}>
         {title}
       </Typography>
-      {/* count chip removed per request */}
     </Stack>
     
-    <Grid container spacing={2}>
+    <Grid container spacing={3}>
       {people.map((person) => (
         <Grid item xs={12} sm={6} md={4} key={person.id}>
           <PersonCard person={person} role={title} />
@@ -144,11 +143,16 @@ const PeopleView = () => {
 
   return (
     <Box>
-      <Typography variant="h4" sx={{ mb: 4, fontWeight: 700 }}>
-        Transaction People
-      </Typography>
+      <Box sx={{ mb: 5 }}>
+        <Typography variant="h3" sx={{ mb: 1.5, color: 'text.primary', fontWeight: 700, letterSpacing: '-0.02em' }}>
+          Transaction People
+        </Typography>
+        <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.6 }}>
+          Manage contacts for buyers, sellers, agents, and solicitors.
+        </Typography>
+      </Box>
       
-      <Stack spacing={4}>
+      <Stack spacing={5}>
         <RoleSection 
           title="Buyer Side"
           people={buyerSide}
@@ -156,7 +160,7 @@ const PeopleView = () => {
           color="primary"
         />
         
-        <Divider />
+        <Divider sx={{ borderColor: 'grey.200' }} />
         
         <RoleSection 
           title="Seller Side"

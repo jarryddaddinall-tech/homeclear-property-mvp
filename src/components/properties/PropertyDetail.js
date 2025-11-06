@@ -158,74 +158,74 @@ const PropertyDetail = ({ property, onBack, ...props }) => {
           </CardContent>
         </Card>
 
-        {/* Property Details */}
-        <Card>
-          <CardContent>
-            <Stack spacing={3}>
-              <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                Property Details
-              </Typography>
-              
-              <Grid container spacing={3}>
-                <Grid size={{ xs: 12, md: 6 }}>
-                  <Stack spacing={2}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <Typography variant="body2" color="text.secondary">Property Type</Typography>
-                      <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                        {property.type ? property.type.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'N/A'}
-                      </Typography>
-                    </Box>
-                    
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <Typography variant="body2" color="text.secondary">Property Status</Typography>
-                      <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                        {property.status ? property.status.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'N/A'}
-                      </Typography>
-                    </Box>
-                    
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <Typography variant="body2" color="text.secondary">Tenant Status</Typography>
-                      <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                        {property.tenantStatus ? property.tenantStatus.replace(/\b\w/g, l => l.toUpperCase()) : 'N/A'}
-                      </Typography>
-                    </Box>
-                  </Stack>
-                </Grid>
+        {/* Details + Timeline as cohesive card stack */}
+        <Box>
+          <Card sx={{ borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }}>
+            <CardContent>
+              <Stack spacing={3}>
+                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                  Property Details
+                </Typography>
                 
-                <Grid size={{ xs: 12, md: 6 }}>
-                  <Stack spacing={2}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <Typography variant="body2" color="text.secondary">Purchase Price</Typography>
-                      <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                        {property.purchasePrice ? formatCurrency(property.purchasePrice) : 'N/A'}
-                      </Typography>
-                    </Box>
-                    
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <Typography variant="body2" color="text.secondary">Initial Mortgage</Typography>
-                      <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                        {property.initialMortgage ? formatCurrency(property.initialMortgage) : 'N/A'}
-                      </Typography>
-                    </Box>
-                    
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <Typography variant="body2" color="text.secondary">Rental Yield</Typography>
-                      <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                        {property.monthlyRent && property.currentValue ? 
-                          `${Math.round((property.monthlyRent * 12 / property.currentValue) * 100)}%` : 
-                          'N/A'}
-                      </Typography>
-                    </Box>
-                  </Stack>
+                <Grid container spacing={3}>
+                  <Grid size={{ xs: 12, md: 6 }}>
+                    <Stack spacing={2}>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <Typography variant="body2" color="text.secondary">Property Type</Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                          {property.type ? property.type.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'N/A'}
+                        </Typography>
+                      </Box>
+                      
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <Typography variant="body2" color="text.secondary">Property Status</Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                          {property.status ? property.status.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'N/A'}
+                        </Typography>
+                      </Box>
+                      
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <Typography variant="body2" color="text.secondary">Tenant Status</Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                          {property.tenantStatus ? property.tenantStatus.replace(/\b\w/g, l => l.toUpperCase()) : 'N/A'}
+                        </Typography>
+                      </Box>
+                    </Stack>
+                  </Grid>
+                  
+                  <Grid size={{ xs: 12, md: 6 }}>
+                    <Stack spacing={2}>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <Typography variant="body2" color="text.secondary">Purchase Price</Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                          {property.purchasePrice ? formatCurrency(property.purchasePrice) : 'N/A'}
+                        </Typography>
+                      </Box>
+                      
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <Typography variant="body2" color="text.secondary">Initial Mortgage</Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                          {property.initialMortgage ? formatCurrency(property.initialMortgage) : 'N/A'}
+                        </Typography>
+                      </Box>
+                      
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <Typography variant="body2" color="text.secondary">Rental Yield</Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                          {property.monthlyRent && property.currentValue ? 
+                            `${Math.round((property.monthlyRent * 12 / property.currentValue) * 100)}%` : 
+                            'N/A'}
+                        </Typography>
+                      </Box>
+                    </Stack>
+                  </Grid>
                 </Grid>
-              </Grid>
-            </Stack>
-          </CardContent>
-        </Card>
+              </Stack>
+            </CardContent>
+          </Card>
 
-        {/* Property Value Timeline */}
-        {property.purchasePrice && property.currentValue && (
-          <Card>
+          {property.purchasePrice && property.currentValue && (
+          <Card sx={{ borderTopLeftRadius: 0, borderTopRightRadius: 0, borderTop: '1px solid', borderColor: 'grey.200' }}>
             <CardContent>
               <Stack spacing={3}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -331,7 +331,8 @@ const PropertyDetail = ({ property, onBack, ...props }) => {
               </Stack>
             </CardContent>
           </Card>
-        )}
+          )}
+        </Box>
 
         {/* Mortgage Timeline */}
         {property.initialMortgage && property.currentMortgage && (

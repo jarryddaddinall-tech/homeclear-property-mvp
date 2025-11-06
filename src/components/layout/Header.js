@@ -71,23 +71,29 @@ const Header = ({ user, users, onUserChange, isCollapsed, ...props }) => {
       }}
       {...props}
     >
-      <Toolbar sx={{ px: 3, py: 2, flexDirection: 'column', alignItems: 'stretch' }}>
+      <Toolbar sx={{ px: { xs: 3, sm: 4 }, py: 2.5, flexDirection: 'column', alignItems: 'stretch' }}>
         {/* Top Row - Logo and Controls */}
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           {/* Logo and Brand */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <Box sx={{ 
-              width: 32, 
-              height: 32, 
-              borderRadius: '8px', 
+              width: 40, 
+              height: 40, 
+              borderRadius: 2, 
               bgcolor: 'primary.main',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              boxShadow: '0px 4px 12px rgba(127, 86, 217, 0.3)',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              '&:hover': {
+                transform: 'scale(1.05)',
+                boxShadow: '0px 6px 16px rgba(127, 86, 217, 0.4)',
+              }
             }}>
-              <Business sx={{ color: 'white', fontSize: 18 }} />
+              <Business sx={{ color: 'white', fontSize: 20 }} />
             </Box>
-            <Typography variant="h6" sx={{ fontWeight: 700, color: 'text.primary', fontSize: '1.125rem' }}>
+            <Typography variant="h5" sx={{ fontWeight: 700, color: 'text.primary', fontSize: '1.25rem', letterSpacing: '-0.02em' }}>
               HomeClear
             </Typography>
           </Box>
@@ -100,21 +106,25 @@ const Header = ({ user, users, onUserChange, isCollapsed, ...props }) => {
               sx={{ 
                 display: 'flex', 
                 alignItems: 'center', 
-                gap: 1,
+                gap: 1.5,
                 cursor: 'pointer',
                 borderRadius: 2,
-                px: 1,
-                py: 0.5,
-                '&:hover': { bgcolor: 'grey.100' }
+                px: 1.5,
+                py: 0.75,
+                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                '&:hover': { 
+                  bgcolor: 'action.hover',
+                }
               }}
             >
               <Avatar 
                 sx={{ 
-                  width: 32, 
-                  height: 32, 
+                  width: 36, 
+                  height: 36, 
                   bgcolor: 'primary.main',
-                  fontSize: '0.875rem',
-                  fontWeight: 500
+                  fontSize: '0.9375rem',
+                  fontWeight: 600,
+                  boxShadow: '0px 2px 8px rgba(127, 86, 217, 0.2)',
                 }}
               >
                 {user?.name?.charAt(0)}
@@ -134,10 +144,12 @@ const Header = ({ user, users, onUserChange, isCollapsed, ...props }) => {
         onClose={handleClose}
         PaperProps={{
           sx: {
-            mt: 1,
-            minWidth: 200,
-            boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
-            borderRadius: 2
+            mt: 1.5,
+            minWidth: 240,
+            boxShadow: '0px 8px 24px rgba(0, 0, 0, 0.12), 0px 2px 8px rgba(0, 0, 0, 0.08)',
+            borderRadius: 3,
+            border: '1px solid',
+            borderColor: 'grey.200',
           }
         }}
       >
@@ -154,9 +166,9 @@ const Header = ({ user, users, onUserChange, isCollapsed, ...props }) => {
               py: 1.5,
               px: 2,
               '&.Mui-selected': {
-                bgcolor: 'primary.light',
+                bgcolor: 'action.selected',
                 '&:hover': {
-                  bgcolor: 'primary.light'
+                  bgcolor: 'action.selected'
                 }
               }
             }}
@@ -179,10 +191,12 @@ const Header = ({ user, users, onUserChange, isCollapsed, ...props }) => {
               secondary={roleLabel}
               primaryTypographyProps={{
                 fontSize: '0.875rem',
-                fontWeight: 500
+                fontWeight: 600,
+                color: 'text.primary',
               }}
               secondaryTypographyProps={{
-                fontSize: '0.75rem'
+                fontSize: '0.75rem',
+                color: 'text.secondary',
               }}
             />
           </MenuItem>

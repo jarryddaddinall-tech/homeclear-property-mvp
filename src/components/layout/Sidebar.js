@@ -98,8 +98,8 @@ const Sidebar = ({
         bgcolor: 'background.paper',
         borderRight: '1px solid',
         borderColor: 'grey.200',
-        boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.05)',
-        transition: 'width 0.3s ease',
+        boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.06), 0px 2px 4px rgba(0, 0, 0, 0.04)',
+        transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         zIndex: 998,
         display: { xs: 'none', sm: 'flex' },
         flexDirection: 'column'
@@ -109,8 +109,8 @@ const Sidebar = ({
       {/* Header */}
       <Box
         sx={{
-          py: 1.25,
-          px: 1.25,
+          py: 2,
+          px: 1.5,
           borderBottom: '1px solid',
           borderColor: 'grey.200',
           display: 'flex',
@@ -123,10 +123,13 @@ const Sidebar = ({
           size="small"
           sx={{
             color: 'text.secondary',
-            p: 0.5,
+            p: 1,
+            borderRadius: 2,
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             '&:hover': {
-              bgcolor: 'grey.100',
-              color: 'text.primary'
+              bgcolor: 'action.hover',
+              color: 'text.primary',
+              transform: 'scale(1.05)',
             }
           }}
           aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
@@ -136,7 +139,7 @@ const Sidebar = ({
       </Box>
 
       {/* Navigation */}
-      <List sx={{ flexGrow: 1, py: 1.25, px: isCollapsed ? 1 : 1.5, gap: 0.5 }}>
+      <List sx={{ flexGrow: 1, py: 2, px: isCollapsed ? 1.5 : 2 }}>
         {menuItems.map((item) => {
           const IconComponent = item.icon
           return (
@@ -146,41 +149,43 @@ const Sidebar = ({
                 selected={item.active}
                 sx={{
                   minHeight: 44,
-                  borderRadius: 12,
+                  borderRadius: 2,
                   justifyContent: isCollapsed ? 'center' : 'flex-start',
-                  px: isCollapsed ? 1.25 : 1.75,
-                  py: 0.75,
-                  transition: 'all 0.2s ease-in-out',
+                  px: isCollapsed ? 1.5 : 2,
+                  py: 1,
+                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                   '&.Mui-selected': {
                     bgcolor: 'primary.main',
                     color: 'white',
+                    boxShadow: '0px 4px 12px rgba(127, 86, 217, 0.3)',
                     '&:hover': {
                       bgcolor: 'primary.dark',
                     }
                   },
                   '&:hover': {
-                    bgcolor: item.active ? 'primary.dark' : 'grey.100',
-                    color: item.active ? 'white' : 'text.primary'
+                    bgcolor: item.active ? 'primary.dark' : 'action.hover',
+                    color: item.active ? 'white' : 'text.primary',
                   }
                 }}
                 title={isCollapsed ? item.label : undefined}
               >
                 <ListItemIcon
                   sx={{
-                    minWidth: isCollapsed ? 'auto' : 36,
+                    minWidth: isCollapsed ? 'auto' : 40,
                     justifyContent: 'center',
                     color: item.active ? 'white' : 'text.secondary'
                   }}
                 >
-                  <IconComponent sx={{ fontSize: 20 }} />
+                  <IconComponent sx={{ fontSize: 22 }} />
                 </ListItemIcon>
                 {!isCollapsed && (
                   <ListItemText 
                     primary={item.label}
                     primaryTypographyProps={{
-                      fontSize: '0.875rem',
-                      fontWeight: item.active ? 600 : 400,
-                      color: item.active ? 'white' : 'text.primary'
+                      fontSize: '0.9375rem',
+                      fontWeight: item.active ? 600 : 500,
+                      color: item.active ? 'white' : 'text.primary',
+                      letterSpacing: '-0.01em',
                     }}
                   />
                 )}

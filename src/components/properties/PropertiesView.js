@@ -25,16 +25,16 @@ const PropertiesView = ({ properties, onPropertyClick, onAddProperty, onEditProp
 
   return (
     <Box {...props}>
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" sx={{ mb: 1, color: 'text.primary' }}>
+      <Box sx={{ mb: 5 }}>
+        <Typography variant="h3" sx={{ mb: 1.5, color: 'text.primary', fontWeight: 700, letterSpacing: '-0.02em' }}>
           Properties
         </Typography>
-        <Typography variant="body1" color="text.secondary">
+        <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.6 }}>
           Manage your property portfolio and track market performance.
         </Typography>
       </Box>
 
-      <Grid container spacing={3}>
+      <Grid container spacing={4}>
         {properties.map((property) => (
           <Grid size={{ xs: 12, sm: 6, md: 4 }} key={property.id}>
             <Box sx={{ position: 'relative' }}>
@@ -70,30 +70,34 @@ const PropertiesView = ({ properties, onPropertyClick, onAddProperty, onEditProp
           <Box
             sx={{
               cursor: 'pointer',
-              transition: 'all 0.2s ease-in-out',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
               border: '2px dashed',
               borderColor: 'grey.300',
               bgcolor: 'grey.50',
               borderRadius: 2,
-              p: 4,
+              p: 5,
               textAlign: 'center',
               height: '100%',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
+              minHeight: 320,
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
               '&:hover': {
                 bgcolor: 'grey.100',
-                borderColor: 'primary.main'
+                borderColor: 'primary.main',
+                transform: 'translateY(-4px)',
+                boxShadow: '0px 12px 32px rgba(0, 0, 0, 0.10), 0px 4px 8px rgba(0, 0, 0, 0.06)',
               }
             }}
             onClick={() => setShowAddForm(true)}
           >
-            <Add sx={{ fontSize: 32, color: 'text.secondary', mb: 1 }} />
-            <Typography variant="h6" sx={{ fontSize: '1rem', fontWeight: 500, mb: 0.5, color: 'text.primary' }}>
+            <Add sx={{ fontSize: 40, color: 'text.secondary', mb: 2 }} />
+            <Typography variant="h6" sx={{ fontSize: '1.125rem', fontWeight: 600, mb: 0.75, color: 'text.primary' }}>
               Add New Property
             </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
+            <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.9375rem', lineHeight: 1.6 }}>
               Track a new property
             </Typography>
           </Box>

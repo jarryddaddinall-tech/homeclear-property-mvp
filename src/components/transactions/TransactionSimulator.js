@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect } from 'react'
 import { Box, Grid, Card, CardContent, Typography, Button, Stack, TextField, Chip, IconButton, Stepper, Step, StepLabel, Divider, Checkbox, List, ListItem, ListItemIcon, ListItemText } from '@mui/material'
 import { properties as seedProperties } from '../../data/sampleData'
-import { ArrowForward, Add, UploadFile, MoreVert, Share as ShareIcon } from '@mui/icons-material'
+import { ArrowForward, Add, UploadFile, MoreVert, Share as ShareIcon, Download } from '@mui/icons-material'
 
 const UK_STAGES = [
   'Offer Accepted',
@@ -482,22 +482,57 @@ const StageChecklist = ({ title = 'What you need to do next', items, checklist, 
   if (!items || !items.length) return null
   if (!items.length) return null
   return (
-    <Box sx={{ mt: 2 }}>
-      <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>{title}</Typography>
-      <List dense sx={{ p: 0 }}>
-        {items.map(item => (
-          <ListItem key={item.id} disableGutters sx={{ py: 0.5 }}>
-            <ListItemIcon sx={{ minWidth: 32 }}>
+    <Box sx={{ mt: 3 }}>
+      <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2, color: 'text.primary' }}>{title}</Typography>
+      <Stack spacing={1}>
+        {items.map(item => {
+          const isChecked = Boolean(checklist[item.id])
+          return (
+            <Box
+              key={item.id}
+              sx={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: 1.5,
+                p: 1.5,
+                borderRadius: 2,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                bgcolor: 'transparent',
+                '&:hover': {
+                  bgcolor: 'rgba(0, 0, 0, 0.02)',
+                }
+              }}
+              onClick={() => onToggle(item.id)}
+            >
               <Checkbox
-                edge="start"
-                checked={Boolean(checklist[item.id])}
+                checked={isChecked}
                 onChange={() => onToggle(item.id)}
+                sx={{ 
+                  mt: -0.5,
+                  '& .MuiSvgIcon-root': {
+                    fontSize: 20,
+                  }
+                }}
               />
-            </ListItemIcon>
-            <ListItemText primaryTypographyProps={{ variant: 'body2' }} primary={item.label} />
-          </ListItem>
-        ))}
-      </List>
+              <Typography 
+                variant="body2" 
+                sx={{ 
+                  flex: 1,
+                  fontWeight: isChecked ? 400 : 500,
+                  color: isChecked ? 'text.secondary' : 'text.primary',
+                  textDecoration: isChecked ? 'line-through' : 'none',
+                  opacity: isChecked ? 0.7 : 1,
+                  lineHeight: 1.5,
+                  pt: 0.5,
+                }}
+              >
+                {item.label}
+              </Typography>
+            </Box>
+          )
+        })}
+      </Stack>
     </Box>
   )
 }
@@ -510,14 +545,25 @@ const RoleSummary = ({ stage, role, updatesForRole, buyerChecklist, onToggleBuye
   const hasContent = Boolean(v.summary) || (buyerItems?.length || agentItems?.length || solicitorItems?.length)
   if (!hasContent) return null
   return (
-    <Card>
-      <CardContent>
+    <Card sx={{ 
+      border: '2px solid', 
+      borderColor: 'primary.main', 
+      bgcolor: 'rgba(127, 86, 217, 0.04)', 
+      elevation: 4,
+      borderRadius: 2,
+    }}>
+      <CardContent sx={{ p: 4 }}>
+        <Typography variant="h5" sx={{ fontWeight: 700, mb: 2.5, color: 'text.primary', letterSpacing: '-0.01em' }}>
+          What you need to do
+        </Typography>
         {v.summary && (
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>{v.summary}</Typography>
+          <Typography variant="body1" color="text.secondary" sx={{ mb: 3, lineHeight: 1.6 }}>
+            {v.summary}
+          </Typography>
         )}
         {role === 'Buyer' && (
           <StageChecklist 
-            title="What you need to do next"
+            title="Your action items"
             items={buyerItems} 
             checklist={buyerChecklist} 
             onToggle={onToggleBuyerChecklist} 
@@ -525,7 +571,7 @@ const RoleSummary = ({ stage, role, updatesForRole, buyerChecklist, onToggleBuye
         )}
         {role === 'Agent' && (
           <StageChecklist 
-            title="Agent tasks for this stage"
+            title="Your action items"
             items={agentItems} 
             checklist={agentChecklist} 
             onToggle={onToggleAgentChecklist} 
@@ -533,7 +579,7 @@ const RoleSummary = ({ stage, role, updatesForRole, buyerChecklist, onToggleBuye
         )}
         {role === 'Solicitor' && (
           <StageChecklist 
-            title="Solicitor tasks for this stage"
+            title="Your action items"
             items={solicitorItems} 
             checklist={solicitorChecklist} 
             onToggle={onToggleSolicitorChecklist} 
@@ -550,30 +596,72 @@ const StageStepIcon = (props) => {
   const position = Number(icon) - 1
   const isCompleted = position <= completedStageIndex
   const isNext = position === nextStageIndex
-  const size = 22
-  const styles = {
+  const size = 24
+  const baseStyles = {
     width: size,
     height: size,
     borderRadius: '50%',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: 11,
-    fontWeight: 700,
-    cursor: 'pointer'
+    fontSize: 12,
+    fontWeight: 600,
+    cursor: 'pointer',
+    transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
   }
   if (isCompleted) {
     return (
-      <Box sx={{ ...styles, bgcolor: 'primary.main', color: 'white', boxShadow: '0 0 0 4px rgba(79,70,229,0.12)' }} onClick={() => onSelect && onSelect(position)}>✓</Box>
+      <Box 
+        sx={{ 
+          ...baseStyles, 
+          bgcolor: 'primary.main', 
+          color: 'white', 
+          boxShadow: '0 0 0 4px rgba(127,86,217,0.15)',
+          '&:hover': {
+            transform: 'scale(1.1)',
+            boxShadow: '0 0 0 6px rgba(127,86,217,0.2)',
+          }
+        }} 
+        onClick={() => onSelect && onSelect(position)}
+      >
+        ✓
+      </Box>
     )
   }
   if (isNext) {
     return (
-      <Box sx={{ ...styles, bgcolor: '#fff', color: 'warning.main', border: '2px solid', borderColor: 'warning.main', boxShadow: '0 0 0 4px rgba(245,158,11,0.12)' }} onClick={() => onSelect && onSelect(position)} />
+      <Box 
+        sx={{ 
+          ...baseStyles, 
+          bgcolor: '#fff', 
+          color: 'warning.main', 
+          border: '2px solid', 
+          borderColor: 'warning.main', 
+          boxShadow: '0 0 0 4px rgba(245,158,11,0.15)',
+          '&:hover': {
+            transform: 'scale(1.1)',
+            boxShadow: '0 0 0 6px rgba(245,158,11,0.2)',
+          }
+        }} 
+        onClick={() => onSelect && onSelect(position)} 
+      />
     )
   }
   return (
-    <Box sx={{ ...styles, bgcolor: 'white', color: 'text.secondary', border: '1px solid', borderColor: 'grey.300' }} onClick={() => onSelect && onSelect(position)} />
+    <Box 
+      sx={{ 
+        ...baseStyles, 
+        bgcolor: 'white', 
+        color: 'text.secondary', 
+        border: '1.5px solid', 
+        borderColor: 'grey.300',
+        '&:hover': {
+          borderColor: 'grey.400',
+          transform: 'scale(1.05)',
+        }
+      }} 
+      onClick={() => onSelect && onSelect(position)} 
+    />
   )
 }
 
@@ -626,13 +714,25 @@ const HeadlineTimeline = ({ stageIndex, timeline, property, highlightRole }) => 
   }
   
   return (
-  <Card sx={{ border: 'none', boxShadow: '0 8px 28px rgba(0,0,0,0.06)', borderRadius: 2 }}>
-    <CardContent sx={{ py: 2.5, px: 2 }}>
-      <Box sx={{ mb: 1.5 }}>
-        <Stepper activeStep={completedStageIndex + 1} alternativeLabel sx={{
-          '& .MuiStepConnector-line': { borderColor: 'grey.200', borderTopWidth: 2 },
-          '& .MuiStep-root': { px: { xs: 0.5, sm: 1 } }
-        }}>
+    <Box sx={{ py: 4, px: 4 }}>
+      <Box sx={{ mb: 3 }}>
+        <Stepper 
+          activeStep={completedStageIndex + 1} 
+          alternativeLabel 
+          sx={{
+            '& .MuiStepConnector-line': { 
+              borderColor: 'grey.200', 
+              borderTopWidth: 2,
+              transition: 'border-color 0.2s ease',
+            },
+            '& .MuiStep-root': { 
+              px: { xs: 0.5, sm: 1 },
+              '&.Mui-completed .MuiStepConnector-line': {
+                borderColor: 'primary.main',
+              }
+            }
+          }}
+        >
           {UK_STAGES.map((s, i) => (
             <Step key={s}>
               <StepLabel 
@@ -642,16 +742,35 @@ const HeadlineTimeline = ({ stageIndex, timeline, property, highlightRole }) => 
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
-                    gap: 0.5
+                    gap: 0.75,
+                    mt: 1,
                   }
                 }}
               >
-                <Box sx={{ textAlign: 'center' }}>
-                  <Typography variant="caption" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                <Box sx={{ textAlign: 'center', maxWidth: { xs: 80, sm: 120 } }}>
+                  <Typography 
+                    variant="caption" 
+                    sx={{ 
+                      fontWeight: i <= completedStageIndex ? 600 : 500, 
+                      color: i <= completedStageIndex ? 'text.primary' : 'text.secondary',
+                      fontSize: { xs: '0.6875rem', sm: '0.75rem' },
+                      lineHeight: 1.4,
+                      display: 'block',
+                    }}
+                  >
                     {s}
                   </Typography>
                   {i <= completedStageIndex && (
-                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontSize: '0.7rem' }}>
+                    <Typography 
+                      variant="caption" 
+                      color="text.secondary" 
+                      sx={{ 
+                        display: 'block', 
+                        fontSize: '0.6875rem',
+                        mt: 0.25,
+                        fontWeight: 400,
+                      }}
+                    >
                       {getStageCompletionDate(i)}
                     </Typography>
                   )}
@@ -664,61 +783,106 @@ const HeadlineTimeline = ({ stageIndex, timeline, property, highlightRole }) => 
       
       {expandedStage != null && (
         <>
-          <Divider sx={{ my: 2 }} />
-          <Box sx={{ p: 2, bgcolor: 'grey.50', borderRadius: 2 }}>
-            <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
+          <Divider sx={{ my: 3, borderColor: 'grey.200' }} />
+          <Box sx={{ 
+            p: 3, 
+            bgcolor: 'grey.50', 
+            borderRadius: 2,
+            border: '1px solid',
+            borderColor: 'grey.200',
+          }}>
+            <Typography variant="h6" sx={{ fontWeight: 600, mb: 1.5, color: 'text.primary' }}>
               {UK_STAGES[expandedStage]}
             </Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
-              {getStageInfo(expandedStage).description}
-            </Typography>
-            
-            <Box sx={{ mb: 2 }}>
-              <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
-                Subtasks:
+            {getStageInfo(expandedStage).description && (
+              <Typography variant="body1" color="text.secondary" sx={{ mb: 3, lineHeight: 1.6 }}>
+                {getStageInfo(expandedStage).description}
               </Typography>
-              <Stack spacing={0.5}>
-                {getStageInfo(expandedStage).subtasks.map((task) => {
-                  const stageName = UK_STAGES[expandedStage]
-                  const done = isSubtaskDone(stageName, task.id)
-                  const isRoleHighlighted = highlightRole && (RESPONSIBLE_MAP[task.who] === highlightRole)
-                  return (
-                    <Box 
-                      key={task.id} 
-                      sx={{ display: 'flex', alignItems: 'center', gap: 1, cursor: 'pointer', bgcolor: isRoleHighlighted ? 'grey.50' : 'transparent', borderRadius: 1 }}
-                      onClick={() => toggleSubtask(stageName, task.id)}
-                    >
+            )}
+            
+            {getStageInfo(expandedStage).subtasks && getStageInfo(expandedStage).subtasks.length > 0 && (
+              <Box>
+                <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1.5, color: 'text.primary' }}>
+                  Subtasks
+                </Typography>
+                <Stack spacing={1}>
+                  {getStageInfo(expandedStage).subtasks.map((task) => {
+                    const stageName = UK_STAGES[expandedStage]
+                    const done = isSubtaskDone(stageName, task.id)
+                    const isRoleHighlighted = highlightRole && (RESPONSIBLE_MAP[task.who] === highlightRole)
+                    return (
                       <Box 
+                        key={task.id} 
                         sx={{ 
-                          width: 14, height: 14, borderRadius: '50%',
-                          border: done ? 'none' : '2px solid',
-                          borderColor: done ? 'success.main' : 'grey.400',
-                          bgcolor: done ? 'success.main' : 'transparent',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          color: 'white', fontSize: 10, lineHeight: 1
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          gap: 1.5, 
+                          cursor: 'pointer', 
+                          p: 1.5,
+                          bgcolor: isRoleHighlighted ? 'rgba(127, 86, 217, 0.06)' : 'transparent', 
+                          borderRadius: 2,
+                          transition: 'all 0.2s ease',
+                          '&:hover': {
+                            bgcolor: isRoleHighlighted ? 'rgba(127, 86, 217, 0.08)' : 'rgba(0, 0, 0, 0.02)',
+                          }
                         }}
+                        onClick={() => toggleSubtask(stageName, task.id)}
                       >
-                        {done ? '✓' : ''}
+                        <Box 
+                          sx={{ 
+                            width: 18, 
+                            height: 18, 
+                            borderRadius: '50%',
+                            border: done ? 'none' : '2px solid',
+                            borderColor: done ? 'success.main' : 'grey.400',
+                            bgcolor: done ? 'success.main' : 'transparent',
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            justifyContent: 'center',
+                            color: 'white', 
+                            fontSize: 11, 
+                            fontWeight: 600,
+                            flexShrink: 0,
+                            transition: 'all 0.2s ease',
+                          }}
+                        >
+                          {done ? '✓' : ''}
+                        </Box>
+                        <Typography 
+                          variant="body2" 
+                          sx={{ 
+                            flex: 1, 
+                            fontWeight: done ? 500 : 400,
+                            color: done ? 'text.secondary' : 'text.primary',
+                            textDecoration: done ? 'line-through' : 'none',
+                            opacity: done ? 0.7 : 1,
+                          }}
+                        >
+                          {task.label}
+                        </Typography>
+                        <Chip 
+                          label={RESPONSIBLE_MAP[task.who] || task.who} 
+                          size="small" 
+                          sx={{ 
+                            fontSize: '0.6875rem', 
+                            height: 22, 
+                            bgcolor: 'grey.100', 
+                            borderRadius: 2,
+                            fontWeight: 500,
+                            color: 'text.secondary',
+                          }}
+                        />
                       </Box>
-                      <Typography variant="body2" sx={{ flex: 1, mr: 1 }}>
-                        {task.label}
-                      </Typography>
-                      <Chip 
-                        label={RESPONSIBLE_MAP[task.who] || task.who} 
-                        size="small" 
-                        sx={{ fontSize: '0.65rem', height: 20, bgcolor: 'grey.100', borderRadius: 1.5 }}
-                      />
-                    </Box>
-                  )
-                })}
-              </Stack>
-            </Box>
+                    )
+                  })}
+                </Stack>
+              </Box>
+            )}
 
           </Box>
         </>
       )}
-    </CardContent>
-  </Card>
+    </Box>
 )}
 
 const InputPanel = ({ currentUserName, onAdd, timeline }) => {
@@ -735,12 +899,26 @@ const InputPanel = ({ currentUserName, onAdd, timeline }) => {
   }
 
   return (
-    <Card sx={{ border: 'none', boxShadow: '0 8px 28px rgba(0,0,0,0.06)', borderRadius: 2 }}>
-      <CardContent sx={{ p: 2 }}>
-        <Stack spacing={1.25}>
+    <Card sx={{ border: 'none', elevation: 3, borderRadius: 2 }}>
+      <CardContent sx={{ p: 4 }}>
+        <Stack spacing={3}>
           {/* Composer */}
-          <Stack direction="row" spacing={1.25} alignItems="flex-start">
-            <Box sx={{ width: 36, height: 36, borderRadius: '50%', bgcolor: 'primary.main', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700 }}>{initial}</Box>
+          <Stack direction="row" spacing={2} alignItems="flex-start">
+            <Box sx={{ 
+              width: 40, 
+              height: 40, 
+              borderRadius: '50%', 
+              bgcolor: 'primary.main', 
+              color: '#fff', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              fontWeight: 600,
+              fontSize: '0.9375rem',
+              flexShrink: 0,
+            }}>
+              {initial}
+            </Box>
             <Box sx={{ flex: 1 }}>
               <TextField 
                 fullWidth 
@@ -748,7 +926,7 @@ const InputPanel = ({ currentUserName, onAdd, timeline }) => {
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 multiline
-                minRows={2}
+                minRows={3}
                 onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submit() }}}
                 InputProps={{
                   sx: {
@@ -756,34 +934,88 @@ const InputPanel = ({ currentUserName, onAdd, timeline }) => {
                     borderRadius: 2,
                     '& fieldset': { borderColor: 'grey.200' },
                     '&:hover fieldset': { borderColor: 'grey.300' },
-                    '&.Mui-focused fieldset': { borderColor: 'primary.main' }
+                    '&.Mui-focused fieldset': { borderColor: 'primary.main', borderWidth: '2px' }
+                  }
+                }}
+                sx={{
+                  '& .MuiInputBase-input': {
+                    fontSize: '0.9375rem',
+                    lineHeight: 1.5,
                   }
                 }}
               />
-              <Stack direction="row" spacing={1} justifyContent="flex-end" sx={{ mt: 0.75 }}>
-                <Button variant="outlined" size="small" startIcon={<UploadFile />} onClick={() => setDoc('Doc.pdf')} sx={{ borderColor: 'grey.200', color: 'text.secondary', px: 1, minHeight: 28, fontSize: '0.75rem' }}>Attach</Button>
-                <Button variant="contained" size="small" onClick={submit} sx={{ px: 1.25, minHeight: 28, fontSize: '0.75rem' }}>Post</Button>
+              <Stack direction="row" spacing={1.5} justifyContent="flex-end" sx={{ mt: 1.5 }}>
+                <Button 
+                  variant="outlined" 
+                  size="medium" 
+                  startIcon={<UploadFile />} 
+                  onClick={() => setDoc('Doc.pdf')} 
+                  sx={{ 
+                    borderColor: 'grey.300', 
+                    color: 'text.secondary', 
+                    px: 2,
+                    fontWeight: 500,
+                    '&:hover': {
+                      borderColor: 'grey.400',
+                      bgcolor: 'rgba(0, 0, 0, 0.02)',
+                    }
+                  }}
+                >
+                  Attach
+                </Button>
+                <Button 
+                  variant="contained" 
+                  size="medium" 
+                  onClick={submit}
+                  disabled={!note.trim()}
+                  sx={{ 
+                    px: 2.5,
+                    fontWeight: 600,
+                  }}
+                >
+                  Post
+                </Button>
               </Stack>
             </Box>
           </Stack>
 
           {/* Comments */}
-          <Stack spacing={1} sx={{ pt: 1, borderTop: '1px solid', borderColor: 'grey.100' }}>
-            {timeline.filter(t => t.note).slice().reverse().map(item => (
-              <Stack key={item.id} direction="row" spacing={1.25} alignItems="flex-start">
-                <Box sx={{ width: 32, height: 32, borderRadius: '50%', bgcolor: 'grey.200', color: 'text.primary', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700 }}>
-                  {String(item.by).charAt(0)}
-                </Box>
-                <Box sx={{ flex: 1, minWidth: 0 }}>
-                  <Stack direction="row" justifyContent="space-between" alignItems="baseline">
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>{item.by}</Typography>
-                    <Typography variant="caption" color="text.secondary">{new Date(item.ts).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })}</Typography>
-                  </Stack>
-                  <Typography variant="body2" color="text.secondary" sx={{ mt: 0.25, whiteSpace: 'pre-wrap' }}>{item.note}</Typography>
-                </Box>
-              </Stack>
-            ))}
-          </Stack>
+          {timeline.filter(t => t.note).length > 0 && (
+            <Stack spacing={2} sx={{ pt: 3, borderTop: '1px solid', borderColor: 'grey.200' }}>
+              {timeline.filter(t => t.note).slice().reverse().map(item => (
+                <Stack key={item.id} direction="row" spacing={2} alignItems="flex-start">
+                  <Box sx={{ 
+                    width: 36, 
+                    height: 36, 
+                    borderRadius: '50%', 
+                    bgcolor: 'grey.200', 
+                    color: 'text.primary', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
+                    fontWeight: 600,
+                    fontSize: '0.875rem',
+                    flexShrink: 0,
+                  }}>
+                    {String(item.by).charAt(0)}
+                  </Box>
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Stack direction="row" justifyContent="space-between" alignItems="baseline" sx={{ mb: 0.5 }}>
+                      <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                        {item.by}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.75rem' }}>
+                        {new Date(item.ts).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })}
+                      </Typography>
+                    </Stack>
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>
+                      {item.note}
+                    </Typography>
+                  </Box>
+                </Stack>
+              ))}
+            </Stack>
+          )}
         </Stack>
       </CardContent>
     </Card>
@@ -860,8 +1092,8 @@ const TransactionSimulator = ({ role: controlledRole, onRoleChange }) => {
 
   const ConfidenceRow = () => (
     <Stack direction="row" spacing={2} sx={{ mt: 1 }}>
-      {['AML checks','Funds verified','Searches'].map((label, i) => (
-        <Chip key={label} label={`${label}`} size="small" sx={{ bgcolor: 'grey.100', height: 24, borderRadius: 1.5 }} />
+      {['Identity checks ✓','Funds verified ✓','Property checks'].map((label, i) => (
+        <Chip key={label} label={label} size="small" sx={{ bgcolor: 'grey.100', height: 24, borderRadius: 1.5 }} />
       ))}
     </Stack>
   )
@@ -869,65 +1101,204 @@ const TransactionSimulator = ({ role: controlledRole, onRoleChange }) => {
   const BlockersRow = () => {
     if (!blocking?.length) return null
     return (
-      <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+      <Stack direction="row" spacing={1} sx={{ mt: 1, flexWrap: 'wrap' }}>
         {blocking.map(b => (
           <Chip
             key={b.role}
-            label={`${b.role} (${b.pending.length})`}
+            label={`Waiting for ${b.role.toLowerCase()} (${b.pending.length} item${b.pending.length > 1 ? 's' : ''})`}
             size="small"
             onClick={() => { setHighlightRole(b.role); }}
-            sx={{ bgcolor: 'grey.100', height: 22, borderRadius: 1.5, cursor: 'pointer' }}
+            sx={{ bgcolor: 'warning.light', color: 'text.primary', height: 22, borderRadius: 1.5, cursor: 'pointer', fontSize: '0.7rem' }}
           />
         ))}
       </Stack>
     )
   }
 
-  const ContextBar = () => (
-    <Card sx={{ position: 'relative', zIndex: 2, mb: 2, border: 'none', boxShadow: '0 8px 28px rgba(0,0,0,0.06)', backgroundColor: 'background.paper' }}>
-      <CardContent sx={{ p: 0 }}>
-        <Stack direction="row" alignItems="center" spacing={2} sx={{ minHeight: 76 }}>
-          {/* Left image flush to top/bottom/left */}
-          <Box sx={{ width: 90, alignSelf: 'stretch', borderTopLeftRadius: (t) => t.shape.borderRadius, borderBottomLeftRadius: (t) => t.shape.borderRadius, overflow: 'hidden', flexShrink: 0, bgcolor: 'grey.100' }}>
-            <Box
-              component="img"
-              src={property.image || 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=400&auto=format&fit=crop'}
-              alt={property.address}
-              sx={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-            />
-          </Box>
-          {/* Right content with padding */}
-          <Box sx={{ flex: 1, minWidth: 0, p: 2 }}>
-            <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: '-0.01em' }} noWrap>{property.address}</Typography>
-            <ConfidenceRow />
-            <BlockersRow />
-          </Box>
-          <Stack direction="row" spacing={1.25} sx={{ pr: 2 }}>
-            <IconButton aria-label="Open live link" onClick={() => { try { const t = (localStorage.getItem('live_token')) || (function(){ const x=Math.random().toString(36).slice(2,10); localStorage.setItem('live_token', x); return x })(); const url = window.location.origin + '/#/live?t=' + t; window.open(url, '_blank', 'noopener'); } catch {} }} sx={{ color: 'text.secondary' }}>
+  const CombinedHeaderAndTimeline = () => {
+    const currentStageNumber = stageIndex + 1
+    const totalStages = UK_STAGES.length
+    const stageInfo = STAGE_INFO[stage] || { description: '' }
+    
+    // Calculate likely completion date (estimated 8-12 weeks from current stage)
+    const weeksRemaining = Math.max(1, totalStages - currentStageNumber) * 1.5
+    const completionDate = new Date()
+    completionDate.setDate(completionDate.getDate() + (weeksRemaining * 7))
+    const formattedDate = completionDate.toLocaleDateString('en-GB', { 
+      day: 'numeric', 
+      month: 'long', 
+      year: 'numeric' 
+    })
+    
+    return (
+      <Box sx={{ mb: 4 }}>
+        {/* Hero Image Section */}
+        <Box
+          sx={{
+            position: 'relative',
+            width: '100%',
+            height: { xs: 280, sm: 360, md: 420 },
+            borderRadius: 2,
+            overflow: 'hidden',
+            mb: 3,
+            boxShadow: '0px 16px 48px rgba(0, 0, 0, 0.12), 0px 4px 12px rgba(0, 0, 0, 0.08)',
+          }}
+        >
+          <Box
+            component="img"
+            src={property.image || 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=1200&auto=format&fit=crop'}
+            alt={property.address}
+            sx={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              display: 'block',
+            }}
+          />
+          {/* Gradient Overlay */}
+          <Box
+            sx={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.4) 70%, rgba(0, 0, 0, 0.7) 100%)',
+              zIndex: 1,
+            }}
+          />
+          
+          {/* Top Right Icons */}
+          <Box
+            sx={{
+              position: 'absolute',
+              top: { xs: 16, sm: 20, md: 24 },
+              right: { xs: 16, sm: 20, md: 24 },
+              zIndex: 3,
+              display: 'flex',
+              gap: 1,
+            }}
+          >
+            <IconButton 
+              aria-label="Open live link" 
+              onClick={() => { try { const t = (localStorage.getItem('live_token')) || (function(){ const x=Math.random().toString(36).slice(2,10); localStorage.setItem('live_token', x); return x })(); const url = window.location.origin + '/#/live?t=' + t; window.open(url, '_blank', 'noopener'); } catch {} }} 
+              sx={{ 
+                color: 'white',
+                bgcolor: 'rgba(255, 255, 255, 0.2)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                '&:hover': {
+                  bgcolor: 'rgba(255, 255, 255, 0.3)',
+                }
+              }}
+            >
               <ShareIcon />
             </IconButton>
-            <Chip label={stage} size="small" sx={{ bgcolor: 'grey.100', color: 'text.primary', borderRadius: 1.5, px: 1, height: 24 }} />
-          </Stack>
-        </Stack>
-      </CardContent>
-    </Card>
-  )
+            <IconButton 
+              aria-label="Download deal pack" 
+              onClick={() => { try { const t = (localStorage.getItem('live_token')) || (function(){ const x=Math.random().toString(36).slice(2,10); localStorage.setItem('live_token', x); return x })(); const url = window.location.origin + '/#/live?t=' + t + '&print=1'; window.open(url, '_blank', 'noopener'); } catch {} }}
+              sx={{
+                color: 'white',
+                bgcolor: 'rgba(255, 255, 255, 0.2)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                '&:hover': {
+                  bgcolor: 'rgba(255, 255, 255, 0.3)',
+                }
+              }}
+            >
+              <Download />
+            </IconButton>
+          </Box>
+
+          {/* Content Overlay */}
+          <Box
+            sx={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              p: { xs: 3, sm: 4, md: 5 },
+              zIndex: 2,
+              color: 'white',
+            }}
+          >
+            <Typography 
+              variant="h2" 
+              sx={{ 
+                fontWeight: 800, 
+                letterSpacing: '-0.02em',
+                mb: 2,
+                fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem' },
+                textShadow: '0px 2px 8px rgba(0, 0, 0, 0.3)',
+                color: 'white',
+              }}
+            >
+              {property.address}
+            </Typography>
+            <Box sx={{ mb: 2 }}>
+              <Typography 
+                variant="h5" 
+                sx={{ 
+                  fontWeight: 600, 
+                  mb: 1.5, 
+                  fontSize: { xs: '1.25rem', sm: '1.5rem', md: '1.75rem' },
+                  textShadow: '0px 1px 4px rgba(0, 0, 0, 0.3)',
+                  color: 'white',
+                }}
+              >
+                Step {currentStageNumber} of {totalStages}: {stage}
+              </Typography>
+              <Typography 
+                variant="h6" 
+                sx={{ 
+                  fontWeight: 500, 
+                  mb: 1.5,
+                  fontSize: { xs: '1rem', sm: '1.125rem', md: '1.25rem' },
+                  textShadow: '0px 1px 4px rgba(0, 0, 0, 0.3)',
+                  opacity: 0.95,
+                  color: 'white',
+                }}
+              >
+                Likely to complete by {formattedDate}
+              </Typography>
+              {stageInfo.description && (
+                <Typography 
+                  variant="body1" 
+                  sx={{ 
+                    opacity: 0.95, 
+                    textShadow: '0px 1px 3px rgba(0, 0, 0, 0.3)',
+                    color: 'white',
+                  }}
+                >
+                  {stageInfo.description}
+                </Typography>
+              )}
+            </Box>
+          </Box>
+        </Box>
+
+        {/* Timeline Card */}
+        <Card sx={{ position: 'relative', zIndex: 2, elevation: 4, borderRadius: 2 }}>
+          <CardContent sx={{ p: 0 }}>
+            <HeadlineTimeline stageIndex={stageIndex} timeline={timeline} property={property} highlightRole={highlightRole} />
+          </CardContent>
+        </Card>
+      </Box>
+    )
+  }
 
   return (
-    <Box sx={{ px: { xs: 1.5, sm: 2 }, pb: 3 }}>
-      <ContextBar />
-      <Box sx={{ mb: 2 }} />
-      <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+    <Box sx={{ pb: 3 }}>
+      <CombinedHeaderAndTimeline />
+      <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
         {/* User chips removed; use avatar dropdown in header to switch roles */}
       </Box>
 
       {/* Removed 'Waiting on' box per request; timeline and checklists indicate status */}
 
-      <Grid container spacing={2.5}>
-        {/* Headline full-width timeline */}
-        <Grid size={{ xs: 12 }}>
-          <HeadlineTimeline stageIndex={stageIndex} timeline={timeline} property={property} highlightRole={highlightRole} />
-        </Grid>
+      <Grid container spacing={3}>
+        {/* Timeline moved into the combined card above */}
 
         {/* Role view below timeline */}
         <Grid size={{ xs: 12, lg: 12 }}>
