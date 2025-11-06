@@ -80,6 +80,7 @@ export const AuthProvider = ({ children }) => {
         const result = await getRedirectResult(auth)
         if (result) {
           console.log('Redirect result received:', result.user)
+          
           // Persist minimal user in localStorage so role selection can proceed offline
           const uid = result.user.uid
           const cached = localStorage.getItem(`user_${uid}`)
@@ -92,16 +93,18 @@ export const AuthProvider = ({ children }) => {
             }))
           }
           
-          // Clear any redirect parameters from URL and navigate to dashboard
-          if (window.location.hash) {
-            // Keep only the hash route, remove query params
-            const hash = window.location.hash.split('?')[0]
-            if (hash === '#/' || hash === '') {
-              window.location.hash = '#/transaction-dashboard'
-            }
-          } else {
-            window.location.hash = '#/transaction-dashboard'
+          // Clean up URL - remove any Firebase redirect parameters
+          const url = new URL(window.location.href)
+          const paramsToRemove = ['apiKey', 'authDomain', 'mode', 'oobCode', 'continueUrl']
+          paramsToRemove.forEach(param => url.searchParams.delete(param))
+          
+          // Set hash for navigation (will be handled by App.js after user state is set)
+          if (!url.hash || url.hash === '#' || url.hash === '#/') {
+            url.hash = '#/transaction-dashboard'
           }
+          
+          // Update URL without reload
+          window.history.replaceState({}, '', url.toString())
         }
       } catch (error) {
         console.error('Error handling redirect result:', error)
@@ -149,6 +152,25 @@ export const AuthProvider = ({ children }) => {
             })
             setNeedsRoleSelection(false)
             setLoading(false)
+            
+            // Navigate to dashboard after redirect on mobile
+            // Check if we're coming from a redirect by checking URL params
+            const urlParams = new URLSearchParams(window.location.search)
+            const isFromRedirect = urlParams.has('apiKey') || urlParams.has('authDomain')
+            
+            if (isFromRedirect && !userData.role) {
+              // Small delay to ensure state is set before navigation
+              setTimeout(() => {
+                const currentHash = (window.location.hash || '').replace('#/', '').split('?')[0]
+                if (!currentHash || currentHash === '' || currentHash === 'live') {
+                  const newUrl = new URL(window.location.href)
+                  newUrl.hash = '#/transaction-dashboard'
+                  newUrl.searchParams.delete('apiKey')
+                  newUrl.searchParams.delete('authDomain')
+                  window.history.replaceState({}, '', newUrl.toString())
+                }
+              }, 200)
+            }
             return
           } catch (localError) {
             console.error('Error parsing localStorage data:', localError)
@@ -178,6 +200,25 @@ export const AuthProvider = ({ children }) => {
             }))
             setNeedsRoleSelection(false)
             setLoading(false)
+            
+            // Navigate to dashboard after redirect on mobile
+            // Check if we're coming from a redirect by checking URL params
+            const urlParams = new URLSearchParams(window.location.search)
+            const isFromRedirect = urlParams.has('apiKey') || urlParams.has('authDomain')
+            
+            if (isFromRedirect && !userData.role) {
+              // Small delay to ensure state is set before navigation
+              setTimeout(() => {
+                const currentHash = (window.location.hash || '').replace('#/', '').split('?')[0]
+                if (!currentHash || currentHash === '' || currentHash === 'live') {
+                  const newUrl = new URL(window.location.href)
+                  newUrl.hash = '#/transaction-dashboard'
+                  newUrl.searchParams.delete('apiKey')
+                  newUrl.searchParams.delete('authDomain')
+                  window.history.replaceState({}, '', newUrl.toString())
+                }
+              }, 200)
+            }
             return
           }
         } catch {}

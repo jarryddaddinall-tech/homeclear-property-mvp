@@ -50,20 +50,47 @@ function AppContent() {
     const applyHashRoute = () => {
       const raw = (window.location.hash || '').replace('#/', '')
       const hash = raw.split('?')[0] // support params like live?t=token
-      if (!hash) {
+      
+      // Check if we're coming from a redirect (has Firebase params in URL)
+      const urlParams = new URLSearchParams(window.location.search)
+      const isFromRedirect = urlParams.has('apiKey') || urlParams.has('authDomain')
+      
+      if (!hash || hash === '') {
         // If no hash and user is authenticated, default to transaction-dashboard
         if (user && !needsRoleSelection) {
           setCurrentView('transaction-dashboard')
-          window.location.hash = '#/transaction-dashboard'
+          // Use replaceState to avoid adding to history
+          const newUrl = new URL(window.location.href)
+          newUrl.hash = '#/transaction-dashboard'
+          // Clean up Firebase redirect params
+          newUrl.searchParams.delete('apiKey')
+          newUrl.searchParams.delete('authDomain')
+          newUrl.searchParams.delete('mode')
+          newUrl.searchParams.delete('oobCode')
+          window.history.replaceState({}, '', newUrl.toString())
         }
         return
       }
+      
       if (['transaction-dashboard','transaction-detail','people','properties','services','documents','profile','settings','live'].includes(hash)) {
         setCurrentView(hash)
+        // Clean up redirect params if present
+        if (isFromRedirect) {
+          const newUrl = new URL(window.location.href)
+          newUrl.searchParams.delete('apiKey')
+          newUrl.searchParams.delete('authDomain')
+          newUrl.searchParams.delete('mode')
+          newUrl.searchParams.delete('oobCode')
+          window.history.replaceState({}, '', newUrl.toString())
+        }
       } else if (user && !needsRoleSelection) {
         // If hash is invalid but user is authenticated, go to dashboard
         setCurrentView('transaction-dashboard')
-        window.location.hash = '#/transaction-dashboard'
+        const newUrl = new URL(window.location.href)
+        newUrl.hash = '#/transaction-dashboard'
+        newUrl.searchParams.delete('apiKey')
+        newUrl.searchParams.delete('authDomain')
+        window.history.replaceState({}, '', newUrl.toString())
       }
     }
     applyHashRoute()
@@ -72,23 +99,35 @@ function AppContent() {
   }, [user, needsRoleSelection])
 
   // Keep hash in sync when navigating inside the app, but don't override existing deep links
-  // Also ensure dashboard is set after successful login
+  // Also ensure dashboard is set after successful login (especially on mobile redirect)
   useEffect(() => {
     if (!currentView) return
     
-    // After successful authentication, ensure we navigate to dashboard
-    if (user && !needsRoleSelection && !window.location.hash) {
-      window.location.hash = `#/transaction-dashboard`
-      setCurrentView('transaction-dashboard')
-      return
-    }
-    
-    // Don't override if hash already exists and is valid
     const currentHash = (window.location.hash || '').replace('#/', '').split('?')[0]
     const validRoutes = ['transaction-dashboard','transaction-detail','people','properties','services','documents','profile','settings','live']
     
+    // After successful authentication, ensure we navigate to dashboard
+    // This is especially important for mobile redirects
+    if (user && !needsRoleSelection) {
+      if (!currentHash || currentHash === '' || !validRoutes.includes(currentHash)) {
+        const newUrl = new URL(window.location.href)
+        newUrl.hash = '#/transaction-dashboard'
+        // Clean up any Firebase redirect params
+        newUrl.searchParams.delete('apiKey')
+        newUrl.searchParams.delete('authDomain')
+        newUrl.searchParams.delete('mode')
+        newUrl.searchParams.delete('oobCode')
+        window.history.replaceState({}, '', newUrl.toString())
+        setCurrentView('transaction-dashboard')
+        return
+      }
+    }
+    
+    // Don't override if hash already exists and is valid
     if (!currentHash || !validRoutes.includes(currentHash)) {
-      window.location.hash = `#/` + currentView
+      const newUrl = new URL(window.location.href)
+      newUrl.hash = `#/` + currentView
+      window.history.replaceState({}, '', newUrl.toString())
     }
   }, [currentView, user, needsRoleSelection])
 
