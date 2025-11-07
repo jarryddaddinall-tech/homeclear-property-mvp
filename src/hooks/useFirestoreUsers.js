@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
-import { collection, getDocs } from 'firebase/firestore'
+import { collection, getDocs, doc, getDoc } from 'firebase/firestore'
 import { db } from '../firebase/config'
 
-export const useFirestoreUsers = () => {
+export const useFirestoreUsers = (userId = null) => {
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -11,21 +11,35 @@ export const useFirestoreUsers = () => {
     const fetchUsers = async () => {
       try {
         setLoading(true)
-        console.log('Fetching users from Firestore...')
-        
+        if (userId) {
+          const userDoc = await getDoc(doc(db, 'users', userId))
+          if (userDoc.exists()) {
+            const data = userDoc.data()
+            setUsers([{ 
+              id: userDoc.id, 
+              ...data,
+              name: data.displayName || data.name || data.email || 'User'
+            }])
+          } else {
+            setUsers([])
+          }
+          setError(null)
+          return
+        }
+
         const usersCollection = collection(db, 'users')
         const usersSnapshot = await getDocs(usersCollection)
-        
+
         const usersData = []
-        usersSnapshot.forEach((doc) => {
-          const userData = doc.data()
+        usersSnapshot.forEach((docSnap) => {
+          const userData = docSnap.data()
           usersData.push({
-            id: doc.id,
-            ...userData
+            id: docSnap.id,
+            ...userData,
+            name: userData.displayName || userData.name || userData.email || 'User'
           })
         })
-        
-        console.log('Fetched users from Firestore:', usersData)
+
         setUsers(usersData)
         setError(null)
       } catch (err) {
@@ -39,7 +53,7 @@ export const useFirestoreUsers = () => {
     }
 
     fetchUsers()
-  }, [])
+  }, [userId])
 
   return { users, loading, error }
 }

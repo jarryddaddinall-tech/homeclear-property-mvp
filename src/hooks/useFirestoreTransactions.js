@@ -14,7 +14,7 @@ export const useFirestoreTransactions = (userId = null) => {
     if (userId) {
       q = query(
         collection(db, 'transactions'),
-        where('buyerId', '==', userId)
+        where('ownerId', '==', userId)
       )
     }
 

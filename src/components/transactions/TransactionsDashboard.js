@@ -1,7 +1,26 @@
 import React from 'react'
-import { Box, Card, CardContent, Typography, Stack, Chip, Stepper, Step, StepLabel, Avatar, Divider, Button } from '@mui/material'
+import {
+  Avatar,
+  Box,
+  Button,
+  Card,
+  CardActions,
+  CardContent,
+  Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  Stack,
+  Step,
+  StepLabel,
+  Stepper,
+  TextField,
+  Typography
+} from '@mui/material'
+import { Add as AddIcon } from '@mui/icons-material'
 import { TransactionCardSkeleton } from '../shared/Skeletons'
-import { properties as seedProperties } from '../../data/sampleData'
 
 const UK_STAGES = [
   'Offer Accepted',
@@ -18,8 +37,8 @@ const UK_STAGES = [
   'Post-Completion (SDLT/Land Registry)'
 ]
 
-const TransactionCard = ({ property, status = 'Offer Accepted', currentStage = 0, onOpen }) => {
-  const completedSteps = currentStage
+const TransactionCard = ({ transaction, onOpen }) => {
+  const completedSteps = transaction.stageIndex || 0
   const totalSteps = UK_STAGES.length
   const progress = Math.min(100, Math.round(((completedSteps) / totalSteps) * 100))
   
@@ -35,74 +54,36 @@ const TransactionCard = ({ property, status = 'Offer Accepted', currentStage = 0
           boxShadow: '0px 20px 56px rgba(0, 0, 0, 0.14), 0px 6px 16px rgba(0, 0, 0, 0.10)',
         }
       }} 
-      onClick={onOpen}
+      onClick={() => onOpen?.(transaction)}
     >
       {/* Top progress accent */}
       <Box sx={{ height: 4, bgcolor: 'grey.100', position: 'relative' }}>
         <Box sx={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: `${progress}%`, bgcolor: 'primary.main', transition: 'width .3s ease', borderRadius: '0 4px 4px 0' }} />
       </Box>
-      {/* Image header with gradient overlay */}
-      <Box sx={{ position: 'relative', width: '100%', height: { xs: 200, sm: 240 }, overflow: 'hidden' }}>
-        <Box
-          component="img"
-          src={property.image || 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=1200&auto=format&fit=crop'}
-          alt={property.address}
-          sx={{ 
-            width: '100%', 
-            height: '100%', 
-            objectFit: 'cover',
-            transition: 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
-            '&:hover': {
-              transform: 'scale(1.05)',
-            }
-          }}
-        />
-        {/* Gradient Overlay */}
-        <Box
-          sx={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.3) 100%)',
-            zIndex: 1,
-          }}
-        />
-        {/* Status badge overlay */}
-        <Box sx={{ position: 'absolute', top: 16, right: 16, zIndex: 2 }}>
+      <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
+        <Stack direction="row" justifyContent="space-between" alignItems="flex-start" sx={{ mb: 3 }}>
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <Typography variant="h5" sx={{ fontWeight: 700, lineHeight: 1.2, mb: 0.75, color: 'text.primary' }}>
+              {transaction.address || 'Unnamed transaction'}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, lineHeight: 1.5 }}>
+              {transaction.price ? `£${Number(transaction.price).toLocaleString()}` : 'Price TBD'}
+            </Typography>
+          </Box>
           <Chip 
-            label={status}
+            label={transaction.status || UK_STAGES[completedSteps] || 'In progress'}
             size="small"
             sx={{ 
-              bgcolor: 'rgba(255, 255, 255, 0.95)',
-              backdropFilter: 'blur(10px)',
+              bgcolor: 'rgba(236, 253, 245, 0.9)',
               color: 'success.dark', 
               fontWeight: 600, 
               borderRadius: 2,
               px: 1.5,
-              height: 28,
-              boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+              height: 28
             }}
           />
-        </Box>
-      </Box>
-      <CardContent sx={{ p: 4 }}>
-        <Stack direction="row" justifyContent="space-between" alignItems="flex-start" sx={{ mb: 3 }}>
-          <Box sx={{ flex: 1, minWidth: 0 }}>
-            <Typography variant="h4" sx={{ fontWeight: 700, lineHeight: 1.2, mb: 0.75, color: 'text.primary' }}>
-              {property.purchasePrice ? `£${property.purchasePrice.toLocaleString()}` : ''}
-            </Typography>
-            <Typography variant="h6" sx={{ fontWeight: 600, mb: 0.5, color: 'text.primary', letterSpacing: '-0.01em' }} noWrap>
-              {property.address}
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, lineHeight: 1.5 }} noWrap>
-              {property.city || ''} {property.postcode || ''}
-            </Typography>
-          </Box>
         </Stack>
-        
-        {/* Progress stepper */}
+
         <Box>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2, display: 'block', fontWeight: 500, fontSize: '0.875rem' }}>
             Progress: {completedSteps}/{totalSteps} stages
@@ -157,67 +138,6 @@ const TransactionCard = ({ property, status = 'Offer Accepted', currentStage = 0
   )
 }
 
-const TeamCard = () => {
-  const teamMembers = [
-    { name: 'Sarah Johnson', role: 'Buyer', email: 'sarah.j@email.com', status: 'Active' },
-    { name: 'Michael Chen', role: 'Solicitor', email: 'm.chen@lawfirm.co.uk', status: 'Working' },
-    { name: 'Emma Williams', role: 'Agent', email: 'emma@estateagents.com', status: 'Coordinating' }
-  ]
-
-  return (
-    <Card sx={{ mt: 3, borderRadius: 2 }} elevation={3}>
-      <CardContent sx={{ p: 4 }}>
-        <Typography variant="h6" sx={{ fontWeight: 700, mb: 3, color: 'text.primary', letterSpacing: '-0.01em' }}>
-          Transaction Team
-        </Typography>
-        <Stack spacing={2.5}>
-          {teamMembers.map((member, index) => (
-            <Box key={member.name}>
-              <Stack direction="row" alignItems="center" spacing={2}>
-                <Avatar 
-                  sx={{ 
-                    width: 44, 
-                    height: 44, 
-                    bgcolor: 'primary.main',
-                    fontSize: '0.9375rem',
-                    fontWeight: 600,
-                    boxShadow: '0px 4px 12px rgba(127, 86, 217, 0.25)',
-                  }}
-                >
-                  {member.name.split(' ').map(n => n[0]).join('')}
-                </Avatar>
-                <Box sx={{ flex: 1, minWidth: 0 }}>
-                  <Typography variant="body1" sx={{ fontWeight: 600, lineHeight: 1.4, color: 'text.primary', mb: 0.25 }}>
-                    {member.name}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem', lineHeight: 1.5 }}>
-                    {member.role}
-                  </Typography>
-                </Box>
-                <Chip 
-                  label={member.status}
-                  size="small"
-                  sx={{ 
-                    fontSize: '0.75rem',
-                    height: 26,
-                    fontWeight: 600,
-                    borderRadius: 2,
-                    bgcolor: member.status === 'Active' ? 'rgba(16, 185, 129, 0.1)' : 
-                            member.status === 'Working' ? 'rgba(245, 158, 11, 0.1)' : 'rgba(127, 86, 217, 0.1)',
-                    color: member.status === 'Active' ? 'success.dark' : 
-                           member.status === 'Working' ? 'warning.dark' : 'primary.dark'
-                  }}
-                />
-              </Stack>
-              {index < teamMembers.length - 1 && <Divider sx={{ mt: 2.5, borderColor: 'grey.200' }} />}
-            </Box>
-          ))}
-        </Stack>
-      </CardContent>
-    </Card>
-  )
-}
-
 const WhatNext = ({ role = 'Buyer' }) => {
   const items = role === 'Agent' ? ['Share sale details', 'Confirm viewing feedback'] : role.includes('Solicitor') ? ['Send draft pack', 'Confirm ID checks'] : ['Provide proof of funds', 'Complete ID/AML']
   return (
@@ -251,30 +171,68 @@ const WhatNext = ({ role = 'Buyer' }) => {
   )
 }
 
-const TransactionsDashboard = ({ onOpenTransaction, currentUser, showTeam = true, loading = false }) => {
-  // Sample properties for different roles
-  const properties = [
-    {
-      id: 1,
-      address: '123 Maple Street, London, SW1A 1AA',
-      purchasePrice: 350000,
-      currentStage: 1,
-      status: 'Offer Accepted',
-      image: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=1200&auto=format&fit=crop'
-    },
-    {
-      id: 2,
-      address: '45 Modern Terrace, Manchester, M1 2AB',
-      purchasePrice: 425000,
-      currentStage: 3,
-      status: 'Solicitors Instructed',
-      image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=1200&auto=format&fit=crop'
-    }
-  ]
+const EmptyStateCard = ({ onCreate }) => (
+  <Card sx={{ borderRadius: 3, border: '1px dashed', borderColor: 'grey.300', textAlign: 'center' }}>
+    <CardContent sx={{ py: 6, px: 4 }}>
+      <Typography variant="h5" sx={{ fontWeight: 700, mb: 1 }}>No transactions yet</Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 360, mx: 'auto', mb: 3 }}>
+        Start by adding the home Mike is selling. You can update stages, upload documents and share a live timeline once it’s created.
+      </Typography>
+      <Button variant="contained" startIcon={<AddIcon />} onClick={onCreate}>
+        Add your first transaction
+      </Button>
+    </CardContent>
+  </Card>
+)
 
-  // Show multiple properties for Agent, single property for others
-  const displayProperties = currentUser?.role === 'Agent' ? properties : [properties[0]]
-  
+const TransactionsDashboard = ({
+  onOpenTransaction,
+  onCreateTransaction,
+  transactions = [],
+  currentUser,
+  loading = false
+}) => {
+  const [isDialogOpen, setDialogOpen] = React.useState(false)
+  const [formState, setFormState] = React.useState({
+    address: '',
+    price: '',
+    buyerName: ''
+  })
+  const [saving, setSaving] = React.useState(false)
+
+  const handleOpenDialog = () => {
+    setFormState({ address: '', price: '', buyerName: '' })
+    setDialogOpen(true)
+  }
+
+  const handleCloseDialog = () => {
+    if (saving) return
+    setDialogOpen(false)
+  }
+
+  const handleFormChange = (field) => (event) => {
+    setFormState((prev) => ({ ...prev, [field]: event.target.value }))
+  }
+
+  const handleCreate = async () => {
+    if (!formState.address.trim()) return
+    try {
+      setSaving(true)
+      await onCreateTransaction?.({
+        address: formState.address.trim(),
+        price: formState.price ? Number(formState.price) : null,
+        buyerName: formState.buyerName.trim() || null
+      })
+      setDialogOpen(false)
+    } catch (error) {
+      console.error('Failed to create transaction:', error)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const hasTransactions = transactions && transactions.length > 0
+
   return (
     <Box>
       <WhatNext role={currentUser?.role} />
@@ -283,18 +241,61 @@ const TransactionsDashboard = ({ onOpenTransaction, currentUser, showTeam = true
         width: '100%'
       }}>
         {loading && <TransactionCardSkeleton />}
-        {displayProperties.map((property, index) => (
-          <Box key={property.id} sx={{ mb: 3 }}>
-            <TransactionCard 
-              property={property} 
-              currentStage={property.currentStage}
-              status={property.status}
-              onOpen={onOpenTransaction} 
-            />
-                {index === 0 && currentUser?.role !== 'Agent' && showTeam && <TeamCard />}
-          </Box>
-        ))}
+        {!loading && !hasTransactions && (
+          <EmptyStateCard onCreate={handleOpenDialog} />
+        )}
+        {!loading && hasTransactions && (
+          <Stack spacing={3}>
+            <Card sx={{ borderRadius: 3, border: '1px dashed', borderColor: 'grey.300' }}>
+              <CardActions sx={{ justifyContent: 'center', py: 2 }}>
+                <Button startIcon={<AddIcon />} variant="outlined" onClick={handleOpenDialog}>
+                  Add another transaction
+                </Button>
+              </CardActions>
+            </Card>
+            {transactions.map((transaction) => (
+              <Box key={transaction.id}>
+                <TransactionCard transaction={transaction} onOpen={onOpenTransaction} />
+              </Box>
+            ))}
+          </Stack>
+        )}
       </Box>
+
+      <Dialog open={isDialogOpen} onClose={handleCloseDialog} fullWidth maxWidth="sm">
+        <DialogTitle>Add a transaction</DialogTitle>
+        <DialogContent>
+          <Stack spacing={2.5} sx={{ mt: 1 }}>
+            <TextField
+              label="Property address"
+              value={formState.address}
+              onChange={handleFormChange('address')}
+              fullWidth
+              autoFocus
+              required
+            />
+            <TextField
+              label="Agreed price (£)"
+              value={formState.price}
+              onChange={handleFormChange('price')}
+              type="number"
+              fullWidth
+            />
+            <TextField
+              label="Buyer name (optional)"
+              value={formState.buyerName}
+              onChange={handleFormChange('buyerName')}
+              fullWidth
+            />
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog} disabled={saving}>Cancel</Button>
+          <Button onClick={handleCreate} variant="contained" disabled={saving || !formState.address.trim()}>
+            {saving ? 'Saving…' : 'Create transaction'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   )
 }

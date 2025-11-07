@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { ThemeProvider, CssBaseline, Box, Typography } from '@mui/material'
 import theme from './theme'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
@@ -15,6 +15,7 @@ import PropertyDetail from './components/properties/PropertyDetail'
 import PropertiesView from './components/properties/PropertiesView'
 import TransactionSimulator from './components/transactions/TransactionSimulator'
 import TransactionsDashboard from './components/transactions/TransactionsDashboard'
+import TransactionHub from './components/transactions/TransactionHub'
 import ProfileView from './components/profile/ProfileView'
 import { useFirestoreUsers } from './hooks/useFirestoreUsers'
 import { useFirestoreProperties } from './hooks/useFirestoreProperties'
@@ -30,20 +31,31 @@ import LiveDealView from './components/live/LiveDealView'
 // Main app content component
 function AppContent() {
   const { user, loading, needsRoleSelection, updateUserRole } = useAuth()
-  const { users: firestoreUsers, loading: usersLoading } = useFirestoreUsers()
-  const { properties: allProperties, loading: propertiesLoading, addProperty, updateProperty, deleteProperty } = useFirestoreProperties()
-  const { projects: allProjects, loading: projectsLoading, addProject, updateProject, deleteProject } = useFirestoreProjects()
-  const { transactions, loading: transactionsLoading } = useFirestoreTransactions()
-  
   const [currentView, setCurrentView] = useState('transaction-dashboard')
   const [selectedProject, setSelectedProject] = useState(null)
   const [selectedProperty, setSelectedProperty] = useState(null)
+  const [selectedTransaction, setSelectedTransaction] = useState(null)
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [currentUser, setCurrentUser] = useState(null) // Will be set from Firestore users
+  const activeUserHintId = currentUser?.id || currentUser?.uid || user?.uid || user?.id || null
+  const { users: firestoreUsers, loading: usersLoading } = useFirestoreUsers(activeUserHintId)
+  const { properties: allProperties, loading: propertiesLoading, addProperty, updateProperty, deleteProperty } = useFirestoreProperties()
+  const { projects: allProjects, loading: projectsLoading, addProject, updateProject, deleteProject } = useFirestoreProjects()
 
-  // Combine Firebase user with Firestore users for the dropdown
-  const allUsers = user ? [user, ...firestoreUsers] : firestoreUsers
-  const activeUser = currentUser || user
+  const displayUser = useMemo(() => {
+    if (!currentUser && !user) return null
+    const base = currentUser || user
+    const id = base?.id || base?.uid || null
+    const name = base?.displayName || base?.name || base?.email || 'You'
+    const role = base?.role || currentUser?.role || 'Seller'
+    const email = base?.email || ''
+    return { ...base, id, name, role, email }
+  }, [currentUser, user])
+
+  const allUsers = useMemo(() => (displayUser ? [displayUser] : []), [displayUser])
+  const activeUser = displayUser
+  const activeUserId = (activeUser?.uid || activeUser?.id || user?.uid || user?.id) || null
+  const { transactions, loading: transactionsLoading, addTransaction } = useFirestoreTransactions(activeUserId)
 
   // Simple hash-based navigation so shared links can deep-link to views (e.g. #/live)
   useEffect(() => {
@@ -134,17 +146,29 @@ function AppContent() {
   // Set initial currentUser when Firestore users load (restore persisted selection)
   // Also set currentUser to user if no Firestore users yet (for new users)
   useEffect(() => {
-    if (user && !currentUser) {
-      // First, try to use user directly if Firestore users haven't loaded yet
-      if (firestoreUsers.length === 0 && !usersLoading) {
-        // No Firestore users, use Firebase user
-        setCurrentUser(user)
-      } else if (firestoreUsers.length > 0) {
-        const savedId = localStorage.getItem('selected_user_id')
-        const fallback = firestoreUsers[0]
-        const restored = savedId ? firestoreUsers.find(u => u.id === savedId) : null
-        setCurrentUser(restored || fallback)
+    if (!user) {
+      setCurrentUser(null)
+      return
+    }
+
+    if (firestoreUsers.length > 0) {
+      const savedId = localStorage.getItem('selected_user_id')
+      const restored = savedId ? firestoreUsers.find(u => u.id === savedId) : null
+      const fallback = firestoreUsers[0]
+      const target = restored || fallback
+      if (!currentUser || currentUser.id !== target.id || currentUser.name !== target.name) {
+        setCurrentUser(target)
       }
+      return
+    }
+
+    if (!usersLoading && !currentUser) {
+      setCurrentUser({
+        id: user.uid || user.id,
+        email: user.email || '',
+        name: user.displayName || user.email || 'You',
+        role: user.role || 'Seller'
+      })
     }
   }, [firestoreUsers, currentUser, user, usersLoading])
 
@@ -156,6 +180,9 @@ function AppContent() {
     setCurrentView(view)
     setSelectedProject(null)
     setSelectedProperty(null)
+    if (view !== 'transaction-detail') {
+      setSelectedTransaction(null)
+    }
   }
 
   const handleProjectClick = (project) => {
@@ -235,6 +262,7 @@ function AppContent() {
       setCurrentView('transaction-dashboard')
       setSelectedProject(null)
       setSelectedProperty(null)
+      setSelectedTransaction(null)
     }
   }
 
@@ -264,9 +292,6 @@ function AppContent() {
     )
   }
   
-  // If user exists but activeUser is not set yet, use user as fallback
-  const displayUser = activeUser || user
-
   // Show live view read-only even if not authenticated
   const hashRoute = (typeof window !== 'undefined' && window.location.hash) ? window.location.hash.replace('#/', '') : ''
   if (!user && hashRoute.split('?')[0] === 'live') {
@@ -306,14 +331,55 @@ function AppContent() {
     )
   }
 
+  const handleOpenTransaction = (transactionLike) => {
+    if (transactionLike) {
+      setSelectedTransaction({
+        ...transactionLike,
+        stageIndex: transactionLike.stageIndex ?? transactionLike.currentStage ?? 0,
+        price: transactionLike.purchasePrice || transactionLike.price
+      })
+    } else {
+      setSelectedTransaction(null)
+    }
+    setCurrentView('transaction-detail')
+  }
+
+  const handleCreateTransaction = async ({ address, price, buyerName }) => {
+    if (!activeUserId) return
+    const payload = {
+      address,
+      price: price || null,
+      buyerName: buyerName || null,
+      ownerId: activeUserId,
+      status: 'Offer Accepted',
+      stageIndex: 0,
+      createdBy: activeUserId,
+      participants: [],
+      timeline: [],
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }
+
+    const newId = await addTransaction(payload)
+    const newTransaction = { id: newId, ...payload }
+    setSelectedTransaction(newTransaction)
+    setCurrentView('transaction-detail')
+  }
+
   const renderContent = () => {
     if (currentView === 'transaction-dashboard') {
       return (
         <TransactionsDashboard 
-          onOpenTransaction={() => setCurrentView('transaction-detail')} 
+          onOpenTransaction={handleOpenTransaction}
+          onCreateTransaction={handleCreateTransaction}
+          transactions={transactions}
           currentUser={displayUser}
+          loading={transactionsLoading}
         />
       )
+    }
+    if (currentView === 'transaction-detail') {
+      return (<TransactionHub transaction={selectedTransaction} />)
     }
     if (currentView === 'live') {
       return (<LiveDealView />)
@@ -324,9 +390,12 @@ function AppContent() {
     if (currentView === 'properties') {
       return (
         <TransactionsDashboard 
-          onOpenTransaction={() => setCurrentView('transaction-detail')} 
+          onOpenTransaction={handleOpenTransaction}
+          onCreateTransaction={handleCreateTransaction}
+          transactions={transactions}
           currentUser={displayUser}
           showTeam={false}
+          loading={transactionsLoading}
         />
       )
     }

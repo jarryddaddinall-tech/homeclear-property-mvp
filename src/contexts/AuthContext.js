@@ -9,7 +9,7 @@ import {
   signInWithEmailAndPassword,
   updateProfile
 } from 'firebase/auth'
-import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore'
+import { doc, getDoc, collection, query, where, getDocs, setDoc, serverTimestamp } from 'firebase/firestore'
 import { auth, googleProvider, db } from '../firebase/config'
 
 export const AuthContext = createContext()
@@ -64,6 +64,33 @@ export const AuthProvider = ({ children }) => {
     if (displayName) {
       try { await updateProfile(cred.user, { displayName }) } catch {}
     }
+
+    const userDocRef = doc(db, 'users', cred.user.uid)
+    const userData = {
+      displayName: displayName || 'User',
+      email: email.toLowerCase(),
+      role: 'Seller',
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    }
+
+    try {
+      await setDoc(userDocRef, userData, { merge: true })
+    } catch (firestoreError) {
+      console.error('Failed to persist user profile to Firestore:', firestoreError)
+    }
+
+    try {
+      localStorage.setItem(`user_${cred.user.uid}`, JSON.stringify({
+        role: 'Seller',
+        displayName: displayName || 'User',
+        email: email.toLowerCase(),
+        photoURL: cred.user.photoURL || ''
+      }))
+    } catch (storageError) {
+      console.warn('Unable to cache user data locally:', storageError)
+    }
+
     return cred.user
   }
 
