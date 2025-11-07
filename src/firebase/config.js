@@ -29,7 +29,13 @@ export const db = getFirestore(app)
 // Google Auth Provider
 export const googleProvider = new GoogleAuthProvider()
 googleProvider.setCustomParameters({
-  prompt: 'select_account'
+  prompt: 'select_account',
+  // Add these parameters to improve mobile compatibility
+  display: 'popup'
 })
+
+// Add additional scopes if needed
+googleProvider.addScope('profile')
+googleProvider.addScope('email')
 
 export default app

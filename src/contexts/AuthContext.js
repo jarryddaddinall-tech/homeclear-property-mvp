@@ -30,7 +30,7 @@ export const AuthProvider = ({ children }) => {
   // Sign in with Google (mobile-friendly)
   const signInWithGoogle = async () => {
     try {
-      // Check if we're on mobile or if popup is blocked
+      // Check if we're on mobile
       const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
       
       if (isMobile) {
@@ -38,9 +38,19 @@ export const AuthProvider = ({ children }) => {
         await signInWithRedirect(auth, googleProvider)
         return null // Will be handled by getRedirectResult
       } else {
-        // Use popup for desktop
-        const result = await signInWithPopup(auth, googleProvider)
-        return result.user
+        // Try popup first for desktop
+        try {
+          const result = await signInWithPopup(auth, googleProvider)
+          return result.user
+        } catch (popupError) {
+          // If popup is blocked, fall back to redirect
+          if (popupError.code === 'auth/popup-blocked' || popupError.code === 'auth/popup-closed-by-user') {
+            console.log('Popup blocked, falling back to redirect')
+            await signInWithRedirect(auth, googleProvider)
+            return null
+          }
+          throw popupError
+        }
       }
     } catch (error) {
       console.error('Error signing in with Google:', error)
@@ -78,36 +88,16 @@ export const AuthProvider = ({ children }) => {
     const handleRedirectResult = async () => {
       try {
         const result = await getRedirectResult(auth)
-        if (result) {
-          console.log('Redirect result received:', result.user)
-          
-          // Persist minimal user in localStorage so role selection can proceed offline
-          const uid = result.user.uid
-          const cached = localStorage.getItem(`user_${uid}`)
-          if (!cached) {
-            localStorage.setItem(`user_${uid}`, JSON.stringify({
-              displayName: result.user.displayName || 'User',
-              email: result.user.email || '',
-              photoURL: result.user.photoURL || '',
-              role: null
-            }))
-          }
-          
-          // Clean up URL - remove any Firebase redirect parameters
-          const url = new URL(window.location.href)
-          const paramsToRemove = ['apiKey', 'authDomain', 'mode', 'oobCode', 'continueUrl']
-          paramsToRemove.forEach(param => url.searchParams.delete(param))
-          
-          // Set hash for navigation (will be handled by App.js after user state is set)
-          if (!url.hash || url.hash === '#' || url.hash === '#/') {
-            url.hash = '#/transaction-dashboard'
-          }
-          
-          // Update URL without reload
-          window.history.replaceState({}, '', url.toString())
+        if (result && result.user) {
+          console.log('Redirect result received:', result.user.email)
+          // onAuthStateChanged will handle the rest
         }
       } catch (error) {
         console.error('Error handling redirect result:', error)
+        // Store error in sessionStorage so we can show it on the login page
+        if (error.code) {
+          sessionStorage.setItem('auth_error', error.message || 'Failed to sign in with Google')
+        }
       }
     }
     
@@ -120,57 +110,23 @@ export const AuthProvider = ({ children }) => {
       console.log('Auth state changed:', firebaseUser ? 'User logged in' : 'User logged out')
       
       if (firebaseUser) {
-        console.log('Checking localStorage for user:', firebaseUser.uid)
-        
         // Check localStorage first (mobile-friendly)
         const localUserData = localStorage.getItem(`user_${firebaseUser.uid}`)
         if (localUserData) {
           try {
             const userData = JSON.parse(localUserData)
-            console.log('Found localStorage data:', userData)
             setUser({
               id: firebaseUser.uid,
               uid: firebaseUser.uid,
               name: userData.displayName || firebaseUser.displayName || 'User',
               email: firebaseUser.email,
-              avatar: userData.displayName ? userData.displayName.charAt(0).toUpperCase() : 'U',
+              avatar: (userData.displayName || firebaseUser.displayName || 'U').charAt(0).toUpperCase(),
               photoURL: userData.photoURL || firebaseUser.photoURL,
               role: userData.role,
-              phone: firebaseUser.phoneNumber || '',
-              bankingDetails: {
-                accountName: userData.displayName || firebaseUser.displayName || 'User',
-                sortCode: '',
-                accountNumber: '',
-                bankName: ''
-              },
-              address: {
-                street: '',
-                city: '',
-                postcode: '',
-                country: 'UK'
-              }
+              phone: firebaseUser.phoneNumber || ''
             })
-            setNeedsRoleSelection(false)
+            setNeedsRoleSelection(!userData.role)
             setLoading(false)
-            
-            // Navigate to dashboard after redirect on mobile
-            // Check if we're coming from a redirect by checking URL params
-            const urlParams = new URLSearchParams(window.location.search)
-            const isFromRedirect = urlParams.has('apiKey') || urlParams.has('authDomain')
-            
-            if (isFromRedirect && !userData.role) {
-              // Small delay to ensure state is set before navigation
-              setTimeout(() => {
-                const currentHash = (window.location.hash || '').replace('#/', '').split('?')[0]
-                if (!currentHash || currentHash === '' || currentHash === 'live') {
-                  const newUrl = new URL(window.location.href)
-                  newUrl.hash = '#/transaction-dashboard'
-                  newUrl.searchParams.delete('apiKey')
-                  newUrl.searchParams.delete('authDomain')
-                  window.history.replaceState({}, '', newUrl.toString())
-                }
-              }, 200)
-            }
             return
           } catch (localError) {
             console.error('Error parsing localStorage data:', localError)
@@ -182,7 +138,7 @@ export const AuthProvider = ({ children }) => {
           const uidDoc = await getDoc(doc(db, 'users', firebaseUser.uid))
           if (uidDoc.exists()) {
             const userData = uidDoc.data()
-            setUser({
+            const userObj = {
               id: firebaseUser.uid,
               uid: firebaseUser.uid,
               name: userData.displayName || firebaseUser.displayName || 'User',
@@ -191,37 +147,24 @@ export const AuthProvider = ({ children }) => {
               photoURL: userData.photoURL || firebaseUser.photoURL,
               role: userData.role,
               phone: firebaseUser.phoneNumber || ''
-            })
+            }
+            setUser(userObj)
+            
+            // Cache in localStorage
             localStorage.setItem(`user_${firebaseUser.uid}`, JSON.stringify({
               role: userData.role || null,
               displayName: userData.displayName || firebaseUser.displayName || 'User',
               email: firebaseUser.email || '',
               photoURL: userData.photoURL || firebaseUser.photoURL || ''
             }))
-            setNeedsRoleSelection(false)
+            
+            setNeedsRoleSelection(!userData.role)
             setLoading(false)
-            
-            // Navigate to dashboard after redirect on mobile
-            // Check if we're coming from a redirect by checking URL params
-            const urlParams = new URLSearchParams(window.location.search)
-            const isFromRedirect = urlParams.has('apiKey') || urlParams.has('authDomain')
-            
-            if (isFromRedirect && !userData.role) {
-              // Small delay to ensure state is set before navigation
-              setTimeout(() => {
-                const currentHash = (window.location.hash || '').replace('#/', '').split('?')[0]
-                if (!currentHash || currentHash === '' || currentHash === 'live') {
-                  const newUrl = new URL(window.location.href)
-                  newUrl.hash = '#/transaction-dashboard'
-                  newUrl.searchParams.delete('apiKey')
-                  newUrl.searchParams.delete('authDomain')
-                  window.history.replaceState({}, '', newUrl.toString())
-                }
-              }, 200)
-            }
             return
           }
-        } catch {}
+        } catch (err) {
+          console.error('Error fetching user from Firestore:', err)
+        }
 
         // Try Firestore by email to avoid duplicates and link legacy records
         try {
@@ -240,30 +183,45 @@ export const AuthProvider = ({ children }) => {
                 role: first.role,
                 phone: firebaseUser.phoneNumber || ''
               })
+              
+              // Cache in localStorage
               localStorage.setItem(`user_${firebaseUser.uid}`, JSON.stringify({
                 role: first.role || null,
                 displayName: first.displayName || firebaseUser.displayName || 'User',
                 email: firebaseUser.email || '',
                 photoURL: first.photoURL || firebaseUser.photoURL || ''
               }))
-              setNeedsRoleSelection(false)
+              
+              setNeedsRoleSelection(!first.role)
               setLoading(false)
               return
             }
           }
-        } catch {}
+        } catch (err) {
+          console.error('Error querying user by email:', err)
+        }
 
         // Fallback: new user needs role selection
-        console.log('No local/remote profile found - needs role selection')
-        setUser({
+        console.log('New user - needs role selection')
+        const newUser = {
           id: firebaseUser.uid,
           uid: firebaseUser.uid,
           name: firebaseUser.displayName || 'User',
           email: firebaseUser.email,
-          avatar: firebaseUser.displayName ? firebaseUser.displayName.charAt(0).toUpperCase() : 'U',
+          avatar: (firebaseUser.displayName || 'U').charAt(0).toUpperCase(),
           photoURL: firebaseUser.photoURL,
           phone: firebaseUser.phoneNumber || '',
-        })
+        }
+        setUser(newUser)
+        
+        // Cache basic info
+        localStorage.setItem(`user_${firebaseUser.uid}`, JSON.stringify({
+          role: null,
+          displayName: firebaseUser.displayName || 'User',
+          email: firebaseUser.email || '',
+          photoURL: firebaseUser.photoURL || ''
+        }))
+        
         setNeedsRoleSelection(true)
         setLoading(false)
       } else {
