@@ -586,13 +586,13 @@ const TransactionHub = ({ transaction }) => {
               </Stack>
             </Stack>
             <Divider />
-            <Grid container spacing={1.5}>
+            <Stack spacing={1.5}>
               {UK_STAGES.map((stage, index) => {
                 const stageDate = stageDates.get(index)
                 const isCurrent = index === currentStageIndex
                 const isComplete = index < currentStageIndex
                 return (
-                  <Grid item xs={12} sm={6} lg={4} key={stage}>
+                  <Box key={stage}>
                     <Stack
                       spacing={0.75}
                       sx={{
@@ -626,81 +626,12 @@ const TransactionHub = ({ transaction }) => {
                         {stageDate ? formatDate(stageDate) : index > currentStageIndex ? 'TBC' : 'In progress'}
                       </Typography>
                     </Stack>
-                  </Grid>
+                  </Box>
                 )
               })}
-            </Grid>
+            </Stack>
           </Stack>
         </SectionCard>
-
-        <Grid container spacing={{ xs: 3, lg: 4 }}>
-          <Grid item xs={12} lg={8.5}>
-            <SectionCard title="Daily timeline" sx={{ backgroundColor: 'background.paper', height: '100%' }}>
-              <Stack spacing={2.5}>
-                {groupedTimeline.length === 0 ? (
-                  <Paper variant="outlined" sx={{ p: 3, textAlign: 'center', borderRadius: 3 }}>
-                    <FilterAltRounded color="disabled" sx={{ fontSize: 32, mb: 1 }} />
-                    <Typography variant="body2" color="text.secondary">
-                      No updates recorded yet.
-                    </Typography>
-                  </Paper>
-                ) : (
-                  groupedTimeline.map((item, index) =>
-                    item.type === 'date' ? (
-                      <Typography
-                        key={item.id}
-                        variant="overline"
-                        color="text.secondary"
-                        sx={{ letterSpacing: '0.08em', mt: index === 0 ? 0 : 1.5 }}
-                      >
-                        {item.label}
-                      </Typography>
-                    ) : (
-                      <TimelineEvent key={item.id} event={item.event} />
-                    )
-                  )
-                )}
-              </Stack>
-            </SectionCard>
-          </Grid>
-
-          <Grid item xs={12} lg={3.5}>
-            <Stack spacing={3}>
-              <SectionCard title="Add update" sx={{ backgroundColor: 'background.paper' }}>
-                <TimelineComposer
-                  scope="All"
-                  value={composerValue}
-                  onChange={setComposerValue}
-                  onPost={handlePostUpdate}
-                  source={composerSource}
-                  onSourceChange={setComposerSource}
-                  actor={composerActor}
-                  onActorChange={setComposerActor}
-                />
-              </SectionCard>
-              <SectionCard title="Key dates" sx={{ backgroundColor: 'background.paper' }}>
-                <Stack spacing={2}>
-                  {localData.keyDates.map((date) => (
-                    <Stack key={date.label} direction="row" justifyContent="space-between" alignItems="center">
-                      <Typography variant="body2" color="text.secondary">
-                        {date.label}
-                      </Typography>
-                      <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                        {date.value}
-                      </Typography>
-                    </Stack>
-                  ))}
-                </Stack>
-              </SectionCard>
-              <SectionCard title="Documents" sx={{ backgroundColor: 'background.paper' }}>
-                <DocumentsList documents={localData.documents} />
-              </SectionCard>
-              <SectionCard title="Tasks" sx={{ backgroundColor: 'background.paper' }}>
-                <TasksList tasks={localData.tasks} onToggleTask={handleToggleTask} />
-              </SectionCard>
-            </Stack>
-          </Grid>
-        </Grid>
       </Stack>
     </Box>
   )
