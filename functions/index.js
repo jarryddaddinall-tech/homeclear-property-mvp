@@ -9,6 +9,7 @@ const admin = require('firebase-admin')
 const express = require('express')
 const cors = require('cors')
 const { parseEmail, matchEmailToTransaction } = require('./emailParser')
+const { parseWhatsAppMessage, matchWhatsAppToTransaction } = require('./whatsappParser')
 
 // Initialize Firebase Admin
 admin.initializeApp()
@@ -249,6 +250,188 @@ function parseAttachments(attachments) {
 
 // Export Express app as Cloud Function
 exports.api = functions.https.onRequest(app)
+
+/**
+ * WhatsApp webhook endpoint
+ * Supports:
+ * - Twilio WhatsApp API
+ * - MessageBird WhatsApp API
+ * - Generic webhook format
+ */
+app.post('/webhook/whatsapp', async (req, res) => {
+  try {
+    console.log('Received WhatsApp webhook:', JSON.stringify(req.body, null, 2))
+    
+    // Parse WhatsApp data from different providers
+    const whatsappData = parseWhatsAppWebhookData(req.body, req.headers)
+    
+    if (!whatsappData) {
+      console.error('Invalid WhatsApp data received')
+      return res.status(400).json({ error: 'Invalid WhatsApp data' })
+    }
+    
+    // Parse WhatsApp message
+    const parsedMessage = parseWhatsAppMessage(whatsappData)
+    console.log('Parsed WhatsApp message:', JSON.stringify(parsedMessage, null, 2))
+    
+    // Get all transactions from Firestore
+    const db = admin.firestore()
+    const transactionsSnapshot = await db.collection('transactions').get()
+    const transactions = transactionsSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }))
+    
+    // Match message to transaction
+    const matchedTransaction = await matchWhatsAppToTransaction(parsedMessage, transactions)
+    
+    if (!matchedTransaction) {
+      console.log('No matching transaction found. Creating log entry.')
+      
+      // Log unmatched message for manual review
+      await db.collection('unmatched_whatsapp').add({
+        ...parsedMessage,
+        receivedAt: admin.firestore.FieldValue.serverTimestamp(),
+        processed: false
+      })
+      
+      return res.json({
+        success: true,
+        message: 'WhatsApp message received but no matching transaction found. Logged for review.',
+        parsedMessage
+      })
+    }
+    
+    // Update transaction with WhatsApp data
+    const transactionRef = db.collection('transactions').doc(matchedTransaction.id)
+    const transactionData = await transactionRef.get()
+    const currentData = transactionData.data()
+    
+    // Create timeline entry
+    const timelineEntry = {
+      stage: parsedMessage.stage || currentData.currentStage || 'Unknown',
+      note: parsedMessage.note || parsedMessage.raw.body,
+      by: parsedMessage.sender.name || parsedMessage.sender.phone,
+      role: parsedMessage.sender.role,
+      ts: parsedMessage.raw.timestamp || new Date().toISOString(),
+      source: 'whatsapp',
+      messageId: whatsappData.messageId || `whatsapp-${Date.now()}`,
+      media: parsedMessage.media
+    }
+    
+    // Update transaction
+    const updates = {
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      lastWhatsAppUpdate: admin.firestore.FieldValue.serverTimestamp()
+    }
+    
+    // Update current stage if detected
+    if (parsedMessage.stage) {
+      updates.currentStage = parsedMessage.stage
+      
+      // Update stage index
+      const UK_STAGES = [
+        'Offer Accepted',
+        'Sale Details Shared',
+        'Solicitors Instructed & Compliance',
+        'Draft Contract Pack Issued',
+        'Mortgage Application & Valuation',
+        'Searches Ordered',
+        'Enquiries Raised & Responded',
+        'Mortgage Offer Issued',
+        'Report on Title & Signatures',
+        'Exchange of Contracts',
+        'Completion',
+        'Post-Completion'
+      ]
+      const stageIndex = UK_STAGES.indexOf(parsedMessage.stage)
+      if (stageIndex >= 0) {
+        updates.currentStageIndex = stageIndex
+      }
+    }
+    
+    // Add timeline entry
+    const currentTimeline = currentData.timeline || []
+    updates.timeline = [...currentTimeline, timelineEntry]
+    
+    // Update transaction
+    await transactionRef.update(updates)
+    
+    console.log(`Updated transaction ${matchedTransaction.id} with WhatsApp data`)
+    
+    // Store message for reference
+    await db.collection('transaction_whatsapp').add({
+      transactionId: matchedTransaction.id,
+      ...parsedMessage,
+      receivedAt: admin.firestore.FieldValue.serverTimestamp()
+    })
+    
+    return res.json({
+      success: true,
+      message: 'WhatsApp message processed and transaction updated',
+      transactionId: matchedTransaction.id,
+      stage: parsedMessage.stage,
+      timelineEntry
+    })
+    
+  } catch (error) {
+    console.error('Error processing WhatsApp webhook:', error)
+    return res.status(500).json({
+      error: 'Internal server error',
+      message: error.message
+    })
+  }
+})
+
+/**
+ * Parse webhook data from different WhatsApp service providers
+ */
+function parseWhatsAppWebhookData(body, headers) {
+  // Twilio WhatsApp format
+  if (body['From'] && body['Body']) {
+    return {
+      from: body['From'].replace('whatsapp:', ''),
+      to: body['To'] ? body['To'].replace('whatsapp:', '') : '',
+      body: body['Body'] || '',
+      name: body['ProfileName'] || '',
+      timestamp: body['DateSent'] || new Date().toISOString(),
+      messageId: body['MessageSid'] || body['SmsMessageSid'] || '',
+      mediaUrl: body['MediaUrl0'] || null,
+      mediaType: body['MediaContentType0'] || null
+    }
+  }
+  
+  // MessageBird format
+  if (body['message'] && body['message']['from']) {
+    const msg = body['message']
+    return {
+      from: msg['from'],
+      to: msg['to'] || '',
+      body: msg['content']?.text || msg['body'] || '',
+      name: msg['contact']?.displayName || '',
+      timestamp: msg['timestamp'] || new Date().toISOString(),
+      messageId: msg['id'] || '',
+      mediaUrl: msg['media']?.url || null,
+      mediaType: msg['media']?.contentType || null
+    }
+  }
+  
+  // Generic format
+  if (body.from || body.phone || body.sender) {
+    return {
+      from: body.from || body.phone || body.sender || '',
+      to: body.to || body.recipient || '',
+      body: body.body || body.message || body.text || '',
+      name: body.name || body.senderName || '',
+      timestamp: body.timestamp || body.date || new Date().toISOString(),
+      messageId: body.messageId || body.id || '',
+      mediaUrl: body.mediaUrl || body.media?.url || null,
+      mediaType: body.mediaType || body.media?.type || null
+    }
+  }
+  
+  return null
+}
 
 // Alternative: Direct function for testing
 exports.processEmail = functions.https.onRequest(async (req, res) => {

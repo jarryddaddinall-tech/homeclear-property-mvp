@@ -23,11 +23,11 @@ import { Add as AddIcon } from '@mui/icons-material'
 import { TransactionCardSkeleton } from '../shared/Skeletons'
 
 const UK_STAGES = [
-  'Offer Accepted',
-  'Sale details shared',
-  'Solicitors Instructed & AML/ID',
-  'Draft Contract Pack Issued',
-  'Mortgage Application & Valuation',
+  'Offer accepted',
+  'Solicitors appointed',
+  'MOS drafted and sent',
+  'AML, lending and compliance',
+  'Draft contract pack issued',
   'Searches Ordered (LA/Drainage/Env)',
   'Enquiries Raised & Responded',
   'Mortgage Offer Issued',

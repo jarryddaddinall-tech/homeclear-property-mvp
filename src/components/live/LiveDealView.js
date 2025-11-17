@@ -2,11 +2,11 @@ import React from 'react'
 import { Box, Card, CardContent, Typography, Stack, Chip, Stepper, Step, StepLabel, Button, Divider } from '@mui/material'
 
 const UK_STAGES = [
-  'Offer Accepted',
-  'Sale Details Shared',
-  'Solicitors Instructed & Compliance',
-  'Draft Contract Pack Issued',
-  'Mortgage Application & Valuation',
+  'Offer accepted',
+  'Solicitors appointed',
+  'MOS drafted and sent',
+  'AML, lending and compliance',
+  'Draft contract pack issued',
   'Searches Ordered',
   'Enquiries Raised & Responded',
   'Mortgage Offer Issued',

@@ -13,16 +13,10 @@ import {
   IconButton,
   InputAdornment,
   InputLabel,
-  List,
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
   MenuItem,
   Paper,
   Select,
   Stack,
-  Tab,
-  Tabs,
   TextField,
   ToggleButton,
   ToggleButtonGroup,
@@ -40,11 +34,11 @@ import {
 } from '@mui/icons-material'
 
 const UK_STAGES = [
-  'Offer Accepted',
-  'Sale Details Shared',
-  'Solicitors Instructed & Compliance',
-  'Draft Contract Pack Issued',
-  'Mortgage Application & Valuation',
+  'Offer accepted',
+  'Solicitors appointed',
+  'MOS drafted and sent',
+  'AML, lending and compliance',
+  'Draft contract pack issued',
   'Searches Ordered',
   'Enquiries Raised & Responded',
   'Mortgage Offer Issued',
@@ -141,19 +135,8 @@ const defaultTransaction = {
     { id: 'tsk-1', label: 'Buyer solicitor to lodge searches payment', owner: 'Buyer Solicitor', due: '9 Nov', status: 'In progress' },
     { id: 'tsk-2', label: 'Agent to upload signed TA10 form', owner: 'Agent', due: 'Today', status: 'Pending' },
     { id: 'tsk-3', label: 'Buyer to confirm mortgage offer ETA', owner: 'Buyer', due: '12 Nov', status: 'Pending' }
-  ],
-  slas: [
-    { id: 'sla-1', label: 'Solicitor last update', value: '2d ago', sla: '24h', status: 'overdue' },
-    { id: 'sla-2', label: 'Agent response time', value: '4h', sla: '6h', status: 'ok' }
-  ],
-  suggestedNextSteps: [
-    'Buyer to sign mortgage offer once issued',
-    'Solicitor to chase lender for consent to special condition',
-    'Agent to coordinate surveyor access on 11 Nov'
   ]
 }
-
-const roleFilters = ['All', 'Buyer', 'Seller', 'Agent', 'Solicitor', 'System']
 
 const statusColorMap = {
   Approved: 'success',
@@ -188,8 +171,19 @@ const formatRelative = (iso) => {
   return formatDate(iso)
 }
 
+const formatTime = (iso) => {
+  try {
+    return new Date(iso).toLocaleTimeString('en-GB', {
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  } catch {
+    return ''
+  }
+}
+
 const TimelineComposer = ({ scope, onChange, value, onPost, source, onSourceChange, actor, onActorChange }) => (
-  <Paper variant="outlined" sx={{ p: 2.5, borderRadius: 3, mb: 2 }}>
+  <Paper variant="outlined" sx={{ p: 2.5, borderRadius: 3 }}>
     <Stack spacing={2}>
       <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
         <TextField
@@ -256,19 +250,30 @@ const TimelineComposer = ({ scope, onChange, value, onPost, source, onSourceChan
 const TimelineEvent = ({ event }) => (
   <Paper variant="outlined" sx={{ p: 2.5, borderRadius: 3 }}>
     <Stack spacing={1.5}>
-      <Stack direction="row" justifyContent="space-between" alignItems="center">
+      <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
         <Stack direction="row" spacing={1} alignItems="center">
           <Avatar sx={{ width: 36, height: 36, fontWeight: 600 }}>
-            {(event.actor || '?').split(' ').map((p) => p[0]).join('').slice(0, 2)}
+            {(event.actor || '?')
+              .split(' ')
+              .map((p) => p[0])
+              .join('')
+              .slice(0, 2)}
           </Avatar>
           <Box>
-            <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>{event.actor}</Typography>
-            <Typography variant="caption" color="text.secondary">{event.actorRole}</Typography>
+            <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+              {event.actor}
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              {event.actorRole}
+              {event.source ? ` · ${event.source}` : ''}
+            </Typography>
           </Box>
         </Stack>
         <Stack direction="row" spacing={1} alignItems="center">
           <Chip label={event.badge} size="small" sx={{ fontWeight: 600, borderRadius: 1.5 }} />
-          <Typography variant="caption" color="text.secondary">{formatRelative(event.timestamp)}</Typography>
+          <Typography variant="caption" color="text.secondary">
+            {formatTime(event.timestamp) || formatRelative(event.timestamp)}
+          </Typography>
         </Stack>
       </Stack>
       <Typography variant="body2" color="text.primary" sx={{ lineHeight: 1.6 }}>
@@ -330,94 +335,17 @@ const TasksList = ({ tasks, onToggleTask }) => (
   </Stack>
 )
 
-const ParticipantsList = ({ participants }) => (
-  <List disablePadding sx={{ '& .MuiListItem-root:not(:last-of-type)': { mb: 2.5 } }}>
-    {participants.map((participant) => (
-      <ListItem key={participant.id} alignItems="flex-start" sx={{ p: 0 }}>
-        <ListItemAvatar>
-          <Avatar sx={{ bgcolor: participant.verified ? 'success.light' : 'primary.light', fontWeight: 600 }}>
-            {participant.name.split(' ').map((n) => n[0]).join('').slice(0, 2)}
-          </Avatar>
-        </ListItemAvatar>
-        <ListItemText
-          primary={
-            <Stack direction="row" spacing={1} alignItems="center">
-              <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>{participant.name}</Typography>
-              {participant.verified && (
-                <Chip label="Verified" size="small" color="success" sx={{ fontWeight: 600 }} />
-              )}
-            </Stack>
-          }
-          secondary={
-            <Stack spacing={0.5} sx={{ mt: 0.5 }}>
-              <Typography variant="body2" color="text.secondary">{participant.role}</Typography>
-              {participant.firm && (
-                <Typography variant="caption" color="text.secondary">{participant.firm}</Typography>
-              )}
-              {participant.email && (
-                <Typography variant="caption" color="text.secondary">{participant.email}</Typography>
-              )}
-              {participant.phone && (
-                <Typography variant="caption" color="text.secondary">{participant.phone}</Typography>
-              )}
-              {participant.status && (
-                <Chip label={participant.status} size="small" sx={{ width: 'fit-content', fontWeight: 600, borderRadius: 1.5 }} />
-              )}
-            </Stack>
-          }
-        />
-      </ListItem>
-    ))}
-  </List>
-)
-
-const SLASection = ({ slas }) => (
-  <Stack spacing={1.5}>
-    {slas.map((sla) => (
-      <Paper key={sla.id} variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
-        <Stack direction="row" justifyContent="space-between" alignItems="center">
-          <Box>
-            <Typography variant="body2" sx={{ fontWeight: 600 }}>{sla.label}</Typography>
-            <Typography variant="caption" color="text.secondary">SLA {sla.sla}</Typography>
-          </Box>
-          <Chip
-            label={`${sla.value}`}
-            color={sla.status === 'overdue' ? 'error' : 'success'}
-            size="small"
-            sx={{ fontWeight: 600, borderRadius: 1.5 }}
-          />
-        </Stack>
-      </Paper>
-    ))}
-  </Stack>
-)
-
-const SuggestedSteps = ({ items }) => (
-  <Stack spacing={1.5}>
-    {items.map((item, index) => (
-      <Paper key={index} variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
-        <Typography variant="body2" sx={{ fontWeight: 600 }}>{item}</Typography>
-      </Paper>
-    ))}
-  </Stack>
-)
-
 const TransactionHub = ({ transaction }) => {
   const mergedTransaction = React.useMemo(() => ({
     ...defaultTransaction,
     ...transaction,
     keyDates: transaction?.keyDates || defaultTransaction.keyDates,
-    participants: transaction?.participants || defaultTransaction.participants,
     timeline: transaction?.timeline || defaultTransaction.timeline,
     documents: transaction?.documents || defaultTransaction.documents,
-    tasks: transaction?.tasks || defaultTransaction.tasks,
-    slas: transaction?.slas || defaultTransaction.slas,
-    suggestedNextSteps: transaction?.suggestedNextSteps || defaultTransaction.suggestedNextSteps
+    tasks: transaction?.tasks || defaultTransaction.tasks
   }), [transaction])
 
   const [localData, setLocalData] = React.useState(mergedTransaction)
-  const [activeTab, setActiveTab] = React.useState(0)
-  const [activeFilter, setActiveFilter] = React.useState('All')
   const [composerValue, setComposerValue] = React.useState('')
   const [composerSource, setComposerSource] = React.useState(SOURCE_OPTIONS[0])
   const [composerActor, setComposerActor] = React.useState(() =>
@@ -429,17 +357,13 @@ const TransactionHub = ({ transaction }) => {
     setComposerActor(mergedTransaction.ownerName ? `${mergedTransaction.ownerName} (Seller)` : 'You (Seller)')
   }, [mergedTransaction])
 
+  const currentStageIndex = localData.stageIndex ?? 0
+
   const progress = React.useMemo(() => {
-    const stageProgress = ((localData.stageIndex ?? 0) + 1) / UK_STAGES.length
+    const stageProgress = (currentStageIndex + 1) / UK_STAGES.length
     const checklistProgress = localData.tasks ? localData.tasks.filter((task) => task.status && task.status.toLowerCase().includes('complete')).length / (localData.tasks.length || 1) : 0
     return Math.round(((stageProgress * 0.7) + (checklistProgress * 0.3)) * 100)
-  }, [localData.stageIndex, localData.tasks])
-
-  const filteredEvents = React.useMemo(() => {
-    if (activeFilter === 'All') return localData.timeline
-    if (activeFilter === 'System') return localData.timeline.filter((event) => event.actorRole?.toLowerCase().includes('system'))
-    return localData.timeline.filter((event) => event.actorRole && event.actorRole.toLowerCase().includes(activeFilter.toLowerCase()))
-  }, [activeFilter, localData.timeline])
+  }, [currentStageIndex, localData.tasks])
 
   const handlePostUpdate = () => {
     if (!composerValue.trim()) return
@@ -481,6 +405,7 @@ const TransactionHub = ({ transaction }) => {
           source: 'Manual note',
           badge: 'Stage update',
           content: `Moved to “${UK_STAGES[nextStageIndex]}”.`,
+          stageIndex: nextStageIndex,
           timestamp: now
         },
         ...prev.timeline
@@ -533,6 +458,53 @@ const TransactionHub = ({ transaction }) => {
     }
   }
 
+  const stageDates = React.useMemo(() => {
+    const dates = new Map()
+    const timelineAsc = [...(localData.timeline || [])]
+      .filter((event) => event.timestamp)
+      .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
+
+    timelineAsc.forEach((event) => {
+      let stageIndex = event.stageIndex
+      if (stageIndex == null && event.badge === 'Stage update') {
+        const match = event.content?.match(/“(.+)”/)
+        if (match) {
+          stageIndex = UK_STAGES.findIndex((stage) => stage === match[1])
+        }
+      }
+
+      if (stageIndex != null && stageIndex >= 0 && !dates.has(stageIndex)) {
+        dates.set(stageIndex, event.timestamp)
+      }
+    })
+
+    return dates
+  }, [localData.timeline])
+
+  const timelineDescending = React.useMemo(
+    () =>
+      [...(localData.timeline || [])]
+        .filter((event) => event.timestamp)
+        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)),
+    [localData.timeline]
+  )
+
+  const groupedTimeline = React.useMemo(() => {
+    const items = []
+    let lastDate = null
+
+    timelineDescending.forEach((event) => {
+      const eventDate = formatDate(event.timestamp)
+      if (eventDate !== lastDate) {
+        items.push({ type: 'date', id: `date-${eventDate}`, label: eventDate })
+        lastDate = eventDate
+      }
+      items.push({ type: 'event', id: event.id, event })
+    })
+
+    return items
+  }, [timelineDescending])
+
   return (
     <Box sx={{ px: { xs: 2, md: 4 }, py: { xs: 2, md: 3 } }}>
       <Stack spacing={3}>
@@ -574,165 +546,157 @@ const TransactionHub = ({ transaction }) => {
           </CardContent>
         </Card>
 
+        <SectionCard
+          title="Stage tracker"
+          action={
+            <FormControl size="small" sx={{ minWidth: 220 }}>
+              <InputLabel id="stage-select-label">Current stage</InputLabel>
+              <Select
+                labelId="stage-select-label"
+                value={currentStageIndex}
+                label="Current stage"
+                onChange={handleStageUpdate}
+              >
+                {UK_STAGES.map((stage, index) => (
+                  <MenuItem key={stage} value={index}>
+                    {stage}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          }
+          sx={{ backgroundColor: 'background.paper' }}
+        >
+          <Stack spacing={3}>
+            <Stack direction={{ xs: 'column', md: 'row' }} spacing={3} alignItems={{ xs: 'flex-start', md: 'center' }}>
+              <ProgressRingWrapper>
+                <CircularProgress variant="determinate" value={progress} size={110} thickness={5} />
+                <ProgressLabel variant="subtitle1">{progress}%</ProgressLabel>
+              </ProgressRingWrapper>
+              <Stack spacing={0.5} sx={{ flexGrow: 1 }}>
+                <Typography variant="body2" color="text.secondary">
+                  {UK_STAGES[currentStageIndex]}
+                </Typography>
+                <Typography variant="h5" sx={{ fontWeight: 700 }}>
+                  {localData.stageIndex !== undefined ? `Stage ${currentStageIndex + 1} of ${UK_STAGES.length}` : 'Track each milestone'}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Every milestone, comment, and follow-up is captured with the date it happened so nobody misses a beat.
+                </Typography>
+              </Stack>
+            </Stack>
+            <Divider />
+            <Grid container spacing={1.5}>
+              {UK_STAGES.map((stage, index) => {
+                const stageDate = stageDates.get(index)
+                const isCurrent = index === currentStageIndex
+                const isComplete = index < currentStageIndex
+                return (
+                  <Grid item xs={12} sm={6} lg={4} key={stage}>
+                    <Stack
+                      spacing={0.75}
+                      sx={{
+                        p: 1.75,
+                        border: '1px solid',
+                        borderRadius: 2,
+                        borderColor: isCurrent ? 'primary.light' : 'grey.100',
+                        bgcolor: isCurrent ? 'primary.light' : 'grey.50'
+                      }}
+                    >
+                      <Stack direction="row" spacing={1.5} alignItems="center">
+                        <Box
+                          sx={{
+                            width: 12,
+                            height: 12,
+                            borderRadius: '50%',
+                            bgcolor: isComplete || isCurrent ? 'primary.main' : 'grey.300'
+                          }}
+                        />
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontWeight: isCurrent ? 700 : 500,
+                            color: isComplete || isCurrent ? 'text.primary' : 'text.secondary'
+                          }}
+                        >
+                          {stage}
+                        </Typography>
+                      </Stack>
+                      <Typography variant="caption" color="text.secondary" sx={{ pl: 3 }}>
+                        {stageDate ? formatDate(stageDate) : index > currentStageIndex ? 'TBC' : 'In progress'}
+                      </Typography>
+                    </Stack>
+                  </Grid>
+                )
+              })}
+            </Grid>
+          </Stack>
+        </SectionCard>
+
         <Grid container spacing={{ xs: 3, lg: 4 }}>
-          {/* Left sidebar */}
-          <Grid item xs={12} md={4} lg={3}>
-            <Stack spacing={3}>
-              <SectionCard title="Stage tracker" sx={{ backgroundColor: 'background.paper' }}>
-                <Stack spacing={2}>
-                  <ProgressRingWrapper>
-                    <CircularProgress variant="determinate" value={progress} size={96} thickness={5} />
-                    <ProgressLabel variant="subtitle1">{progress}%</ProgressLabel>
-                  </ProgressRingWrapper>
-                  <Typography variant="body2" color="text.secondary">
-                    Based on stage progression and checklist completion
-                  </Typography>
-                </Stack>
-                <Divider sx={{ my: 2 }} />
-                <Stack spacing={1.5} sx={{ maxHeight: 280, overflowY: 'auto', pr: 1 }}>
-                  {UK_STAGES.map((stage, index) => (
-                    <Stack key={stage} direction="row" spacing={1.5} alignItems="center">
-                      <Box
-                        sx={{
-                          width: 10,
-                          height: 10,
-                          borderRadius: '50%',
-                          bgcolor: index <= (localData.stageIndex ?? 0) ? 'primary.main' : 'grey.300'
-                        }}
-                      />
+          <Grid item xs={12} lg={8.5}>
+            <SectionCard title="Daily timeline" sx={{ backgroundColor: 'background.paper', height: '100%' }}>
+              <Stack spacing={2.5}>
+                {groupedTimeline.length === 0 ? (
+                  <Paper variant="outlined" sx={{ p: 3, textAlign: 'center', borderRadius: 3 }}>
+                    <FilterAltRounded color="disabled" sx={{ fontSize: 32, mb: 1 }} />
+                    <Typography variant="body2" color="text.secondary">
+                      No updates recorded yet.
+                    </Typography>
+                  </Paper>
+                ) : (
+                  groupedTimeline.map((item, index) =>
+                    item.type === 'date' ? (
                       <Typography
-                        variant="body2"
-                        sx={{
-                          fontWeight: index === (localData.stageIndex ?? 0) ? 700 : 500,
-                          color: index <= (localData.stageIndex ?? 0) ? 'text.primary' : 'text.secondary'
-                        }}
+                        key={item.id}
+                        variant="overline"
+                        color="text.secondary"
+                        sx={{ letterSpacing: '0.08em', mt: index === 0 ? 0 : 1.5 }}
                       >
-                        {stage}
+                        {item.label}
+                      </Typography>
+                    ) : (
+                      <TimelineEvent key={item.id} event={item.event} />
+                    )
+                  )
+                )}
+              </Stack>
+            </SectionCard>
+          </Grid>
+
+          <Grid item xs={12} lg={3.5}>
+            <Stack spacing={3}>
+              <SectionCard title="Add update" sx={{ backgroundColor: 'background.paper' }}>
+                <TimelineComposer
+                  scope="All"
+                  value={composerValue}
+                  onChange={setComposerValue}
+                  onPost={handlePostUpdate}
+                  source={composerSource}
+                  onSourceChange={setComposerSource}
+                  actor={composerActor}
+                  onActorChange={setComposerActor}
+                />
+              </SectionCard>
+              <SectionCard title="Key dates" sx={{ backgroundColor: 'background.paper' }}>
+                <Stack spacing={2}>
+                  {localData.keyDates.map((date) => (
+                    <Stack key={date.label} direction="row" justifyContent="space-between" alignItems="center">
+                      <Typography variant="body2" color="text.secondary">
+                        {date.label}
+                      </Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                        {date.value}
                       </Typography>
                     </Stack>
                   ))}
                 </Stack>
-                <FormControl fullWidth size="small" sx={{ mt: 3 }}>
-                  <InputLabel id="stage-select-label">Update current stage</InputLabel>
-                  <Select
-                    labelId="stage-select-label"
-                    value={localData.stageIndex ?? 0}
-                    label="Update current stage"
-                    onChange={handleStageUpdate}
-                  >
-                    {UK_STAGES.map((stage, index) => (
-                      <MenuItem key={stage} value={index}>
-                        {stage}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
               </SectionCard>
-
-              <SectionCard title="Key dates" sx={{ backgroundColor: 'background.paper' }}>
-                <Stack spacing={1.5}>
-                  {localData.keyDates.map((date) => (
-                    <Stack key={date.label} direction="row" justifyContent="space-between">
-                      <Typography variant="body2" color="text.secondary">{date.label}</Typography>
-                      <Typography variant="body2" sx={{ fontWeight: 600 }}>{date.value}</Typography>
-                    </Stack>
-                  ))}
-                </Stack>
+              <SectionCard title="Documents" sx={{ backgroundColor: 'background.paper' }}>
+                <DocumentsList documents={localData.documents} />
               </SectionCard>
-            </Stack>
-          </Grid>
-
-          {/* Main content */}
-          <Grid item xs={12} md={8} lg={6}>
-            <Stack spacing={3}>
-              <Card sx={{ borderRadius: 3 }} elevation={2}>
-                <Tabs
-                  value={activeTab}
-                  onChange={(_, value) => setActiveTab(value)}
-                  variant="scrollable"
-                  scrollButtons="auto"
-                  sx={{ px: 3, pt: 2 }}
-                >
-                  <Tab label="Timeline" />
-                  <Tab label="Documents" />
-                  <Tab label="Tasks" />
-                </Tabs>
-                <Divider />
-                <CardContent sx={{ p: { xs: 2.5, md: 3 } }}>
-                  {activeTab === 0 && (
-                    <Stack spacing={2.5}>
-                      <ToggleButtonGroup
-                        value={activeFilter}
-                        exclusive
-                        onChange={(_, value) => value && setActiveFilter(value)}
-                        size="small"
-                        sx={{ alignSelf: 'flex-start', borderRadius: 2 }}
-                      >
-                        {roleFilters.map((filter) => (
-                          <ToggleButton key={filter} value={filter} sx={{ textTransform: 'none', fontWeight: 600 }}>
-                            {filter}
-                          </ToggleButton>
-                        ))}
-                      </ToggleButtonGroup>
-
-                      <TimelineComposer
-                        scope={activeFilter}
-                        value={composerValue}
-                        onChange={setComposerValue}
-                        onPost={handlePostUpdate}
-                        source={composerSource}
-                        onSourceChange={setComposerSource}
-                        actor={composerActor}
-                        onActorChange={setComposerActor}
-                      />
-
-                      <Stack spacing={2.5}>
-                        {filteredEvents.map((event) => (
-                          <TimelineEvent key={event.id} event={event} />
-                        ))}
-                        {filteredEvents.length === 0 && (
-                          <Paper variant="outlined" sx={{ p: 3, textAlign: 'center', borderRadius: 3 }}>
-                            <FilterAltRounded color="disabled" sx={{ fontSize: 32, mb: 1 }} />
-                            <Typography variant="body2" color="text.secondary">
-                              No updates for this filter yet.
-                            </Typography>
-                          </Paper>
-                        )}
-                      </Stack>
-                    </Stack>
-                  )}
-
-                  {activeTab === 1 && (
-                    <DocumentsList documents={localData.documents} />
-                  )}
-
-                  {activeTab === 2 && (
-                    <TasksList tasks={localData.tasks} onToggleTask={handleToggleTask} />
-                  )}
-                </CardContent>
-              </Card>
-
-              {localData.suggestedNextSteps?.length > 0 && (
-                <SectionCard title="Helpful reminders" sx={{ backgroundColor: 'background.paper' }}>
-                  <SuggestedSteps items={localData.suggestedNextSteps} />
-                </SectionCard>
-              )}
-            </Stack>
-          </Grid>
-
-          {/* Right sidebar */}
-          <Grid item xs={12} lg={3}>
-            <Stack spacing={3}>
-              <SectionCard title="Your team" sx={{ backgroundColor: 'background.paper' }}>
-                <ParticipantsList participants={localData.participants} />
-              </SectionCard>
-
-              <SectionCard title="Response times" sx={{ backgroundColor: 'background.paper' }}>
-                <SLASection slas={localData.slas} />
-                <Stack direction="row" spacing={1.5} sx={{ mt: 2 }}>
-                  <Button variant="outlined" fullWidth>Nudge</Button>
-                  <Button variant="outlined" fullWidth>Call</Button>
-                </Stack>
+              <SectionCard title="Tasks" sx={{ backgroundColor: 'background.paper' }}>
+                <TasksList tasks={localData.tasks} onToggleTask={handleToggleTask} />
               </SectionCard>
             </Stack>
           </Grid>

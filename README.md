@@ -22,6 +22,17 @@ npm install -g vite
 vite
 ```
 
+### iOS Companion App
+The repo now includes a starter SwiftUI shell under `ios/HomeClear/`.
+
+```bash
+# Open the iOS project
+cd ios/HomeClear
+xed .
+```
+
+From Xcode you can run the SwiftUI app in the simulator. The default screen is a placeholder—wire it up to Firebase or your API when ready.
+
 ## 📱 Features
 
 - **Dashboard** - Property purchase overview with progress tracking
