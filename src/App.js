@@ -55,7 +55,7 @@ function AppContent() {
   const allUsers = useMemo(() => (displayUser ? [displayUser] : []), [displayUser])
   const activeUser = displayUser
   const activeUserId = (activeUser?.uid || activeUser?.id || user?.uid || user?.id) || null
-  const { transactions, loading: transactionsLoading, addTransaction } = useFirestoreTransactions(activeUserId)
+  const { transactions, loading: transactionsLoading, addTransaction, updateTransaction } = useFirestoreTransactions(activeUserId)
 
   // Simple hash-based navigation so shared links can deep-link to views (e.g. #/live)
   useEffect(() => {
@@ -379,7 +379,7 @@ function AppContent() {
       )
     }
     if (currentView === 'transaction-detail') {
-      return (<TransactionHub transaction={selectedTransaction} />)
+      return (<TransactionHub transaction={selectedTransaction} updateTransaction={updateTransaction} />)
     }
     if (currentView === 'live') {
       return (<LiveDealView />)

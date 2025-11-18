@@ -17,6 +17,7 @@ import {
   TextField,
   Typography
 } from '@mui/material'
+import { CheckCircle as CheckCircleIcon } from '@mui/icons-material'
 import { Add as AddIcon } from '@mui/icons-material'
 import { TransactionCardSkeleton } from '../shared/Skeletons'
 
@@ -34,6 +35,46 @@ const UK_STAGES = [
   'Completion',
   'Post-Completion (SDLT/Land Registry)'
 ]
+
+// Custom StepIcon component
+const CustomStepIcon = (props) => {
+  const { active, completed, icon } = props
+
+  return (
+    <Box
+      sx={{
+        width: 32,
+        height: 32,
+        borderRadius: '50%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        bgcolor: completed 
+          ? 'success.main' 
+          : active 
+            ? 'warning.main' 
+            : 'grey.300',
+        color: completed || active ? 'white' : 'grey.500',
+        fontWeight: 700,
+        fontSize: '0.875rem',
+        border: completed || active ? '2px solid white' : 'none',
+        boxShadow: completed || active 
+          ? '0 2px 4px rgba(0,0,0,0.2)' 
+          : 'none',
+        position: 'relative',
+        zIndex: 1
+      }}
+    >
+      {completed ? (
+        <CheckCircleIcon sx={{ fontSize: 20 }} />
+      ) : (
+        <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '0.875rem' }}>
+          {icon}
+        </Typography>
+      )}
+    </Box>
+  )
+}
 
 const TransactionCard = ({ transaction, onOpen }) => {
   const completedSteps = transaction.stageIndex || 0
@@ -58,8 +99,8 @@ const TransactionCard = ({ transaction, onOpen }) => {
       <Box sx={{ height: 4, bgcolor: 'grey.100', position: 'relative' }}>
         <Box sx={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: `${progress}%`, bgcolor: 'primary.main', transition: 'width .3s ease', borderRadius: '0 4px 4px 0' }} />
       </Box>
-      <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
-        <Stack direction="row" justifyContent="space-between" alignItems="flex-start" sx={{ mb: 3 }}>
+      <CardContent sx={{ p: { xs: 3.5, sm: 4.5 }, pb: { xs: 3.5, sm: 4.5 } }}>
+        <Stack direction="row" justifyContent="space-between" alignItems="flex-start" sx={{ mb: 3.5 }}>
           <Box sx={{ flex: 1, minWidth: 0 }}>
             <Typography variant="h5" sx={{ fontWeight: 700, lineHeight: 1.2, mb: 0.75, color: 'text.primary' }}>
               {transaction.address || 'Unnamed transaction'}
@@ -82,37 +123,46 @@ const TransactionCard = ({ transaction, onOpen }) => {
           />
         </Stack>
 
-        <Box>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2, display: 'block', fontWeight: 500, fontSize: '0.875rem' }}>
-            Progress: {completedSteps}/{totalSteps} stages
-          </Typography>
+        <Box sx={{ overflow: 'visible' }}>
           <Stepper 
             activeStep={completedSteps} 
             alternativeLabel 
             size="small"
             sx={{
+              '& .MuiStep-root': {
+                paddingBottom: 2,
+                overflow: 'visible'
+              },
               '& .MuiStepLabel-root': {
+                overflow: 'visible',
                 '& .MuiStepLabel-label': { 
                   fontSize: { xs: '0.6875rem', sm: '0.75rem' },
                   fontWeight: 500,
                   lineHeight: 1.4,
+                  mt: 1
                 }
+              },
+              '& .MuiStepConnector-root': {
+                top: 16,
+                left: 'calc(-50% + 16px)',
+                right: 'calc(50% + 16px)',
               },
               '& .MuiStepConnector-line': {
                 borderTopWidth: 2,
                 borderColor: 'grey.200',
               },
               '& .MuiStepConnector-root.Mui-active .MuiStepConnector-line': {
-                borderColor: 'primary.main',
+                borderColor: 'warning.main',
               },
               '& .MuiStepConnector-root.Mui-completed .MuiStepConnector-line': {
-                borderColor: 'primary.main',
+                borderColor: 'success.main',
               },
             }}
           >
             {UK_STAGES.slice(0, 4).map((stage, index) => (
-              <Step key={stage}>
+              <Step key={stage} completed={index < completedSteps} active={index === completedSteps}>
                 <StepLabel 
+                  StepIconComponent={CustomStepIcon}
                   sx={{
                     '& .MuiStepLabel-label': {
                       fontWeight: index <= completedSteps ? 600 : 500,
@@ -126,7 +176,7 @@ const TransactionCard = ({ transaction, onOpen }) => {
             ))}
           </Stepper>
           {totalSteps > 4 && (
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 2, display: 'block', fontWeight: 500, fontSize: '0.875rem' }}>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 2.5, display: 'block', fontWeight: 500, fontSize: '0.875rem', textAlign: 'center' }}>
               +{totalSteps - 4} more stages
             </Typography>
           )}
@@ -206,7 +256,7 @@ const TransactionsDashboard = ({
       )}
       {!loading && hasTransactions && (
         <Stack spacing={3}>
-          <Card sx={{ borderRadius: 3, border: '1px dashed', borderColor: 'grey.300' }}>
+          <Card sx={{ borderRadius: 3, border: '1px dashed', borderColor: 'grey.300', bgcolor: 'transparent', boxShadow: 'none' }}>
             <CardActions sx={{ justifyContent: 'center', py: 2 }}>
               <Button startIcon={<AddIcon />} variant="outlined" onClick={handleOpenDialog}>
                 Add another transaction

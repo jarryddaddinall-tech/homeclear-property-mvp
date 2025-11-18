@@ -525,7 +525,7 @@ const TasksList = ({ tasks, onToggleTask }) => (
   </Stack>
 )
 
-const TransactionHub = ({ transaction }) => {
+const TransactionHub = ({ transaction, updateTransaction }) => {
   const mergedTransaction = React.useMemo(() => ({
     ...defaultTransaction,
     ...transaction,
@@ -555,90 +555,129 @@ const TransactionHub = ({ transaction }) => {
     return Math.round(((stageProgress * 0.7) + (checklistProgress * 0.3)) * 100)
   }, [currentStageIndex, localData.tasks])
 
-  const handlePostUpdate = () => {
+  const handlePostUpdate = async () => {
     if (!composerValue.trim()) return
     const now = new Date().toISOString()
     const actorRole = (composerActor || '').toLowerCase().includes('seller') ? 'Seller' : 'Update'
 
-    setLocalData((prev) => ({
-      ...prev,
+    const newTimelineEvent = {
+      id: `evt-${Date.now()}`,
+      actor: composerActor || 'You',
+      actorRole,
+      source: composerSource,
+      badge: composerSource,
+      content: composerValue.trim(),
+      timestamp: now
+    }
+
+    const updatedData = {
+      ...localData,
       lastUpdated: now,
-      timeline: [
-        {
-          id: `evt-${Date.now()}`,
-          actor: composerActor || 'You',
-          actorRole,
-          source: composerSource,
-          badge: composerSource,
-          content: composerValue.trim(),
-          timestamp: now
-        },
-        ...prev.timeline
-      ]
-    }))
+      timeline: [newTimelineEvent, ...localData.timeline]
+    }
+
+    setLocalData(updatedData)
     setComposerValue('')
+
+    // Persist to database
+    if (transaction?.id && updateTransaction) {
+      try {
+        await updateTransaction(transaction.id, {
+          timeline: updatedData.timeline,
+          lastUpdated: now
+        })
+      } catch (error) {
+        console.error('Error saving timeline update:', error)
+      }
+    }
   }
 
-  const handleStageUpdate = (event) => {
+  const handleStageUpdate = async (event) => {
     const nextStageIndex = Number(event.target.value)
     const previousStageIndex = localData.stageIndex ?? 0
     const now = new Date().toISOString()
     const completionDate = formatDate(now)
 
-    setLocalData((prev) => ({
-      ...prev,
+    const newStageEvent = {
+      id: `evt-stage-${Date.now()}`,
+      actor: localData.ownerName ? `${localData.ownerName} (Seller)` : 'Seller',
+      actorRole: 'Seller',
+      source: 'Manual note',
+      badge: 'Stage update',
+      content: `Moved to "${UK_STAGES[nextStageIndex]}" on ${completionDate}.`,
+      stageIndex: nextStageIndex,
+      previousStageIndex: previousStageIndex, // Track the completed stage
+      timestamp: now
+    }
+
+    const updatedData = {
+      ...localData,
       stageIndex: nextStageIndex,
       lastUpdated: now,
-      timeline: [
-        {
-          id: `evt-stage-${Date.now()}`,
-          actor: prev.ownerName ? `${prev.ownerName} (Seller)` : 'Seller',
-          actorRole: 'Seller',
-          source: 'Manual note',
-          badge: 'Stage update',
-          content: `Moved to "${UK_STAGES[nextStageIndex]}" on ${completionDate}.`,
+      timeline: [newStageEvent, ...localData.timeline]
+    }
+
+    setLocalData(updatedData)
+
+    // Persist to database
+    if (transaction?.id && updateTransaction) {
+      try {
+        await updateTransaction(transaction.id, {
           stageIndex: nextStageIndex,
-          previousStageIndex: previousStageIndex, // Track the completed stage
-          timestamp: now
-        },
-        ...prev.timeline
-      ]
-    }))
+          timeline: updatedData.timeline,
+          lastUpdated: now
+        })
+      } catch (error) {
+        console.error('Error saving stage update:', error)
+      }
+    }
   }
 
-  const handleToggleTask = (taskId) => {
+  const handleToggleTask = async (taskId) => {
     const now = new Date().toISOString()
-    setLocalData((prev) => {
-      let toggledTask
-      const updatedTasks = prev.tasks.map((task) => {
-        if (task.id !== taskId) return task
-        toggledTask = {
-          ...task,
-          status: task.status === 'Completed' ? 'Pending' : 'Completed'
-        }
-        return toggledTask
-      })
-
-      if (!toggledTask) return prev
-
-      return {
-        ...prev,
-        tasks: updatedTasks,
-        lastUpdated: now,
-        timeline: [
-          {
-            id: `evt-task-${taskId}-${Date.now()}`,
-            actor: prev.ownerName ? `${prev.ownerName} (Seller)` : 'Seller',
-            actorRole: 'Seller',
-            source: 'Manual note',
-            badge: toggledTask.status === 'Completed' ? 'Task done' : 'Task reopened',
-            content: `${toggledTask.label} ${toggledTask.status === 'Completed' ? 'marked complete' : 'reopened'}.`,
-            timestamp: now
-          },
-          ...prev.timeline
-        ]
+    let toggledTask
+    const updatedTasks = localData.tasks.map((task) => {
+      if (task.id !== taskId) return task
+      toggledTask = {
+        ...task,
+        status: task.status === 'Completed' ? 'Pending' : 'Completed'
       }
+      return toggledTask
     })
+
+    if (!toggledTask) return
+
+    const newTaskEvent = {
+      id: `evt-task-${taskId}-${Date.now()}`,
+      actor: localData.ownerName ? `${localData.ownerName} (Seller)` : 'Seller',
+      actorRole: 'Seller',
+      source: 'Manual note',
+      badge: toggledTask.status === 'Completed' ? 'Task done' : 'Task reopened',
+      content: `${toggledTask.label} ${toggledTask.status === 'Completed' ? 'marked complete' : 'reopened'}.`,
+      timestamp: now
+    }
+
+    const updatedData = {
+      ...localData,
+      tasks: updatedTasks,
+      lastUpdated: now,
+      timeline: [newTaskEvent, ...localData.timeline]
+    }
+
+    setLocalData(updatedData)
+
+    // Persist to database
+    if (transaction?.id && updateTransaction) {
+      try {
+        await updateTransaction(transaction.id, {
+          tasks: updatedTasks,
+          timeline: updatedData.timeline,
+          lastUpdated: now
+        })
+      } catch (error) {
+        console.error('Error saving task update:', error)
+      }
+    }
   }
 
   const handleShareLink = async () => {
