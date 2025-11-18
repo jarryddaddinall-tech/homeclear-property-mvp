@@ -23,15 +23,24 @@ vite
 ```
 
 ### iOS Companion App
-The repo now includes a starter SwiftUI shell under `ios/HomeClear/`.
+The repo now includes a starter SwiftUI shell under `ios/HomeClearApp/`.
 
 ```bash
 # Open the iOS project
-cd ios/HomeClear
+cd ios/HomeClearApp
 xed .
 ```
 
 From Xcode you can run the SwiftUI app in the simulator. The default screen is a placeholder—wire it up to Firebase or your API when ready.
+
+### Firebase tooling
+For convenience the repo ships with `src/scripts/createTestUser.js` which provisions the `mike@test.com` QA account in Firebase Authentication + Firestore. Run it once per environment:
+
+```bash
+node src/scripts/createTestUser.js
+```
+
+You can tweak the email/password in that script before running if you need different test identities.
 
 ## 📱 Features
 

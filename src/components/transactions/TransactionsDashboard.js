@@ -1,6 +1,5 @@
 import React from 'react'
 import {
-  Avatar,
   Box,
   Button,
   Card,
@@ -11,7 +10,6 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  Divider,
   Stack,
   Step,
   StepLabel,
@@ -138,39 +136,6 @@ const TransactionCard = ({ transaction, onOpen }) => {
   )
 }
 
-const WhatNext = ({ role = 'Buyer' }) => {
-  const items = role === 'Agent' ? ['Share sale details', 'Confirm viewing feedback'] : role.includes('Solicitor') ? ['Send draft pack', 'Confirm ID checks'] : ['Provide proof of funds', 'Complete ID/AML']
-  return (
-    <Card sx={{ mb: 3, borderRadius: 2 }} elevation={3}>
-      <CardContent sx={{ p: 4 }}>
-        <Typography variant="h6" sx={{ fontWeight: 700, mb: 2.5, color: 'text.primary', letterSpacing: '-0.01em' }}>
-          What's next for you
-        </Typography>
-        <Stack direction="row" spacing={1.5} flexWrap="wrap">
-          {items.slice(0,2).map((t) => (
-            <Chip 
-              key={t} 
-              label={t} 
-              size="medium" 
-              sx={{ 
-                bgcolor: 'grey.100', 
-                height: 36, 
-                borderRadius: 2, 
-                fontWeight: 500,
-                fontSize: '0.875rem',
-                px: 1.5,
-                '&:hover': {
-                  bgcolor: 'grey.200',
-                }
-              }} 
-            />
-          ))}
-        </Stack>
-      </CardContent>
-    </Card>
-  )
-}
-
 const EmptyStateCard = ({ onCreate }) => (
   <Card sx={{ borderRadius: 3, border: '1px dashed', borderColor: 'grey.300', textAlign: 'center' }}>
     <CardContent sx={{ py: 6, px: 4 }}>
@@ -234,33 +199,27 @@ const TransactionsDashboard = ({
   const hasTransactions = transactions && transactions.length > 0
 
   return (
-    <Box>
-      <WhatNext role={currentUser?.role} />
-      <Box sx={{ 
-        maxWidth: { xs: '100%', sm: 640, md: 720 },
-        width: '100%'
-      }}>
-        {loading && <TransactionCardSkeleton />}
-        {!loading && !hasTransactions && (
-          <EmptyStateCard onCreate={handleOpenDialog} />
-        )}
-        {!loading && hasTransactions && (
-          <Stack spacing={3}>
-            <Card sx={{ borderRadius: 3, border: '1px dashed', borderColor: 'grey.300' }}>
-              <CardActions sx={{ justifyContent: 'center', py: 2 }}>
-                <Button startIcon={<AddIcon />} variant="outlined" onClick={handleOpenDialog}>
-                  Add another transaction
-                </Button>
-              </CardActions>
-            </Card>
-            {transactions.map((transaction) => (
-              <Box key={transaction.id}>
-                <TransactionCard transaction={transaction} onOpen={onOpenTransaction} />
-              </Box>
-            ))}
-          </Stack>
-        )}
-      </Box>
+    <Box sx={{ maxWidth: { xs: '100%', md: 760 }, width: '100%' }}>
+      {loading && <TransactionCardSkeleton />}
+      {!loading && !hasTransactions && (
+        <EmptyStateCard onCreate={handleOpenDialog} />
+      )}
+      {!loading && hasTransactions && (
+        <Stack spacing={3}>
+          <Card sx={{ borderRadius: 3, border: '1px dashed', borderColor: 'grey.300' }}>
+            <CardActions sx={{ justifyContent: 'center', py: 2 }}>
+              <Button startIcon={<AddIcon />} variant="outlined" onClick={handleOpenDialog}>
+                Add another transaction
+              </Button>
+            </CardActions>
+          </Card>
+          {transactions.map((transaction) => (
+            <Box key={transaction.id}>
+              <TransactionCard transaction={transaction} onOpen={onOpenTransaction} />
+            </Box>
+          ))}
+        </Stack>
+      )}
 
       <Dialog open={isDialogOpen} onClose={handleCloseDialog} fullWidth maxWidth="sm">
         <DialogTitle>Add a transaction</DialogTitle>

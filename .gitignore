@@ -26,9 +26,9 @@ dist/
 Thumbs.db
 
 # iOS build artifacts
-ios/HomeClear/DerivedData/
-ios/HomeClear/*.xcworkspace/
-ios/HomeClear/Pods/
+ios/HomeClearApp/DerivedData/
+ios/HomeClearApp/*.xcworkspace/
+ios/HomeClearApp/Pods/
 
 # Logs
 *.log

@@ -10,9 +10,22 @@
 		A4807C3F2EC32DF6002772EA /* HomeClearApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HomeClearApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		A4807C552EC3331D002772EA /* Exceptions for "HomeClearApp" folder in "HomeClearApp" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = A4807C3E2EC32DF6002772EA /* HomeClearApp */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		A4807C412EC32DF7002772EA /* HomeClearApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				A4807C552EC3331D002772EA /* Exceptions for "HomeClearApp" folder in "HomeClearApp" target */,
+			);
 			path = HomeClearApp;
 			sourceTree = "<group>";
 		};
